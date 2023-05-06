@@ -9,6 +9,7 @@
 #include "al/sequence/Sequence.h"
 #include "al/sequence/SequenceInitInfo.h"
 #include "al/gamepad/util.h"
+#include "al/wipe/WipeHolder.h"
 
 #include "game/StageScene/StageScene.h"
 #include "game/WorldList/WorldResourceLoader.h"
@@ -22,7 +23,6 @@
 #include "HakoniwaStateBootLoadData.h"
 
 namespace al {
-    class WipeHolder;
     class ScreenCaptureExecutor;
     class SeadAudioPlayer;
     class AudioBusSendFader;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "al/scene/Scene.h"
+#include "al/wipe/WipeHolder.h"
 #include "game/StageScene/StageSceneLayout.h"
 #include "game/StageScene/StageSceneStatePauseMenu.h"
 
@@ -10,7 +11,6 @@ namespace al {
     struct ParabolicPath;
     struct DemoSyncedEventKeeper;
     struct ChromakeyDrawer;
-    struct WipeHolder;
 }
 
 class StageScene : public al::Scene {

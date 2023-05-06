@@ -142,4 +142,6 @@ public:
 
     static void addCoin(GameDataHolderWriter, int);
 
+    static void startDemoStage(GameDataHolderWriter, char const*);
+
 };

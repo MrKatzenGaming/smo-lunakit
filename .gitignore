@@ -43,3 +43,6 @@ imgui/backends/vulkan/generate_spv.sh
 
 # promo assets
 promo_screenshots/
+
+# builds
+SMO-LK/
