@@ -22,7 +22,6 @@
 #include "HakoniwaStateBootLoadData.h"
 
 namespace al {
-    class WipeHolder;
     class ScreenCaptureExecutor;
     class SeadAudioPlayer;
     class AudioBusSendFader;
