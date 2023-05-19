@@ -35,6 +35,7 @@
 #include "devgui/windows/StagePause/WindowStagePause.h"
 #include "devgui/windows/TAS/WindowTAS.h"
 #include "devgui/windows/WindowGroup.h"
+#include "devgui/windows/DupHotkeys/WindowDupHotkeys.h"
 
 // All tabs on the bar the top of the screen
 #include "devgui/homemenu/HomeMenuCStages.h"
@@ -66,6 +67,7 @@ void DevGuiManager::createElements() {
     createWindow<WindowFPS>(fpsWindowName, true);
     createWindow<WindowTAS>(tasWindowName, false);
     createWindow<WindowStagePause>(stagePauseWindowName, false);
+    createWindow<WindowDupHotkeys>(dupHotkeysWindowName, false);
 
     WindowGroup* memoryGroup = createWindowGroup("Memory Tools", 2);
     createWindow<WindowLoadLog>(loadLogWindowName, false, memoryGroup);
