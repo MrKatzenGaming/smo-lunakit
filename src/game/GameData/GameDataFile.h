@@ -371,6 +371,10 @@ class GameDataFile
         
         // end custom methods
         
+        unsigned char padding_30[0x30];
+        sead::FixedSafeString<128> mStartId;
+        unsigned char padding_6A8[0x6A8-0xC8];
+
         ShineInfo **mShineInfoArray;
         ShineInfo **mShineInfoArray2;
         ShineInfo *mShineInfo;
