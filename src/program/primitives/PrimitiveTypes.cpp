@@ -103,12 +103,24 @@ void PrimitiveTypeHitSensor::render()
     al::HitSensorKeeper* sensorKeeper = mActor->mHitSensorKeeper;
     if (!sensorKeeper)
         return;
+
+    bool isSpecificSensor = mSensorIdx != -1;
+    bool isDrawnSensor = false;
     
     for (int i = 0; i < sensorKeeper->mSensorNum; i++) {
+        if(isSpecificSensor) {
+            i = mSensorIdx;
+            if(isDrawnSensor)
+                return;
+        }
+
+        isDrawnSensor = true;
+
         al::HitSensor* curSensor = sensorKeeper->mSensors[i];
         if (!curSensor)
             continue;
-        if (!al::isSensorValid(curSensor))
+
+        if (!al::isSensorValid(curSensor) && !isSpecificSensor)
             continue;
 
         sead::Vector3f sensorTrans = al::getSensorPos(curSensor);
@@ -174,6 +186,9 @@ void PrimitiveTypeHitSensor::render()
             renderer->drawSphere4x8(sensorTrans, sensorRadius, mColor);
             continue;
         }
+
+        if(mSensorIdx != -1)
+            return;
     }
 }
 

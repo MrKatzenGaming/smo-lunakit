@@ -137,12 +137,13 @@ enum HitSensorRenderTypes
 
 class PrimitiveTypeHitSensor : public PrimitiveTypeBase {
 public:
-    PrimitiveTypeHitSensor(al::LiveActor* actor, HitSensorRenderTypes sensorTypes, float opacity)
+    PrimitiveTypeHitSensor(al::LiveActor* actor, HitSensorRenderTypes sensorTypes, float opacity, int sensorIdx)
         : PrimitiveTypeBase(PrimitiveTypes::PRIM_HIT_SENSOR)
     {
         mActor = actor;
         mSensorTypes = sensorTypes;
         mOpacity = opacity;
+        mSensorIdx = sensorIdx;
     }
 
     ~PrimitiveTypeHitSensor() override {}
@@ -151,6 +152,7 @@ public:
     HitSensorRenderTypes mSensorTypes = HitSensorRenderTypes::HitSensorType_NONE;
     sead::Color4f mColor;
     float mOpacity;
+    int mSensorIdx; // If this equals -1, draw all sensors!
 
     void render() override;
 };
