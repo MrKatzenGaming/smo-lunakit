@@ -71,7 +71,13 @@ public:
     
     void pushHitSensor(al::LiveActor* actor, HitSensorRenderTypes sensorTypes, float opacity)
     {   
-        auto* entry = new (mHeap) PrimitiveTypeHitSensor(actor, sensorTypes, opacity);
+        auto* entry = new (mHeap) PrimitiveTypeHitSensor(actor, sensorTypes, opacity, -1);
+        mRenderQueue.pushBack((PrimitiveTypeBase*)entry);
+    }
+
+    void pushHitSensor(al::LiveActor* actor, HitSensorRenderTypes sensorTypes, float opacity, int sensorIdx)
+    {   
+        auto* entry = new (mHeap) PrimitiveTypeHitSensor(actor, sensorTypes, opacity, sensorIdx);
         mRenderQueue.pushBack((PrimitiveTypeBase*)entry);
     }
     
