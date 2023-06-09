@@ -1,4 +1,5 @@
 #include "WindowActorBrowse.h"
+#include "al/util/SensorUtil.h"
 #include "devgui/DevGuiManager.h"
 #include "primitives/PrimitiveQueue.h"
 
@@ -33,24 +34,6 @@ void WindowActorBrowse::childActorInspector()
     ImGui::LabelText("Name", "%s", mSelectedActor->getName());
 
     ImGui::Spacing();
-
-    // if (isInStageScene() && mSelectedActor->mPoseKeeper) {
-    //     mSelectedActorTarget->actor = mSelectedActor;
-    //     if (mSelectedActor->mModelKeeper) {
-    //         sead::BoundBox3f boundbox;
-    //         sead::Vector3f center;
-    //         alModelFunction::calcBoundingBox(&boundbox, mSelectedActor->mModelKeeper->mModelCtrl);
-    //         center = boundbox.getCenter();
-    //         mSelectedActorTarget->pos = &center;
-    //     }
-        
-    //     static bool focus = false;
-    //     ImGui::Checkbox("Focus Camera", &focus);
-    //     if (focus) {
-    //         al::setCameraTarget(mSelectedActor, mSelectedActorTarget);
-    //         al::requestCancelCameraInterpole(mSelectedActor, 0);
-    //     } else al::resetCameraTarget(mSelectedActor, mSelectedActorTarget);
-    // }
     
     if(ImGui::Button("Appear")) mSelectedActor->appear();
     ImGui::SameLine();
@@ -163,7 +146,17 @@ inline void WindowActorBrowse::drawActorInspectorTreeSensor(al::HitSensorKeeper*
     if(!sensor || !isInStageScene())
         return;
 
-    mParent->getPrimitiveQueue()->pushHitSensor(mSelectedActor, mHitSensorTypes, 0.4f);
+    if(ImGui::TreeNode("Hit Sensors")) {
+        for(int i = 0; i < sensor->mSensorNum; i++) {
+            ImGui::Text("#%i: %s", i, sensor->mSensors[i]->mName);
+            if(ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("Is Valid: %s", BTOC(al::isSensorValid(sensor->mSensors[i])));
+                mParent->getPrimitiveQueue()->pushHitSensor(mSelectedActor, mHitSensorTypes, 0.4f, i);
+            }
+        }
+
+        ImGui::TreePop();
+    }
 }
 
 inline void WindowActorBrowse::drawActorInspectorTreeSubActor(al::SubActorKeeper* subActorKeep)
