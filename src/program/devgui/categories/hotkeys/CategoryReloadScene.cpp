@@ -29,11 +29,10 @@ void CategoryReloadScene::updateCat()
     return;
     }
     //get needed stuff             
-    HakoniwaSequence* gameSeq = tryGetHakoniwaSequence();
-    PlayerActorHakoniwa* player = tryGetPlayerActorHakoniwa(gameSeq);
+    PlayerActorHakoniwa* player = tryGetPlayerActorHakoniwa();
     StageScene* stageScene = tryGetStageScene();
     GameDataHolder* holder = tryGetGameDataHolder();
-    GameDataHolderAccessor* accessor = tryGetGameDataHolderAccess(gameSeq);
+    GameDataHolderAccessor* accessor = tryGetGameDataHolderAccess();
 
     //check if player exists
     if (!player)
