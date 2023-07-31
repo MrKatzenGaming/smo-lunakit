@@ -57,7 +57,7 @@ void CategoryReloadScene::updateCat()
 
         //reload stage at entrance if position reloading is disabled
         if (isKey1Pressed && isKey2Pressed && al::isPadTriggerUp(-1) && !mIsLoadPos){
-        const char* entry = accessor->mData->mGameDataFile->mStartId.cstr();
+        const char* entry = accessor->mData->mGameDataFile->mPlayerStartId.cstr();
         ChangeStageInfo info = ChangeStageInfo(holder, entry , GameDataFunction::getCurrentStageName(stageScene->mHolder), false, -1, ChangeStageInfo::SubScenarioType::UNK);
         holder->changeNextStage(&info, 0);
         }
@@ -69,7 +69,7 @@ void CategoryReloadScene::updateCat()
                         reloadStageTrans = al::getTrans(player);
                         reloadStageQuat = al::getQuat(player);
                     }
-            const char* entry = accessor->mData->mGameDataFile->mStartId.cstr();
+            const char* entry = accessor->mData->mGameDataFile->mPlayerStartId.cstr();
             ChangeStageInfo info = ChangeStageInfo(holder, "start" , GameDataFunction::getCurrentStageName(stageScene->mHolder), false, -1, ChangeStageInfo::SubScenarioType::UNK);
             holder->changeNextStage(&info, 0);
         }
