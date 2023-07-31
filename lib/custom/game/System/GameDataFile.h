@@ -370,10 +370,6 @@ class GameDataFile
         }
         
         // end custom methods
-        
-        unsigned char padding_30[0x30];
-        sead::FixedSafeString<128> mStartId;
-        unsigned char padding_6A8[0x6A8-0xC8];
 
         ShineInfo **mShineInfoArray;
         ShineInfo **mShineInfoArray2;
@@ -382,7 +378,7 @@ class GameDataFile
         void *qword20;
         int dword28;
         int dword2C;
-        sead::FixedSafeString<0x80> char30;
+        sead::FixedSafeString<0x80> mPlayerStartId;
         sead::FixedSafeString<0x80> charC8;
         sead::FixedSafeString<0x80> char160;
         sead::FixedSafeString<0x80> char1F8;
