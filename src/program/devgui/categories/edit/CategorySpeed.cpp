@@ -21,6 +21,7 @@ void CategorySpeed::updateCat()
     playerHak->mPlayerConst->mNormalMaxSpeed = 14;
     playerHak->mPlayerConst->mJumpBaseSpeedMax = 24;
     playerHak->mPlayerConst->mJumpMoveSpeedMax = 30;
+    playerHak->mPlayerConst->mSquatWalkSpeed = 3.5;
 
     if (!mIsOverride)
         return;
@@ -28,6 +29,7 @@ void CategorySpeed::updateCat()
     playerHak->mPlayerConst->mNormalMaxSpeed = mTargetSpeed;
     playerHak->mPlayerConst->mJumpBaseSpeedMax = mTargetSpeed + 50;
     playerHak->mPlayerConst->mJumpMoveSpeedMax = mTargetSpeed + 50;
+    playerHak->mPlayerConst->mSquatWalkSpeed = mTargetSpeed;
 }
 
 void CategorySpeed::updateCatDisplay()
