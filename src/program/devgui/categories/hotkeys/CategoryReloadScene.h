@@ -25,7 +25,7 @@ private:
     const char* mKey1 = "None";
     const char* mKey2 = "None";
 
-    bool mIsOverride = false;
+    bool mIsEnabled = false;
     bool mIsLoadPos = false;
 
     sead::Vector3f reloadStageTrans = sead::Vector3f::zero;
