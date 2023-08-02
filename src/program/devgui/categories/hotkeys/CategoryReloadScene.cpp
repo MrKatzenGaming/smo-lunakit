@@ -15,7 +15,7 @@ CategoryReloadScene::CategoryReloadScene(const char* catName, const char* catDes
 
 void CategoryReloadScene::updateCat()
 {
-    if(mIsEnabled) {
+    if(mIsOverride) {
 
         //check if keys are pressed
         if(mKey1 == "None") isKey1Pressed = true; if(mKey1 == "ZL") isKey1Pressed = al::isPadHoldZL(-1); if(mKey1 == "ZR") isKey1Pressed = al::isPadHoldZR(-1); if(mKey1 == "L") isKey1Pressed = al::isPadHoldL(-1); if(mKey1 == "R") isKey1Pressed = al::isPadHoldR(-1);
@@ -37,13 +37,7 @@ void CategoryReloadScene::updateCat()
     //check if player exists
     if (!player)
         return;
-    //check if stage exists
-    if(!stageScene)
-        return;
-    //check if game data exists
-    if(!holder||!accessor)
-        return;
-
+        
         //stage reload code if position reloading is enabled (has to run in a constant loop)
         if (reloadStageForPos != -1) {
         reloadStageForPos++;
@@ -87,12 +81,12 @@ void CategoryReloadScene::updateCatDisplay()
     CategoryBase::updateCatDisplay();
 
 //draw checkbox to enable/disable the hotkey
-    ImGui::Checkbox("Enable", &mIsEnabled);
+    ImGui::Checkbox("Enable", &mIsOverride);
     if(ImGui::IsItemHovered())
         ImGui::SetTooltip("Enables the hotkey\nto reload the scene");
     
 
-    if (!mIsEnabled) 
+    if (!mIsOverride) 
         return;
         
         //draw checkbox to enable/disable position reloading
