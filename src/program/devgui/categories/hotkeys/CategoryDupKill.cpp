@@ -17,7 +17,7 @@ void CategoryDupKill::updateCat()
 {
 
     
-    if(mIsOverride) {
+    if(mIsEnabled) {
 
  //check if keys are pressed
         if(mKey1 == "None") isKey1Pressed = true; if(mKey1 == "ZL") isKey1Pressed = al::isPadHoldZL(-1); if(mKey1 == "ZR") isKey1Pressed = al::isPadHoldZR(-1); if(mKey1 == "L") isKey1Pressed = al::isPadHoldL(-1); if(mKey1 == "R") isKey1Pressed = al::isPadHoldR(-1);
@@ -50,10 +50,10 @@ void CategoryDupKill::updateCatDisplay()
     CategoryBase::updateCatDisplay();
 
 //draw the checkbox to enable/disable the category
-    if(ImGui::Checkbox("Enable", &mIsOverride)){
+    if(ImGui::Checkbox("Enable", &mIsEnabled)){
     }
 
-    if (!mIsOverride) 
+    if (!mIsEnabled) 
         return;
         //draw the dropdowns for the keys
         drawDropdown("Key 1", KeyNames, mTotalKeys, &mKey1);

@@ -14,6 +14,7 @@ void CategoryJump::updateCat()
 {
     // Get the player actor and check if they are dead
     PlayerActorHakoniwa* playerHak = tryGetPlayerActorHakoniwa();
+    
     if (!playerHak)
         return;
 
