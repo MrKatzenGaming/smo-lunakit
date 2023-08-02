@@ -22,7 +22,7 @@ private:
     const char* mKey1 = "None";
     const char* mKey2 = "None";
 
-    bool mIsEnabled = false;
+    bool mIsOverride = false;
 
     bool isKey1Pressed = false;
     bool isKey2Pressed = false;
