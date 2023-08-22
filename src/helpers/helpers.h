@@ -107,5 +107,6 @@ __attribute__((used)) static const char* capNames[] = {
     "MarioSwimwear",
     "MarioTailCoat",
     "MarioTuxedo",
-    "MarioUnderwear"
+    "MarioUnderwear",
+    "MarioInvisible"
 };
