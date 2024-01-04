@@ -39,7 +39,7 @@ void CategorySpeed::updateCatDisplay()
     ImGui::Checkbox("Edit Speed", &mIsOverride);
 
     if (mIsOverride)
-        ImGui::SliderFloat("Speed", &mTargetSpeed, 0.f, 100.f);
+        ImGui::DragFloat("Speed", &mTargetSpeed, 1.f, -FLT_MAX, FLT_MAX, "%.3f");
 
     if (mIsOverride && ImGui::Button("Reset Speed"))
         mTargetSpeed = 14.0f;

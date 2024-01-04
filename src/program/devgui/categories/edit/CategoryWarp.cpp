@@ -37,6 +37,7 @@ void CategoryWarp::updateCatDisplay()
     if(ImGui::IsItemHovered())
         ImGui::SetTooltip("The index of the teleport position\nto save/load to/from");
 
+
     if(ImGui::Button("Save")) { saveTeleportData(player); }
     if(ImGui::IsItemHovered())
         ImGui::SetTooltip("Saves the current position and rotation\nof the player to the selected index");
@@ -50,6 +51,10 @@ void CategoryWarp::updateCatDisplay()
     ImGui::Checkbox("Hotkeys", &mIsUseHotkeys);
     if(ImGui::IsItemHovered())
         ImGui::SetTooltip("Enables hotkeys\nSave - D-Pad Left\nLoad - D-Pad Right");
+
+    ImGui::Checkbox("Disable Teleport Puppet",&disablePuppet);
+    if(ImGui::IsItemHovered())
+        ImGui::SetTooltip("Disables the teleport Puppet\nenabling teleporting\nwithout removing current animation");
 
     WarpSaveState& curState = mStates[mCurStateIdx];
     ImGui::Text("Saved: %s", curState.mSaved ? "true" : "false");
@@ -74,13 +79,14 @@ void CategoryWarp::loadTeleportData(PlayerActorHakoniwa* player) {
         al::setVelocityZero(hack);
         al::onCollide(hack);
     } else {
-        al::offCollide(player);
+        if (!disablePuppet) {
         player->startDemoPuppetable();
-        player->mPlayerStainControl->clearStain();
+        }
         al::setTrans(player, curState.mTrans);
         al::updatePoseQuat(player, curState.mQuat);
         al::setVelocityZero(player);
+        if (!disablePuppet) {
         player->endDemoPuppetable();
-        al::onCollide(player);
+        }
     }
 }

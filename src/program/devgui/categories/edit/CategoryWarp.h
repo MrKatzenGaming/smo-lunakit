@@ -29,4 +29,5 @@ private:
     int mCurStateIdx = 0;
 
     bool mIsUseHotkeys = false;
+    bool disablePuppet = false;
 };

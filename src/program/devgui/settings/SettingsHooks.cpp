@@ -16,10 +16,11 @@ namespace patch = exl::patch;
 namespace inst = exl::armv8::inst;
 namespace reg = exl::armv8::reg;
 
+DevGuiSettings* set = DevGuiManager::instance()->getSettings();
+
 HOOK_DEFINE_TRAMPOLINE(ControlHook) {
     static void Callback(StageScene *scene) {
         PlayerActorHakoniwa* player = tryGetPlayerActorHakoniwa(scene);
-        DevGuiSettings* set = DevGuiManager::instance()->getSettings();
 
         if(player && set->getStateByName("Infinite Cap Bounce")) {
             player->mHackCap->mCapActionHistory->clearCapJump();
@@ -48,7 +49,7 @@ HOOK_DEFINE_TRAMPOLINE(ControlHook) {
 HOOK_DEFINE_TRAMPOLINE(NoclipMovementHook) {
     static void Callback(PlayerActorHakoniwa *player) {
         static bool wasNoclipOn = false;
-        bool isNoclip = DevGuiManager::instance()->getSettings()->getStateByName("Noclip");
+        bool isNoclip = set->getStateByName("Noclip");
 
         if (!isNoclip && wasNoclipOn)
             al::onCollide(player);
@@ -105,7 +106,7 @@ HOOK_DEFINE_TRAMPOLINE(NoclipMovementHook) {
 
 HOOK_DEFINE_TRAMPOLINE(SaveHook) {
     static bool Callback(StageScene* scene) {
-        if (DevGuiManager::instance()->getSettings()->getStateByName("Autosave"))
+        if (set->getStateByName("Autosave"))
             return Orig(scene);
 
         return false;
@@ -114,7 +115,7 @@ HOOK_DEFINE_TRAMPOLINE(SaveHook) {
 
 HOOK_DEFINE_TRAMPOLINE(CheckpointWarpHook) {
     static bool Callback(void* thisPtr) {
-        if (DevGuiManager::instance()->getSettings()->getStateByName("Always Allow Checkpoints"))
+        if (set->getStateByName("Always Allow Checkpoints"))
             return true;
 
         return Orig(thisPtr);
@@ -122,15 +123,18 @@ HOOK_DEFINE_TRAMPOLINE(CheckpointWarpHook) {
 };
 HOOK_DEFINE_TRAMPOLINE(GreyShineRefreshHook) {
     static bool Callback(GameDataHolderWriter writer, ShineInfo const* shineInfo) {
-        if (DevGuiManager::instance()->getSettings()->getStateByName("Moon Refresh"))
-            return false;
-
-        return Orig(writer, shineInfo);
+         return set->getStateByName("Refresh Gray Moons") ? false : Orig(writer, shineInfo);
+    }
+};
+HOOK_DEFINE_TRAMPOLINE(ShineRefreshHook) {
+    static void Callback(GameDataHolderWriter writer, ShineInfo const* shineInfo) {
+        if (!set->getStateByName("Make Moons Re-Collectable")) 
+            Orig(writer, shineInfo);
     }
 };
 HOOK_DEFINE_TRAMPOLINE(ButtonMotionRollHook) {
     static bool Callback(void* thisPtr) {
-        if (DevGuiManager::instance()->getSettings()->getStateByName("Button Motion Roll"))
+        if (set->getStateByName("Button Motion Roll"))
             return true;
 
         return Orig(thisPtr);
@@ -139,7 +143,7 @@ HOOK_DEFINE_TRAMPOLINE(ButtonMotionRollHook) {
 
 HOOK_DEFINE_TRAMPOLINE(NoDamageHook){
     static void Callback(PlayerHitPointData* hitPointData) {
-        if (!DevGuiManager::instance()->getSettings()->getStateByName("No Damage"))
+        if (!set->getStateByName("No Damage"))
             return Orig(hitPointData);
     }
 };
@@ -151,6 +155,10 @@ void exlSetupSettingsHooks()
     SaveHook::InstallAtSymbol("_ZNK10StageScene12isEnableSaveEv");
     CheckpointWarpHook::InstallAtSymbol("_ZNK9MapLayout22isEnableCheckpointWarpEv");
     GreyShineRefreshHook::InstallAtSymbol("_ZN16GameDataFunction10isGotShineE22GameDataHolderAccessorPK9ShineInfo");
+    ShineRefreshHook::InstallAtSymbol("_ZN16GameDataFunction11setGotShineE20GameDataHolderWriterPK9ShineInfo");
     ButtonMotionRollHook::InstallAtSymbol("_ZNK23PlayerJudgeStartRolling21isTriggerRestartSwingEv");
     NoDamageHook::InstallAtSymbol("_ZN16GameDataFunction12damagePlayerE20GameDataHolderWriter");
+
+    exl::util::RwPages ShineRefreshText(exl::util::modules::GetTargetOffset(0x01832301), 24);
+        strncpy((char*)ShineRefreshText.GetRw(), "Lunakit", 24);
 }

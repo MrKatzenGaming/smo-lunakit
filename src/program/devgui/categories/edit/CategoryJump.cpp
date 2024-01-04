@@ -36,7 +36,7 @@ void CategoryJump::updateCatDisplay()
     ImGui::Checkbox("Edit Jump", &mIsOverride);
 
     if (mIsOverride)
-        ImGui::SliderFloat("Jump", &mTargetJump, 0.f, 500.f);
+        ImGui::DragFloat("Jump", &mTargetJump, 1.f, -FLT_MAX, FLT_MAX, "%.3f");
 
     if (mIsOverride && ImGui::Button("Reset Jump"))
         mTargetJump = 17.0f;

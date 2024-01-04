@@ -62,6 +62,12 @@ void CategoryHealth::updateCatDisplay()
         ImGui::SliderInt("Health", &mTargetHealth, 1, mIsExtendSlider ? 255 : 9);
     }
 
+    GameDataHolder* holder = tryGetGameDataHolder();
+
     if (isInStageScene() && ImGui::Button("Kill Player"))
         mIsKillPlayer = true;
+
+    ImGui::SameLine();
+    if (isInStageScene() && ImGui::Button("Get Life Up Heart"))
+        holder->mGameDataFile->getPlayerHitPointData()->getMaxUpItem();
 }
