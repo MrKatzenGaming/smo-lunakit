@@ -42,23 +42,19 @@ void CategoryReloadScene::updateCat()
         if (reloadStageForPos != -1) {
         reloadStageForPos++;
             if (reloadStageForPos == 11) {
-                al::offCollide(player);
                 player->startDemoPuppetable();
-                player->mPlayerStainControl->clearStain();
                 al::setTrans(player, reloadStageTrans);
                 al::updatePoseQuat(player, reloadStageQuat);
                 al::setVelocityZero(player);
                 player->endDemoPuppetable();
                 reloadStageForPos = -1;
-                al::onCollide(player);
             }
         }
 
         //reload stage at entrance if position reloading is disabled
         if (isKey1Pressed && isKey2Pressed && al::isPadTriggerUp(-1) && !mIsLoadPos){
-        const char* entry = accessor->mData->mGameDataFile->mPlayerStartId.cstr();
-        ChangeStageInfo info = ChangeStageInfo(holder, entry , GameDataFunction::getCurrentStageName(stageScene->mHolder), false, -1, ChangeStageInfo::SubScenarioType::UNK);
-        holder->changeNextStage(&info, 0);
+        StageScene* stageScene = tryGetStageScene();
+        stageScene->kill();
         }
 
         //reload stage at current position if position reloading is enabled
