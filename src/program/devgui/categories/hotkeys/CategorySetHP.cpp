@@ -40,8 +40,10 @@ void CategorySetHP::updateCat()
     if (!player)
         return;
         //kill player if enabled keys and Dpad Up are pressed
-        if (isKey1Pressed && isKey2Pressed && al::isPadTriggerUp(-1)){
+        if (isKey1Pressed && isKey2Pressed && al::isPadTriggerUp(-1) && !mIsGetLifeUp){
             mHitData->mCurrentHit = mTargetHealth;
+        } else if (isKey1Pressed && isKey2Pressed && al::isPadTriggerUp(-1) && mIsGetLifeUp){
+            mHitData->getMaxUpItem();
         }
         if (mIsOverride)
             mHitData->mIsKidsMode = mIsKidsMode;
@@ -70,6 +72,11 @@ void CategorySetHP::updateCatDisplay()
         ImGui::Checkbox("Extend", &mIsExtendSlider);
         if (ImGui::IsItemHovered())
             ImGui::SetTooltip("Allows entering higher HP\nvalues than what is possible\nin the base game");
+        
+        ImGui::SameLine();
+        ImGui::Checkbox("Life Up", &mIsGetLifeUp);
+        if (ImGui::IsItemHovered())
+        ImGui::SetTooltip("Gives you a Life Up\ninstead of setting your HP\nvalue to the one you entered");
 
         ImGui::SliderInt("Health", &mTargetHealth, 1, mIsExtendSlider ? 255 : 9);
 

@@ -30,6 +30,7 @@ private:
     bool mIsKidsMode = false;
     bool mIsExtendSlider = false;
     int mTargetHealth = 3;
+    bool mIsGetLifeUp = false;
 
     bool isKey1Pressed = false;
     bool isKey2Pressed = false;
