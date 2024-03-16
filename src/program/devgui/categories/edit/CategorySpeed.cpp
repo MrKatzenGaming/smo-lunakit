@@ -27,9 +27,9 @@ void CategorySpeed::updateCat()
         return;
 
     playerHak->mPlayerConst->mNormalMaxSpeed = mTargetSpeed;
-    playerHak->mPlayerConst->mJumpBaseSpeedMax = mTargetSpeed + 50;
-    playerHak->mPlayerConst->mJumpMoveSpeedMax = mTargetSpeed + 50;
-    playerHak->mPlayerConst->mSquatWalkSpeed = mTargetSpeed;
+    playerHak->mPlayerConst->mJumpBaseSpeedMax = mTargetSpeed * (24.0f / 14.0f);
+    playerHak->mPlayerConst->mJumpMoveSpeedMax = mTargetSpeed * (30.0f / 14.0f);
+    playerHak->mPlayerConst->mSquatWalkSpeed = mTargetSpeed * (3.5f / 14.0f);
 }
 
 void CategorySpeed::updateCatDisplay()

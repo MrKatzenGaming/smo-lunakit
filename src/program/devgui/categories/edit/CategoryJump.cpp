@@ -25,7 +25,7 @@ void CategoryJump::updateCat()
     if (!mIsOverride)
         return;
 
-    playerHak->mPlayerConst->mJumpPowerMin = mTargetJump;
+    playerHak->mPlayerConst->mJumpPowerMin = (19.5f/17.0f) * mTargetJump;
     playerHak->mPlayerConst->mJumpPowerMax = mTargetJump;
 }
 
