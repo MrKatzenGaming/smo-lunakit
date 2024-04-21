@@ -34,6 +34,7 @@
 #include "devgui/windows/Graphics/WindowGBuffer.h"
 #include "devgui/windows/Graphics/WindowPresets.h"
 #include "devgui/windows/DupHotkeys/WindowDupHotkeys.h"
+#include "devgui/windows/MoonRefresh/WindowMoonRefresh.h"
 
 // All tabs on the bar the top of the screen
 #include "devgui/homemenu/HomeMenuFile.h"
@@ -65,6 +66,7 @@ void DevGuiManager::createElements()
     createWindow<WindowActorBrowse>(actorBrowseWindowName, false);
     createWindow<WindowFPS>(fpsWindowName, true);
     createWindow<WindowDupHotkeys>(dupHotkeysWindowName, false);
+    createWindow<WindowMoonRefresh>(moonRefreshWindowName,false);
 
     WindowGroup* memoryGroup = createWindowGroup("Memory Tools", 2);
     createWindow<WindowLoadLog>(loadLogWindowName, false, memoryGroup);
