@@ -114,6 +114,21 @@ void DevGuiSaveData::read()
         }
     }
 
+    if(root.isExistKey("MoonRefresh")) {
+        al::ByamlIter moonRefresh = root.getIterByKey("MoonRefresh");
+        bool isRefreshEnabled;
+        bool isGrayRefreshEnabled;
+        moonRefresh.tryGetBoolByKey(&isRefreshEnabled, "Refresh");
+        moonRefresh.tryGetBoolByKey(&isGrayRefreshEnabled, "GrayRefresh");
+
+        WindowMoonRefresh::setIsRefreshEnabled(isRefreshEnabled);
+        WindowMoonRefresh::setIsGrayRefreshEnabled(isGrayRefreshEnabled);
+
+        const char* refreshText;
+        if(moonRefresh.tryGetStringByKey(&refreshText, "RefreshText"))
+            WindowMoonRefresh::setRefreshText((char*)refreshText);
+    }
+
     Logger::log("Successfully read save file information\n");
 }
 
@@ -195,6 +210,14 @@ nn::Result DevGuiSaveData::write()
     }
 
     file->pop();
+
+    file.pushHash("MoonRefresh");
+
+    file.addBool("Refresh", WindowMoonRefresh::getIsRefreshEnabled());
+    file.addBool("GrayRefresh", WindowMoonRefresh::getIsGrayRefreshEnabled());
+    file.addString("RefreshText", WindowMoonRefresh::getRefreshText());
+
+    file.pop();
 
     // Close inital hash and write data
     file->pop();

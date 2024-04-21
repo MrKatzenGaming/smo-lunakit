@@ -19,6 +19,7 @@
 #include "DevGuiWriteStream.h"
 
 #include "devgui/windows/ActorBrowse/WindowActorBrowse.h"
+#include "devgui/windows/MoonRefresh/WindowMoonRefresh.h"
 
 #include "vapours/results.hpp"
 

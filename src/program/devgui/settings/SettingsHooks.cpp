@@ -131,17 +131,19 @@ class ShineInfo;
 
 HOOK_DEFINE_TRAMPOLINE(GreyShineRefreshHook) {
     static bool Callback(GameDataHolderWriter writer, ShineInfo const* shineInfo) {
-         return DevGuiManager::instance()->getSettings()->getStateByName("Refresh Gray Moons")
-          ? false : Orig(writer, shineInfo);
+         if( WindowMoonRefresh::getIsGrayRefreshEnabled()) return false;
+         else return Orig(writer, shineInfo);
     }
 };
+
 HOOK_DEFINE_TRAMPOLINE(ShineRefreshHook) {
     static void Callback(GameDataHolderWriter writer, ShineInfo const* shineInfo) {
 
         exl::util::RwPages ShineRefreshText(exl::util::modules::GetTargetOffset(0x01832301), 24);
-            strncpy((char*)ShineRefreshText.GetRw(), "Lunakit", 24);
-
-        if (!DevGuiManager::instance()->getSettings()->getStateByName("Make Moons Re-Collectable")) 
+        
+        strncpy((char*)ShineRefreshText.GetRw(),WindowMoonRefresh::getRefreshText()  , 24);
+    
+        if (!WindowMoonRefresh::getIsRefreshEnabled()) 
             Orig(writer, shineInfo);
     }
 };
