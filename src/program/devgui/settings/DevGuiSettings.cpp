@@ -19,11 +19,8 @@ DevGuiSettings::DevGuiSettings(DevGuiManager* parent)
     registerNewSetting(false, true, "Infinite Cap Bounce");
     registerNewSetting(false, true, "Clear Wall Jump Limits");
     registerNewSetting(false, true, "Button Motion Roll");
-    registerNewSetting(false, true, "Moon Refresh");
     registerNewSetting(false, true, "Disable Kingdom Moon Lock");
     registerNewSetting(false, true, "Always Manually Skip Cutscenes");
-    registerNewSetting(false, true, "Make Moons Re-Collectable");
-    registerNewSetting(false, true, "Refresh Gray Moons");
     registerNewSetting(false, true, "Always Allow Checkpoints");
     registerNewSetting(true, true, "Autosave");
     registerNewSetting(true, true, "Display HUD");
