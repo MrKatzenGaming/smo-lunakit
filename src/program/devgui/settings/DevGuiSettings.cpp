@@ -22,9 +22,11 @@ DevGuiSettings::DevGuiSettings(DevGuiManager* parent)
     registerNewSetting(false, true, "Disable Kingdom Moon Lock");
     registerNewSetting(false, true, "Always Manually Skip Cutscenes");
     registerNewSetting(false, true, "Always Allow Checkpoints");
+    registerNewSetting(false, true, "Allow Loading Current File");
     registerNewSetting(true, true, "Autosave");
     registerNewSetting(true, true, "Display HUD");
     registerNewSetting(true, true, "Play Music");
+
 
     Logger::log("   Created %i settings\n", mSettings.size());
 }
