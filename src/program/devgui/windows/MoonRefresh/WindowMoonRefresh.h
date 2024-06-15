@@ -11,6 +11,7 @@ public:
 
         void updateWin() override;
         bool tryUpdateWinDisplay() override;
+        
         static bool getIsGrayRefreshEnabled() { return mIsGrayRefreshEnabled; };
         static bool getIsRefreshEnabled() { return mIsRefreshEnabled; };
         static char* getRefreshText() { return mRefreshText; };

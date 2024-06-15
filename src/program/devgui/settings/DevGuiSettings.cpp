@@ -20,9 +20,11 @@ DevGuiSettings::DevGuiSettings(DevGuiManager* parent)
     registerNewSetting(false, true, "Clear Wall Jump Limits");
     registerNewSetting(false, true, "Button Motion Roll");
     registerNewSetting(false, true, "Always Allow Checkpoints");
+    registerNewSetting(false, true, "Allow Loading Current File");
     registerNewSetting(true, true, "Autosave");
     registerNewSetting(true, true, "Display HUD");
     registerNewSetting(true, true, "Play Music");
+
 
     Logger::log("   Created %i settings\n", mSettings.size());
 }
