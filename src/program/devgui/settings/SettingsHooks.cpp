@@ -2,16 +2,10 @@
 
 #include "al/util/NerveUtil.h"
 
-#include "armv8/instructions/base.hpp"
-#include "armv8/instructions/op100x/move_wide_immediate/movk.hpp"
 #include "devgui/DevGuiManager.h"
 #include "devgui/settings/DevGuiSettings.h"
 #include "game/HakoniwaSequence/HakoniwaSequence.h"
 #include "game/Player/PlayerFunction.h"
-
-#include "patch/code_patcher.hpp"
-#include "ro.h"
-#include "rs/util.hpp"
 
 #include "helpers/GetHelper.h"
 #include "helpers/NrvFind/NrvFindHelper.h"
@@ -22,6 +16,8 @@
 namespace patch = exl::patch;
 namespace inst = exl::armv8::inst;
 namespace reg = exl::armv8::reg;
+
+void exlSetupDemoHooks();
 
 HOOK_DEFINE_TRAMPOLINE(ControlHook) {
     static void Callback(StageScene *scene) {
@@ -186,6 +182,7 @@ void exlSetupSettingsHooks()
     ButtonMotionRollHook::InstallAtSymbol("_ZNK23PlayerJudgeStartRolling21isTriggerRestartSwingEv");
     NoDamageHook::InstallAtSymbol("_ZN16GameDataFunction12damagePlayerE20GameDataHolderWriter");
     //LoadCurrentFileHook::InstallAtOffset(0x004e7f84);
+    exlSetupDemoHooks();
     patch::CodePatcher p(0x004e7f84);
     p.BranchLinkInst((void*) LoadCurrentFilePatch);
     p.WriteInst(inst::Nop());

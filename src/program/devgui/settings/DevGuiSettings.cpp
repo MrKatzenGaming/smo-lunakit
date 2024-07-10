@@ -20,6 +20,7 @@ DevGuiSettings::DevGuiSettings(DevGuiManager* parent)
     registerNewSetting(false, true, "Clear Wall Jump Limits");
     registerNewSetting(false, true, "Button Motion Roll");
     registerNewSetting(false, true, "Always Allow Checkpoints");
+    registerNewSetting(false, true, "Always Manually Skip Cutscenes");
     registerNewSetting(false, true, "Allow Loading Current File");
     registerNewSetting(true, true, "Autosave");
     registerNewSetting(true, true, "Display HUD");
