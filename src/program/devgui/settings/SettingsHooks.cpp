@@ -7,6 +7,8 @@
 #include "game/HakoniwaSequence/HakoniwaSequence.h"
 #include "game/Player/PlayerFunction.h"
 
+#include "patch/code_patcher.hpp"
+
 #include "helpers/GetHelper.h"
 #include "helpers/NrvFind/NrvFindHelper.h"
 #include "helpers/NrvFind/player/NrvPlayerActorHakoniwa.h"
