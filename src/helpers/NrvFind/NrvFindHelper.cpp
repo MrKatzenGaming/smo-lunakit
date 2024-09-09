@@ -1,18 +1,19 @@
 #include "NrvFindHelper.h"
 
-const al::Nerve* NrvFindHelper::getNerveAt(uintptr_t offset)
-{
+namespace NrvFindHelper {
+
+const al::Nerve* getNerveAt(uintptr_t offset) {
     return (const al::Nerve*)((((u64)malloc) - 0x00724b94) + offset);
 }
 
-bool NrvFindHelper::isNerveAt(al::IUseNerve* target, uintptr_t offset)
-{
+bool isNerveAt(al::LiveActor* actor, uintptr_t offset) {
     const al::Nerve* nerve = getNerveAt(offset);
-    return al::isNerve(target, nerve);
+    return al::isNerve(actor, nerve);
 }
 
-void NrvFindHelper::setNerveAt(al::IUseNerve* target, uintptr_t offset)
-{
+void setNerveAt(al::LiveActor* actor, uintptr_t offset) {
     const al::Nerve* nerve = getNerveAt(offset);
-    al::setNerve(target, nerve);
+    al::setNerve(actor, nerve);
 }
+
+} // namespace NrvFindHelper

@@ -7,12 +7,21 @@
                 "${workspaceFolder}/src/nn/**",
                 "${workspaceFolder}/src/sead/**",
                 "${workspaceFolder}/src/lib/**",
-                "${workspaceFolder}/imgui"
+                "${workspaceFolder}/imgui",
+                "/opt/devkitpro/devkitA64/aarch64-none-elf/include/c++/13.2.0",
+                "/opt/devkitpro/devkitA64/aarch64-none-elf/include/c++/13.2.0/aarch64-none-elf",
+                "/opt/devkitpro/devkitA64/aarch64-none-elf/include/**",
+                "/opt/devkitpro/devkitA64/lib/gcc/aarch64-none-elf/13.2.0/include/**",
+                "/opt/devkitpro/libnx/include/**"
             ],
-            "defines": [],
-            "compilerPath": "/opt/devkitpro/devkitA64/bin/aarch64-none-elf-g++",
-            "cStandard": "c17",
-            "cppStandard": "gnu++23",
+            "defines": [
+                "__aarch64__",
+                "EXL_LOAD_KIND=Module",
+                "EXL_LOAD_KIND_ENUM=2"
+            ],
+            "compilerPath": "/opt/devkitpro/devkitA64/bin/aarch64-none-elf-gcc",
+            "cStandard": "c11",
+            "cppStandard": "gnu++20",
             "compileCommands": "${workspaceFolder}/build/compile_commands.json"
         }
     ],

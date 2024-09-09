@@ -20,7 +20,6 @@ DevGuiSettings::DevGuiSettings(DevGuiManager* parent)
     registerNewSetting(false, true, "Clear Wall Jump Limits");
     registerNewSetting(false, true, "Button Motion Roll");
     registerNewSetting(false, true, "Disable Kingdom Moon Lock");
-    registerNewSetting(false, true, "Always Manually Skip Cutscenes");
     registerNewSetting(false, true, "Always Allow Checkpoints");
     registerNewSetting(false, true, "Always Manually Skip Cutscenes");
     registerNewSetting(false, true, "Allow Loading Current File");

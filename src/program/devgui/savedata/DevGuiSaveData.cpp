@@ -211,13 +211,13 @@ nn::Result DevGuiSaveData::write()
 
     file->pop();
 
-    file.pushHash("MoonRefresh");
+    file->pushHash("MoonRefresh");
 
-    file.addBool("Refresh", WindowMoonRefresh::getIsRefreshEnabled());
-    file.addBool("GrayRefresh", WindowMoonRefresh::getIsGrayRefreshEnabled());
-    file.addString("RefreshText", WindowMoonRefresh::getRefreshText());
+    file->addBool("Refresh", WindowMoonRefresh::getIsRefreshEnabled());
+    file->addBool("GrayRefresh", WindowMoonRefresh::getIsGrayRefreshEnabled());
+    file->addString("RefreshText", WindowMoonRefresh::getRefreshText());
 
-    file.pop();
+    file->pop();
 
     // Close inital hash and write data
     file->pop();

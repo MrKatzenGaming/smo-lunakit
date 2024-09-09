@@ -7,7 +7,7 @@
 
 #include "devgui/DevGuiManager.h"
 #include "devgui/settings/DevGuiSettings.h"
-#include "game/HakoniwaSequence/HakoniwaSequence.h"
+#include "game/Sequence/HakoniwaSequence.h"
 #include "game/Player/PlayerFunction.h"
 #include "game/Player/HackCap.h"
 

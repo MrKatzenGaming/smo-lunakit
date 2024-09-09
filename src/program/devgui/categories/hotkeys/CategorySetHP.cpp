@@ -1,10 +1,12 @@
 #include "program/devgui/categories/hotkeys/CategorySetHP.h"
 
+#include "game/System/GameDataFile.h"
 #include "helpers/GetHelper.h"
+#include "helpers/InputHelper.h"
 #include "helpers/PlayerHelper.h"
 #include "game/Player/PlayerFunction.h"
 #include "logger/Logger.hpp"
-#include "game/GameData/GameDataFunction.h"
+#include "game/System/GameDataFunction.h"
 
 #include "imgui.h"
 
@@ -20,14 +22,14 @@ void CategorySetHP::updateCat()
     if(mIsOverride) {
 
  //check if keys are pressed
-        if(mKey1 == "None") isKey1Pressed = true; if(mKey1 == "ZL") isKey1Pressed = al::isPadHoldZL(-1); if(mKey1 == "ZR") isKey1Pressed = al::isPadHoldZR(-1); if(mKey1 == "L") isKey1Pressed = al::isPadHoldL(-1); if(mKey1 == "R") isKey1Pressed = al::isPadHoldR(-1);
-        if(mKey2 == "None") isKey2Pressed = true; if(mKey2 == "ZL") isKey2Pressed = al::isPadHoldZL(-1); if(mKey2 == "ZR") isKey2Pressed = al::isPadHoldZR(-1); if(mKey2 == "L") isKey2Pressed = al::isPadHoldL(-1); if(mKey2 == "R") isKey2Pressed = al::isPadHoldR(-1);
+        if(mKey1 == "None") isKey1Pressed = true; if(mKey1 == "ZL") isKey1Pressed = InputHelper::isHoldZL(); if(mKey1 == "ZR") isKey1Pressed = InputHelper::isHoldZR(); if(mKey1 == "L") isKey1Pressed = InputHelper::isHoldL(); if(mKey1 == "R") isKey1Pressed = InputHelper::isHoldR();
+        if(mKey2 == "None") isKey2Pressed = true; if(mKey2 == "ZL") isKey2Pressed = InputHelper::isHoldZL(); if(mKey2 == "ZR") isKey2Pressed = InputHelper::isHoldZR(); if(mKey2 == "L") isKey2Pressed = InputHelper::isHoldL(); if(mKey2 == "R") isKey2Pressed = InputHelper::isHoldR();
     
     //check if only enabled keys are pressed
-    if ((al::isPadHoldZL(-1) && mKey1 != "ZL" && mKey2 != "ZL") || 
-    (al::isPadHoldZR(-1) && mKey1 != "ZR" && mKey2 != "ZR") || 
-    (al::isPadHoldL(-1) && mKey1 != "L" && mKey2 != "L") || 
-    (al::isPadHoldR(-1) && mKey1 != "R" && mKey2 != "R")) {
+    if ((InputHelper::isHoldZL() && mKey1 != "ZL" && mKey2 != "ZL") || 
+    (InputHelper::isHoldZR() && mKey1 != "ZR" && mKey2 != "ZR") || 
+    (InputHelper::isHoldL() && mKey1 != "L" && mKey2 != "L") || 
+    (InputHelper::isHoldZR() && mKey1 != "R" && mKey2 != "R")) {
     return;
     }
 
@@ -40,9 +42,9 @@ void CategorySetHP::updateCat()
     if (!player)
         return;
         //kill player if enabled keys and Dpad Up are pressed
-        if (isKey1Pressed && isKey2Pressed && al::isPadTriggerUp(-1) && !mIsGetLifeUp){
+        if (isKey1Pressed && isKey2Pressed && InputHelper::isPressPadUp() && !mIsGetLifeUp){
             mHitData->mCurrentHit = mTargetHealth;
-        } else if (isKey1Pressed && isKey2Pressed && al::isPadTriggerUp(-1) && mIsGetLifeUp){
+        } else if (isKey1Pressed && isKey2Pressed && InputHelper::isPressPadUp() && mIsGetLifeUp){
             mHitData->getMaxUpItem();
         }
         if (mIsOverride)

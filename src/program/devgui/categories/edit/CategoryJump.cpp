@@ -1,5 +1,6 @@
 #include "program/devgui/categories/edit/CategoryJump.h"
 
+#include "game/Player/PlayerConst.h"
 #include "helpers/GetHelper.h"
 
 #include "logger/Logger.hpp"
@@ -18,15 +19,15 @@ void CategoryJump::updateCat()
         return;
 
     // Reset the player's speed consts, before overriding them with new value if in use
-    playerHak->mPlayerConst->mJumpPowerMin = 17;
-    playerHak->mPlayerConst->mJumpPowerMax = 19.5;
+    playerHak->mConst->mJumpPowerMin = 17;
+    playerHak->mConst->mJumpPowerMax = 19.5;
 
 
     if (!mIsOverride)
         return;
 
-    playerHak->mPlayerConst->mJumpPowerMin = (19.5f/17.0f) * mTargetJump;
-    playerHak->mPlayerConst->mJumpPowerMax = mTargetJump;
+    playerHak->mConst->mJumpPowerMin = (19.5f/17.0f) * mTargetJump;
+    playerHak->mConst->mJumpPowerMax = mTargetJump;
 }
 
 void CategoryJump::updateCatDisplay()

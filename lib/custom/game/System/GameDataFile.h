@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "Library/Scene/IUseSceneObjHolder.h"
 #include "Library/Scene/SceneObjHolder.h"
 #include "container/seadPtrArray.h"
 #include "prim/seadSafeString.h"
