@@ -5,13 +5,10 @@
 #include "al/util/NerveUtil.h"
 #include "Library/LiveActor/ActorPoseKeeper.h"
 
-#include "devgui/DevGuiManager.h"
-#include "devgui/settings/DevGuiSettings.h"
-#include "game/Sequence/HakoniwaSequence.h"
 #include "game/Player/PlayerFunction.h"
 #include "game/Player/HackCap.h"
 
-#include "patch/code_patcher.hpp"
+#include "rs/util.hpp"
 
 #include "helpers/GetHelper.h"
 #include "helpers/NrvFind/NrvFindHelper.h"
@@ -199,14 +196,10 @@ void exlSetupSettingsHooks()
     SaveHook::InstallAtSymbol("_ZNK10StageScene12isEnableSaveEv");
     CheckpointWarpHook::InstallAtSymbol("_ZNK9MapLayout22isEnableCheckpointWarpEv");
     GreyShineRefreshHook::InstallAtSymbol("_ZN16GameDataFunction10isGotShineE22GameDataHolderAccessorPK9ShineInfo");
+    ShineRefreshHook::InstallAtSymbol("_ZN16GameDataFunction11setGotShineE20GameDataHolderWriterPK9ShineInfo");
     DisableMoonLockHook::InstallAtSymbol("_ZNK14GameDataHolder18findUnlockShineNumEPbi");
     ButtonMotionRollHook::InstallAtSymbol("_ZNK23PlayerJudgeStartRolling21isTriggerRestartSwingEv");
     NoDamageHook::InstallAtSymbol("_ZN16GameDataFunction12damagePlayerE20GameDataHolderWriter");
-    exlSetupDemoHooks();
-    ShineRefreshHook::InstallAtSymbol("_ZN16GameDataFunction11setGotShineE20GameDataHolderWriterPK9ShineInfo");
-    ButtonMotionRollHook::InstallAtSymbol("_ZNK23PlayerJudgeStartRolling21isTriggerRestartSwingEv");
-    NoDamageHook::InstallAtSymbol("_ZN16GameDataFunction12damagePlayerE20GameDataHolderWriter");
-    //LoadCurrentFileHook::InstallAtOffset(0x004e7f84);
     exlSetupDemoHooks();
     patch::CodePatcher p(0x004e7f84);
     p.BranchLinkInst((void*) LoadCurrentFilePatch);

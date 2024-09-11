@@ -28,7 +28,7 @@ void CategoryDupKill::updateCat()
     if ((InputHelper::isHoldZL() && mKey1 != "ZL" && mKey2 != "ZL") || 
     (InputHelper::isHoldZR() && mKey1 != "ZR" && mKey2 != "ZR") || 
     (InputHelper::isHoldL() && mKey1 != "L" && mKey2 != "L") || 
-    (InputHelper::isHoldZR() && mKey1 != "R" && mKey2 != "R")) {
+    (InputHelper::isHoldR() && mKey1 != "R" && mKey2 != "R")) {
     return;
     }
 
