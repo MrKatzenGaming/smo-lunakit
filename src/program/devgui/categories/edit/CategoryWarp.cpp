@@ -73,7 +73,7 @@ void CategoryWarp::saveTeleportData(PlayerActorHakoniwa* player) {
 
 void CategoryWarp::loadTeleportData(PlayerActorHakoniwa* player) {
     WarpSaveState& curState = mStates[mCurStateIdx];
-    al::LiveActor* hack = player->mHackKeeper->currentHackActor;
+    al::LiveActor* hack = player->mHackKeeper->mCurrentHackActor;
 
     if (hack) {
         al::offCollide(hack);

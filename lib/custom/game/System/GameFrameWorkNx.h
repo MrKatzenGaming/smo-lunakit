@@ -3,7 +3,7 @@
 #include "al/debug/GpuPerf.h"
 #include "agl/common/aglDrawContext.h"
 #include "agl/common/aglRenderBuffer.h"
-#include "sead/framework/seadGameFrameworkNx.h"
+#include "sead/framework/nx/seadGameFrameworkNx.h"
 #include "Library/HostIO/HioNode.h"
 
 namespace al

@@ -6,7 +6,7 @@
 #include "al/area/AreaObjGroup.h"
 #include "Library/Area/AreaObjDirector.h"
 #include "Library/Area/AreaObjUtil.h"
-#include "Library/Base/String.h"
+#include "Library/Base/StringUtil.h"
 #include "Library/HitSensor/HitSensorKeeper.h"
 #include "Project/HitSensor/HitSensor.h"
 

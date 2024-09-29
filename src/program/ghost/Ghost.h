@@ -6,7 +6,7 @@
 #include "Library/Scene/Scene.h"
 #include "al/util/NerveUtil.h"
 #include "devgui/savedata/DevGuiWriteStream.h"
-#include "nn/fs/fs_types.hpp"
+#include "nn/fs/fs_types.h"
 #include "game/Player/PlayerActorHakoniwa.h"
 #include "heap/seadHeap.h"
 #include "vapours/results.hpp"

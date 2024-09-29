@@ -4,12 +4,14 @@
     Head to src/program/devgui/DevGuiManager.h to get started!
 */
 
-#include "nn/fs/fs_directories.hpp"
-#include "nn/fs/fs_files.hpp"
-#include "nn/fs/fs_mount.hpp"
-#include "nn/fs/fs_types.hpp"
+#include "nn/fs/fs_directories.h"
+#include "nn/fs/fs_files.h"
+#include "nn/fs/fs_mount.h"
+#include "nn/fs/fs_types.h"
 #include "imgui_backend/imgui_impl_nvn.hpp"
 #include "lib.hpp"
+
+#include <gfx/nvn/seadDebugFontMgrNvn.h>
 
 #include "logger/LoadLogger.hpp"
 #include "logger/Logger.hpp"

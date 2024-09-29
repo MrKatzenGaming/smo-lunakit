@@ -13,9 +13,11 @@
 
 #pragma once
 
+#include <basis/seadTypes.h>
+
 #include "Library/Yaml/ByamlIter.h"
 
-#include "nn/fs/fs_directories.hpp"
+#include "nn/fs/fs_directories.h"
 
 #include "sead/container/seadPtrArray.h"
 
@@ -53,7 +55,7 @@ public:
 
 private:
     al::ByamlIter mIter;
-    uint mCatSize = -1;
+    u32 mCatSize = -1;
     const char* mCatName = "null";
     const char* mCatDesc = "null";
 };

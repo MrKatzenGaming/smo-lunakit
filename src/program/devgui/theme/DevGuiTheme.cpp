@@ -9,7 +9,7 @@
 #include "sead/heap/seadHeapMgr.h"
 #include "sead/filedevice/seadFileDeviceMgr.h"
 
-#include "nn/fs/fs_files.hpp"
+#include "nn/fs/fs_files.h"
 #include "vapours/results.hpp"
 #include "nn/init.h"
 

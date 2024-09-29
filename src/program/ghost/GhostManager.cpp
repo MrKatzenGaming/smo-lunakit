@@ -6,10 +6,10 @@
 #include "game/Player/PlayerAnimator.h"
 #include "helpers/GetHelper.h"
 #include "helpers/fsHelper.h"
-#include "nn/fs/fs_directories.hpp"
-#include "nn/fs/fs_files.hpp"
-#include "nn/fs/fs_mount.hpp"
-#include "nn/fs/fs_types.hpp"
+#include "nn/fs/fs_directories.h"
+#include "nn/fs/fs_files.h"
+#include "nn/fs/fs_mount.h"
+#include "nn/fs/fs_types.h"
 #include "logger/Logger.hpp"
 #include "smo-tas/TAS.h"
 #include <heap/seadHeapMgr.h>
@@ -107,13 +107,13 @@ void GhostManager::tryStartReplay() {
         if (!mActiveReplays[i])
             continue;
         nn::fs::DirectoryEntry& curEntry = mEntries[i];
-        sead::FormatFixedSafeString<256> scriptPath(REPLAY_SAVEPATH "/%s", curEntry.m_Name);
+        sead::FormatFixedSafeString<256> scriptPath(REPLAY_SAVEPATH "/%s", curEntry.mName);
         nn::fs::FileHandle handle;
         nn::Result r = nn::fs::OpenFile(&handle, scriptPath.cstr(), nn::fs::OpenMode::OpenMode_Read);
         if (r.IsFailure())
             continue;
-        auto* frames = (ReplayFrame*)new u8[curEntry.m_FileSize];
-        r = nn::fs::ReadFile(handle, 0, frames, curEntry.m_FileSize);
+        auto* frames = (ReplayFrame*)new u8[curEntry.mFileSize];
+        r = nn::fs::ReadFile(handle, 0, frames, curEntry.mFileSize);
         nn::fs::CloseFile(handle);
         if (r.IsFailure()) {
             delete[] frames;
@@ -121,7 +121,7 @@ void GhostManager::tryStartReplay() {
         }
         if (!ghosts.at(ghostIdx))
             Logger::log("Current Ghost is null!\n");
-        ghosts.at(ghostIdx++)->startReplay(frames, curEntry.m_FileSize / sizeof(ReplayFrame));
+        ghosts.at(ghostIdx++)->startReplay(frames, curEntry.mFileSize / sizeof(ReplayFrame));
     }
 }
 
@@ -148,7 +148,7 @@ void GhostManager::exeRecord() {
         return;
     }
     Logger::log("    TAS is still running!\n");
-    sead::SafeString pAnim = mPlayer->mAnimator->curAnim;
+    sead::SafeString pAnim = mPlayer->mAnimator->mCurAnim;
     Logger::log("    Player Animation: %s\n", pAnim.cstr());
     const char* capAnim = al::getActionName(mPlayer->mHackCap);
     Logger::log("    Cap Anim: %s\n", capAnim);

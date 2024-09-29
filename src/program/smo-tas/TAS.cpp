@@ -9,8 +9,8 @@
 #include "al/util/OtherUtil.h"
 #include "devgui/DevGuiManager.h"
 #include "filedevice/seadFileDeviceMgr.h"
-#include "nn/fs/fs_directories.hpp"
-#include "nn/fs/fs_files.hpp"
+#include "nn/fs/fs_directories.h"
+#include "nn/fs/fs_files.h"
 #include "game/Util/ControllerAppletFunction.h"
 #include "game/Scene/StageScene.h"
 #include "game/System/GameSystem.h"
@@ -83,20 +83,20 @@ bool TAS::tryLoadScript() {
     updateDir();
     bool isEntryExist = false;
     for (int i = 0; i < mEntryCount; i++) {
-        if (al::isEqualString(mEntries[i].m_Name, mLoadedEntry.m_Name)) {
+        if (al::isEqualString(mEntries[i].mName, mLoadedEntry.mName)) {
             mLoadedEntry = mEntries[i];
             isEntryExist = true;
         }
     }
     if (!isEntryExist)
         return false;
-    sead::FormatFixedSafeString<256> scriptPath(TAS_SCRIPTPATH "/%s", mLoadedEntry.m_Name);
+    sead::FormatFixedSafeString<256> scriptPath(TAS_SCRIPTPATH "/%s", mLoadedEntry.mName);
     nn::fs::FileHandle handle;
     nn::Result r = nn::fs::OpenFile(&handle, scriptPath.cstr(), nn::fs::OpenMode::OpenMode_Read);
     if (r.IsFailure())
         return false;
-    mScript = (Script*)new u8[mLoadedEntry.m_FileSize];
-    r = nn::fs::ReadFile(handle, 0, mScript, mLoadedEntry.m_FileSize);
+    mScript = (Script*)new u8[mLoadedEntry.mFileSize];
+    r = nn::fs::ReadFile(handle, 0, mScript, mLoadedEntry.mFileSize);
     nn::fs::CloseFile(handle);
     if (r.IsFailure()) {
         endScript();

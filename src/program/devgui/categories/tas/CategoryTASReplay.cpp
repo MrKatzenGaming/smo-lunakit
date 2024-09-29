@@ -1,6 +1,6 @@
 #include "CategoryTASReplay.h"
 #include "devgui/DevGuiManager.h"
-#include "nn/fs/fs_types.hpp"
+#include "nn/fs/fs_types.h"
 #include "game/Scene/StageScene.h"
 #include "ghost/GhostManager.h"
 #include "imgui.h"
@@ -41,7 +41,7 @@ void CategoryTASReplay::updateCatDisplay() {
             isDisabled = true;
         }
         bool isSelected = activeReplays[i];
-        ImGui::Checkbox(entries[i].m_Name, &isSelected);
+        ImGui::Checkbox(entries[i].mName, &isSelected);
         if (isSelected != activeReplays[i]) {
             activeReplays[i] = isSelected;
             mSelectedReplays += isSelected ? 1 : -1;

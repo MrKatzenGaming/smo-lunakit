@@ -10,7 +10,7 @@
 #include "al/model/ModelMaterialCategory.h"
 #include "al/model/PartsModel.h"
 #include "al/model/ModelKeeper.h"
-#include "Library/Base/String.h"
+#include "Library/Base/StringUtil.h"
 #include "al/util.hpp"
 #include "al/util/LiveActorUtil.h"
 #include "al/util/ResourceUtil.h"
@@ -225,7 +225,7 @@ bool PuppetActor::isNeedBlending()
 
 al::LiveActor* PuppetActor::getCurrentModel()
 {
-    return mModelHolder->currentModel->mLiveActor;
+    return mModelHolder->mCurrentModel->mLiveActor;
 }
 
 void PuppetActor::changeModel(const char* newModel)

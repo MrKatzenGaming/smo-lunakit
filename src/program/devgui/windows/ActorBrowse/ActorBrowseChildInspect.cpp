@@ -5,7 +5,7 @@
 #include "Library/LiveActor/ActorPoseKeeper.h"
 #include "Library/LiveActor/SubActorKeeper.h"
 #include <Library/Nerve/NerveStateCtrl.h>
-#include "Library/Base/String.h"
+#include "Library/Base/StringUtil.h"
 #include "Library/Nerve/NerveKeeper.h"
 #include "Library/Rail/RailRider.h"
 
