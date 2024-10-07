@@ -77,7 +77,7 @@ set(CMAKE_PREFIX_PATH ${PORTLIBS} CACHE PATH "Find libraries in the portlibs dir
 set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS FALSE)
 
 add_definitions(-DSWITCH -D__SWITCH__ -D__RTLD_6XX__)
-
+                                                    #-mtp=soft
 set(ARCH "-march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fpic -fvisibility=default")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -Wall -O3 -ffunction-sections -fdata-sections ${ARCH}" CACHE STRING "C flags")
