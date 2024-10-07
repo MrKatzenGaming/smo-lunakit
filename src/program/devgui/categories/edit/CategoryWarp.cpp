@@ -81,15 +81,12 @@ void CategoryWarp::loadTeleportData(PlayerActorHakoniwa* player) {
         al::setVelocityZero(hack);
         al::onCollide(hack);
     } else {
-        if (!disablePuppet) {
-            player->startDemoPuppetable();
-            player->mStainControl->clearStain();
-            al::setTrans(player, curState.mTrans);
-            al::updatePoseQuat(player, curState.mQuat);
-            al::setVelocityZero(player);
-            if (!disablePuppet) {
-                player->endDemoPuppetable();
-            }
+        if (!disablePuppet) {player->startDemoPuppetable();}
+        player->mStainControl->clearStain();
+        al::setTrans(player, curState.mTrans);
+        al::updatePoseQuat(player, curState.mQuat);
+        al::setVelocityZero(player);
+        if (!disablePuppet) {player->endDemoPuppetable();}
         }
-    }
 }
+
