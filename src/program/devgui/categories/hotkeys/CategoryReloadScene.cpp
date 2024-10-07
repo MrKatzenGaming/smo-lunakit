@@ -65,26 +65,30 @@ void CategoryReloadScene::updateCat()
 
             StageScene* scene = tryGetStageScene();
 
-            if (!scene->getNerveKeeper()->mStateCtrl)
-            return;
+            if (!scene->getNerveKeeper()->mStateCtrl) return;
+
             al::NerveKeeper* sceneNerveKeeper = scene->getNerveKeeper();
             const al::Nerve* sceneNerve = sceneNerveKeeper->getCurrentNerve();
             al::NerveStateCtrl::State* state = scene->getNerveKeeper()->mStateCtrl->findStateInfo(sceneNerve);
-            const al::Nerve* stateNerve = state->state->getNerveKeeper()->getCurrentNerve();
-            int status;
-            char* sceneName = abi::__cxa_demangle(typeid(*scene).name(), nullptr, nullptr, &status);
-            char* stateName = abi::__cxa_demangle(typeid(*state->state).name(), nullptr, nullptr, &status);
-            char* stateNrvName = abi::__cxa_demangle(typeid(*stateNerve).name(), nullptr, nullptr, &status);
-            char* sceneNerveName = abi::__cxa_demangle(typeid(*sceneNerve).name(), nullptr, nullptr, &status);
-            auto prefixLen = sceneNerveName[0] == '(' ? strlen("(anonymous namespace)::") : 0;
-            char* stateNrvNameShort = stateNrvName + strlen("(anonymous namespace)::") + strlen(stateName) + strlen("nrv");
-            char* sceneNerveNameShort = sceneNerveName + prefixLen + strlen(sceneName) + strlen("nrv");
-            //strcmp(stateNrvName, "(anonymous namespace)::StageSceneStateTalkNrvSkipDemo")
-            if (strcmp(stateNrvNameShort, "SkipDemo") == 0 || strcmp(stateNrvNameShort, "Skip") == 0 || strcmp(sceneNerveNameShort, "Pause") == 0) {
-                return;
+            if (state) {
+                const al::Nerve* stateNerve = state->state->getNerveKeeper()->getCurrentNerve();
+                int status;
+                char* sceneName = abi::__cxa_demangle(typeid(*scene).name(), nullptr, nullptr, &status);
+                char* stateName = abi::__cxa_demangle(typeid(*state->state).name(), nullptr, nullptr, &status);
+                if (stateName && sceneName){
+                    char* stateNrvName = abi::__cxa_demangle(typeid(*stateNerve).name(), nullptr, nullptr, &status);
+                    char* sceneNerveName = abi::__cxa_demangle(typeid(*sceneNerve).name(), nullptr, nullptr, &status);
+                    if (stateNrvName && sceneNerveName){
+                        auto prefixLen = sceneNerveName[0] == '(' ? strlen("(anonymous namespace)::") : 0;
+                        char* stateNrvNameShort = stateNrvName + strlen("(anonymous namespace)::") + strlen(stateName) + strlen("nrv");
+                        char* sceneNerveNameShort = sceneNerveName + prefixLen + strlen(sceneName) + strlen("nrv");
+                        //strcmp(stateNrvName, "(anonymous namespace)::StageSceneStateTalkNrvSkipDemo")
+                        if (strcmp(stateNrvNameShort, "SkipDemo") == 0 || strcmp(stateNrvNameShort, "Skip") == 0 || strcmp(sceneNerveNameShort, "Pause") == 0) return;
+                    }
+                }
             }
-
         scene->kill();
+        
         }
 
         //reload stage at current position if position reloading is enabled
