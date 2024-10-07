@@ -176,11 +176,13 @@ void CategoryInfPlayer::updateCatDisplay()
 
     ImGui::DragFloat3("Camera Pos", &cameraPos.x, 50.f, -0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
     ImGui::DragFloat3("Camera At", &cameraAt.x, 50.f, -0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
-    ImGui::DragFloat3("Camera Up", &cameraUp.x, 50.f, -0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
+    //ImGui::DragFloat3("Camera Up", &cameraUp.x, 50.f, -0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
 
     float verticalCamAngle = DEG(atan2f(diff.y, sqrtf(diff.x * diff.x + diff.z * diff.z)));
     float horizontalCamAngle = DEG(atan2f(diff.z, diff.x));
     float camHAngle = atan2f(diff.z, diff.x);
+    if (camHAngle < 0)
+        camHAngle += M_PI * 2;
 
     ImGui::DragFloat("Vertical Cam Angle", &verticalCamAngle, 1.f, 0.f, 90.f, format, ImGuiSliderFlags_NoInput);
     ImGui::DragFloat("Horizontal Cam Angle", &horizontalCamAngle, 1.f, 0.f, 90.f, format, ImGuiSliderFlags_NoInput);
@@ -190,7 +192,8 @@ void CategoryInfPlayer::updateCatDisplay()
         relAngleVel += M_PI * 2;
     relAngleVel = -relAngleVel + M_PI*2; // invert to conform normal anti-clockwise angle system
 
-    ImGui::DragFloat("Rel Vel Angle", &relAngleVel, 1.f, 0.f, 360.f, format, ImGuiSliderFlags_NoInput);
+    float relVelAngleDeg = DEG(relAngleVel);
+    ImGui::DragFloat("Rel Vel Angle", &relVelAngleDeg, 1.f, 0.f, 360.f, format, ImGuiSliderFlags_NoInput);
 
     //sead::Vector3f kidsPos = playerHak->mRecoverySafetyPoint->mSafetyPointPos;
     //ImGui::InputFloat3("Assist Pos", &kidsPos.x, "%.00f", ImGuiInputTextFlags_ReadOnly);
