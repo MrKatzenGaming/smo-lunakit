@@ -65,7 +65,8 @@ void CategoryReloadScene::updateCat()
 
             StageScene* scene = tryGetStageScene();
 
-            if (!scene->getNerveKeeper()->mStateCtrl) return;
+            if (!scene->getNerveKeeper()->mStateCtrl)
+            return;
 
             al::NerveKeeper* sceneNerveKeeper = scene->getNerveKeeper();
             const al::Nerve* sceneNerve = sceneNerveKeeper->getCurrentNerve();
@@ -83,7 +84,8 @@ void CategoryReloadScene::updateCat()
                         char* stateNrvNameShort = stateNrvName + strlen("(anonymous namespace)::") + strlen(stateName) + strlen("nrv");
                         char* sceneNerveNameShort = sceneNerveName + prefixLen + strlen(sceneName) + strlen("nrv");
                         //strcmp(stateNrvName, "(anonymous namespace)::StageSceneStateTalkNrvSkipDemo")
-                        if (strcmp(stateNrvNameShort, "SkipDemo") == 0 || strcmp(stateNrvNameShort, "Skip") == 0 || strcmp(sceneNerveNameShort, "Pause") == 0) return;
+                        if (strcmp(stateNrvNameShort, "SkipDemo") == 0 || strcmp(stateNrvNameShort, "Skip") == 0 || strcmp(sceneNerveNameShort, "Pause") == 0)
+                        return;
                     }
                 }
             }
