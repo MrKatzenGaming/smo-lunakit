@@ -14,7 +14,7 @@ public:
 
 private:
     void drawActorInspectorTreePose(PlayerActorHakoniwa* player);
-    sead::Vector3f QuatToEuler(sead::Quatf* quat);
+    sead::Vector3f QuatToEuler(sead::Quatf *quat);
     int sliderValue = 2;
     char format[16];
 };
