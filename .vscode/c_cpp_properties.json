@@ -9,17 +9,14 @@
                 "${workspaceFolder}/lib/smo/NintendoSDK/vapours/**",
                 "${workspaceFolder}/lib/exlaunch/**",
                 "${workspaceFolder}/lib/smo/**",
-                "${workspaceFolder}/lib/smo/sead/**",
-                "/opt/devkitpro/devkitA64/aarch64-none-elf/include/c++/14.2.0/**",
-                "/opt/devkitpro/devkitA64/aarch64-none-elf/include/c++/14.2.0/aarch64-none-elf/**",
-                "/opt/devkitpro/devkitA64/aarch64-none-elf/include/c++/14.2.0/bits/**"
+                "${workspaceFolder}/lib/smo/sead/**"
             ],
             "defines": [],
             "compilerPath": "/opt/devkitpro/devkitA64/bin/aarch64-none-elf-g++",
             "cStandard": "c23",
             "cppStandard": "gnu++23",
             "compileCommands": "${workspaceFolder}/build/compile_commands.json",
-            "intelliSenseMode": "clang-x64"
+            "intelliSenseMode": "linux-clang-x64"
         }
     ],
     "version": 4
