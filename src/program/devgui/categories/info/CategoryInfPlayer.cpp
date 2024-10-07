@@ -16,6 +16,12 @@
 #include "imgui.h"
 
 #include <cxxabi.h>
+#include <helpers/ImGuiHelper.h>
+#include <Library/LiveActor/ActorMovementFunction.h>
+#include "Library/LiveActor/ActorPoseKeeper.h"
+#include <gfx/seadCamera.h>
+#include "al/util/GraphicsUtil.h"
+#include "logger/Logger.hpp"
 
 CategoryInfPlayer::CategoryInfPlayer(const char* catName, const char* catDesc, sead::Heap* heap)
     : CategoryBase(catName, catDesc, heap) {}
@@ -28,6 +34,13 @@ void CategoryInfPlayer::updateCatDisplay()
         ImGui::Text("Player does not exist!");
         return;
     }
+
+    /*
+        Precision Slider
+    */
+
+    ImGui::SliderInt("Precision", &sliderValue, 0, 10);
+    snprintf(format, sizeof(format), "%%.%df", static_cast<int>(sliderValue));
 
     /*
         // GENERIC BOOLEAN INFO
@@ -100,6 +113,88 @@ void CategoryInfPlayer::updateCatDisplay()
     ImGui::Text("Anim: %s (%.00f/%.00f)", anim->mCurAnim.cstr(), anim->getAnimFrame(), anim->getAnimFrameMax());
     ImGui::Text("Sub Anim: %s (%.00f/%.00f)", anim->mCurSubAnim.cstr(), anim->getSubAnimFrame(), anim->getSubAnimFrameMax());
 
-    sead::Vector3f kidsPos = playerHak->mRecoverySafetyPoint->mSafetyPointPos;
-    ImGui::InputFloat3("Assist Pos", &kidsPos.x, "%.00f", ImGuiInputTextFlags_ReadOnly);
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+    if (!playerHak)
+        return;
+
+    al::ActorPoseKeeperBase* pose = playerHak->mPoseKeeper;
+    StageScene* stageScene = tryGetStageScene();
+
+    if(!pose)
+        return;
+
+    float hSpeed = al::calcSpeedH(playerHak), vSpeed = al::calcSpeedV(playerHak), speed = al::calcSpeed(playerHak);
+    float hSpeedAngle = atan2f(pose->getVelocityPtr()->z, pose->getVelocityPtr()->x);
+    if (hSpeedAngle < 0)
+        hSpeedAngle += M_PI * 2;
+        
+    float hSpeedAngleDeg = DEG(hSpeedAngle);
+
+    static sead::Vector3f prevPlayerVel = { 0.0f, 0.0f, 0.0f };
+    sead::Vector3f playerVelDelta = pose->getVelocity() - prevPlayerVel;
+
+    ImGui::DragFloat3("Trans", &pose->mTrans.x, 50.f, 0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
+    Logger::log("Trans");
+    ImGui::DragFloat3("Velocity", &pose->getVelocityPtr()->x, 1.f, 0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
+    Logger::log("Velocity");
+    ImGui::DragFloat3("Vel Delta", &playerVelDelta.x, 1.f, 0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
+    Logger::log("Vel Delta");
+
+    ImGui::DragFloat("Vel Angle", &hSpeedAngleDeg, 1.f, 0.f, 360.f, format, ImGuiSliderFlags_NoInput);
+    Logger::log("Vel Angle");
+    prevPlayerVel = pose->getVelocity();
+    ImGuiHelper::Quat("Player Quaternion", pose->getQuatPtr());
+    Logger::log("Player Quaternion");
+
+    sead::LookAtCamera* camera = al::getLookAtCamera(stageScene, 0);
+
+    sead::Vector3f cameraPos = camera->mPos;
+    sead::Vector3f cameraAt = camera->mAt;
+    sead::Vector3f cameraUp = camera->mUp;
+    sead::Vector3f diff = cameraAt - cameraPos;
+
+    ImGui::DragFloat3("Camera Pos", &cameraPos.x, 50.f, -0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
+    ImGui::DragFloat3("Camera At", &cameraAt.x, 50.f, -0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
+    ImGui::DragFloat3("Camera Up", &cameraUp.x, 50.f, -0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
+
+    float verticalCamAngle = DEG(atan2f(diff.y, sqrtf(diff.x * diff.x + diff.z * diff.z)));
+    float horizontalCamAngle = DEG(atan2f(diff.z, diff.x));
+    float camHAngle = atan2f(diff.z, diff.x);
+
+    ImGui::DragFloat("Vertical Cam Angle", &verticalCamAngle, 1.f, 0.f, 90.f, format, ImGuiSliderFlags_NoInput);
+    ImGui::DragFloat("Horizontal Cam Angle", &horizontalCamAngle, 1.f, 0.f, 90.f, format, ImGuiSliderFlags_NoInput);
+
+    float relAngleVel = hSpeedAngle - camHAngle - (M_PI / 2); // offset to move 0 to the right
+    if (relAngleVel < 0)
+        relAngleVel += M_PI * 2;
+    relAngleVel = -relAngleVel + M_PI*2; // invert to conform normal anti-clockwise angle system
+
+    ImGui::DragFloat("Rel Vel Angle", &relAngleVel, 1.f, 0.f, 360.f, format, ImGuiSliderFlags_NoInput);
+
+    //sead::Vector3f kidsPos = playerHak->mRecoverySafetyPoint->mSafetyPointPos;
+    //ImGui::InputFloat3("Assist Pos", &kidsPos.x, "%.00f", ImGuiInputTextFlags_ReadOnly);
+}
+
+
+sead::Vector3f QuatToEuler(sead::Quatf *quat) {
+
+    f32 x = quat->z;
+    f32 y = quat->y;
+    f32 z = quat->x;
+    f32 w = quat->w;
+
+    f32 t0 = 2.0 * (w * x + y * z);
+    f32 t1 = 1.0 - 2.0 * (x * x + y * y);
+    f32 roll = atan2f(t0, t1);
+
+    f32 t2 = 2.0 * (w * y - z * x);
+    t2 = t2 > 1.0 ? 1.0 : t2;
+    t2 = t2 < -1.0 ? -1.0 : t2;
+    f32 pitch = asinf(t2);
+
+    f32 t3 = 2.0 * (w * z + x * y);
+    f32 t4 = 1.0 - 2.0 * (y * y + z * z);
+    f32 yaw = atan2f(t3, t4);
+
+    return sead::Vector3f(yaw, pitch, roll);
 }
