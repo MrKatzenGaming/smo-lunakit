@@ -4,21 +4,21 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/lib/**",
-                "${workspaceFolder}/lib/custom/nn/**",
-                "${workspaceFolder}/lib/smo/NintemdoSDK/nn/**",
-                "${workspaceFolder}/lib/custom/sead/**",
+                "${workspaceFolder}/lib/smo/NintendoSDK/nn/**",
+                "${workspaceFolder}/lib/smo/NintendoSDK/nvn/**",
+                "${workspaceFolder}/lib/smo/NintendoSDK/vapours/**",
+                "${workspaceFolder}/lib/exlaunch/**",
+                "${workspaceFolder}/lib/smo/**",
                 "${workspaceFolder}/lib/smo/sead/**",
-                "${workspaceFolder}/imgui",
-                "/opt/devkitpro/devkitA64/aarch64-none-elf/include/c++/14.2.0",
-                "/opt/devkitpro/devkitA64/aarch64-none-elf/include/c++/14.2.0/aarch64-none-elf",
-                "/opt/devkitpro/devkitA64/aarch64-none-elf/include/c++/14.2.0/aarch64-none-elf/bits",
-                "/usr/include/**"
+                "/opt/devkitpro/devkitA64/aarch64-none-elf/include/c++/14.2.0/**",
+                "/opt/devkitpro/devkitA64/aarch64-none-elf/include/c++/14.2.0/aarch64-none-elf/**",
+                "/opt/devkitpro/devkitA64/aarch64-none-elf/include/c++/14.2.0/bits/**"
             ],
             "defines": [],
-            "compilerPath": "/opt/devkitpro/devkitA64/bin/aarch64-none-elf-gcc",
-            "cStandard": "c17",
+            "compilerPath": "/opt/devkitpro/devkitA64/bin/aarch64-none-elf-g++",
+            "cStandard": "c23",
             "cppStandard": "gnu++23",
-            "compileCommands": "/home/kassu/smo-lunakit/compile_commands.json",
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json",
             "intelliSenseMode": "clang-x64"
         }
     ],
