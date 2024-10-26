@@ -2,14 +2,14 @@ name: CMake Compile Test
 on:
   push:
     branches:
-    - stable
-    - dev
-    - merge-monster
+      - stable
+      - dev
+      - merge-monster
   pull_request:
     branches:
-    - stable
-    - dev
-    - merge-monster
+      - stable
+      - dev
+      - merge-monster
   workflow_dispatch:
   
 env:
@@ -26,23 +26,89 @@ jobs:
     # Use a container with Devkitpro already setup
     container: pixelkiri/devkitpro-alpine-switch:latest
     steps:
-    - name: Setup Checkout and Submodules
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
+      - name: Setup Checkout and Submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
     
-    - name: Setup CMake
-      uses: jwlawson/actions-setup-cmake@v2
-      with:
-        cmake-version: '3.26.x'
-    
-    - name: Build LunaKit
-      run: cmake -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain.cmake -S . -B build && make -C build subsdk9_meta -j4
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '3.26.x'
 
-    - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-artifacts
-        path: |
-          build/main.npdm
-          build/subsdk9
+      - name: install dependencies
+        run: |
+          sudo apk add zip
+    
+      - name: Build LunaKit
+        run: cmake -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain.cmake -S . -B build && make -C build subsdk9_meta -j4
+
+      - name: Create Zip File
+        run: |
+          mkdir -p atmosphere/contents/0100000000010000/exefs
+          mv build/main.npdm atmosphere/contents/0100000000010000/exefs/
+          mv build/subsdk9 atmosphere/contents/0100000000010000/exefs/
+          zip -r SMO-LK.zip atmosphere/contents/0100000000010000/exefs LunaKit
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: SMO-LK.zip
+
+      - name: Get Latest Tag
+        id: get_latest_tag
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const latestTag = await github.rest.repos.listTags({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 1,
+              sort: 'created',
+              direction: 'desc'
+            }).then(({ data }) => data.length > 0 ? data[0].name : '0.0.0');
+            console.log(`Latest tag: ${latestTag}`);
+            core.setOutput('latest_tag', latestTag);
+
+      - name: Increment Version
+        id: increment_version
+        run: |
+          latest_tag="${{ steps.get_latest_tag.outputs.latest_tag }}"
+          echo "Latest tag: $latest_tag"
+          major=$(echo "$latest_tag" | awk -F. '{print $1}')
+          minor=$(echo "$latest_tag" | awk -F. '{print $2}')
+          patch=$(echo "$latest_tag" | awk -F. '{print $3}')
+          new_patch=$((patch + 1))
+          new_version="$major.$minor.$new_patch"
+          echo "New version: $new_version"
+          echo "new_version=$new_version" >> $GITHUB_ENV
+
+      - name: Create Tag
+        run: |
+          git config --global --add safe.directory /__w/smo-lunakit/smo-lunakit
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git tag ${{ env.new_version }}
+          git push origin ${{ env.new_version }}
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.new_version }}
+          release_name: Release ${{ env.new_version }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset - SMO-LK.zip
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: SMO-LK.zip
+          asset_name: SMO-LK.zip
+          asset_content_type: application/zip
