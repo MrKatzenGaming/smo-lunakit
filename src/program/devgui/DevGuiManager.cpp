@@ -37,6 +37,7 @@
 #include "devgui/windows/WindowGroup.h"
 #include "devgui/windows/DupHotkeys/WindowDupHotkeys.h"
 #include "devgui/windows/MoonRefresh/WindowMoonRefresh.h"
+#include "devgui/windows/TASTools/WindowTASTools.h"
 
 // All tabs on the bar the top of the screen
 #include "devgui/homemenu/HomeMenuCStages.h"
@@ -70,6 +71,7 @@ void DevGuiManager::createElements() {
     createWindow<WindowStagePause>(stagePauseWindowName, false);
     createWindow<WindowDupHotkeys>(dupHotkeysWindowName, false);
     createWindow<WindowMoonRefresh>(moonRefreshWindowName,false);
+    createWindow<WindowTASTools>(tasToolsWindowName, false);
 
     WindowGroup* memoryGroup = createWindowGroup("Memory Tools", 2);
     createWindow<WindowLoadLog>(loadLogWindowName, false, memoryGroup);

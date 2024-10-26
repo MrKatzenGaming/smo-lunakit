@@ -3,20 +3,16 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/lib/**",
-                "${workspaceFolder}/lib/smo/NintendoSDK/nn/**",
-                "${workspaceFolder}/lib/smo/NintendoSDK/nvn/**",
-                "${workspaceFolder}/lib/smo/NintendoSDK/vapours/**",
-                "${workspaceFolder}/lib/exlaunch/**",
-                "${workspaceFolder}/lib/smo/**",
-                "${workspaceFolder}/lib/smo/sead/**"
+                "${workspaceFolder}/src/**",
+                "${workspaceFolder}/src/nn/**",
+                "${workspaceFolder}/src/sead/**",
+                "${workspaceFolder}/src/lib/**"
             ],
             "defines": [],
             "compilerPath": "/opt/devkitpro/devkitA64/bin/aarch64-none-elf-g++",
-            "cStandard": "c23",
+            "cStandard": "c17",
             "cppStandard": "gnu++23",
-            "compileCommands": "${workspaceFolder}/build/compile_commands.json",
-            "intelliSenseMode": "linux-clang-x64"
+            "compileCommands": "${workspaceFolder}/compile_commands.json"
         }
     ],
     "version": 4
