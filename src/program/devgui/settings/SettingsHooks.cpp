@@ -8,6 +8,7 @@
 #include "game/Player/PlayerFunction.h"
 #include "game/Player/HackCap.h"
 
+#include "hook/trampoline.hpp"
 #include "rs/util.hpp"
 
 #include "helpers/GetHelper.h"
@@ -15,6 +16,7 @@
 #include "helpers/NrvFind/player/NrvPlayerActorHakoniwa.h"
 
 #include "logger/Logger.hpp"
+#include "smo-tas/TAS.h"
 
 void exlSetupDemoHooks();
 
@@ -177,6 +179,15 @@ HOOK_DEFINE_TRAMPOLINE(NoDamageHook){
     }
 };
 
+HOOK_DEFINE_TRAMPOLINE(TasProConMotionHook) {
+    static uint Callback(int param1) {
+        if (TAS::instance()->isRunning())
+            return 1;
+
+        return Orig(param1);
+    }
+};
+
 void LoadCurrentFilePatch()
 {   
     __asm ("LDR W20, [X8, #0x3C]");
@@ -187,7 +198,7 @@ void LoadCurrentFilePatch()
     if (!holder)
         return;
 
-    s32 fileId = DevGuiManager::instance()->getSettings()->getStateByName("Allow Loading Current File") ? 0 : holder->getPlayingFileId();
+    s32 fileId = DevGuiManager::instance()->getSettings()->getStateByName("Allow Loading Current File") ? -1 : holder->getPlayingFileId();
 
     if (!fileId)
         return;
@@ -206,6 +217,7 @@ void exlSetupSettingsHooks()
     DisableMoonLockHook::InstallAtSymbol("_ZNK14GameDataHolder18findUnlockShineNumEPbi");
     ButtonMotionRollHook::InstallAtSymbol("_ZNK23PlayerJudgeStartRolling21isTriggerRestartSwingEv");
     NoDamageHook::InstallAtSymbol("_ZN16GameDataFunction12damagePlayerE20GameDataHolderWriter");
+    TasProConMotionHook::InstallAtSymbol("_ZN2al27getPadAccelerationDeviceNumEi");
     exlSetupDemoHooks();
     patch::CodePatcher p(0x004e7f84);
     p.BranchLinkInst((void*) LoadCurrentFilePatch);

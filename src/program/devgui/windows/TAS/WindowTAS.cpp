@@ -46,7 +46,7 @@ bool WindowTAS::tryUpdateWinDisplay() {
     }
 
     if (tas->isRunning())
-        ImGui::Text("TAS is running (%d/%d)", tas->getFrameIndex(), tas->getFrameCount());
+        ImGui::Text("TAS is running (%d/%d)", tas->getFrameIndex()/2/*Hacky fix*/, tas->getFrameCount()/2/*Hacky fix*/);
     else
         ImGui::Text("TAS is not running.");
 
