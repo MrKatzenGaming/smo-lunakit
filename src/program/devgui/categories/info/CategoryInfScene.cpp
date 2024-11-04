@@ -4,6 +4,7 @@
 #include "Library/Nerve/NerveKeeper.h"
 #include "Library/Nerve/NerveStateCtrl.h"
 
+#include "game/System/GameDataFile.h"
 #include "helpers/GetHelper.h"
 
 #include "imgui.h"
@@ -27,6 +28,7 @@ void CategoryInfScene::updateCatDisplay() {
 
     ImGui::Text("Name: %s", sequence->stageName.cstr());
     ImGui::Text("Scenario: %u", sequence->scenarioNum);
+    ImGui::Text("Entrance: %s", sequence->mGameDataHolder.mData->mGameDataFile->mPlayerStartId.cstr());
 
     int status;
     al::NerveKeeper* sceneNerveKeeper = scene->getNerveKeeper();
