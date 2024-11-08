@@ -21,4 +21,5 @@ public:
     bool tryAdvanceFrame();
     bool tryPauseScene();
     bool tryUnpauseScene();
+    bool getStagePaused() { return mIsStagePaused; }
 };
