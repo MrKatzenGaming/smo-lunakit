@@ -179,15 +179,6 @@ HOOK_DEFINE_TRAMPOLINE(NoDamageHook){
     }
 };
 
-HOOK_DEFINE_TRAMPOLINE(TasProConMotionHook) {
-    static uint Callback(int param1) {
-        if (TAS::instance()->isRunning())
-            return 1;
-
-        return Orig(param1);
-    }
-};
-
 void LoadCurrentFilePatch()
 {   
     __asm ("LDR W20, [X8, #0x3C]");
@@ -217,7 +208,6 @@ void exlSetupSettingsHooks()
     DisableMoonLockHook::InstallAtSymbol("_ZNK14GameDataHolder18findUnlockShineNumEPbi");
     ButtonMotionRollHook::InstallAtSymbol("_ZNK23PlayerJudgeStartRolling21isTriggerRestartSwingEv");
     NoDamageHook::InstallAtSymbol("_ZN16GameDataFunction12damagePlayerE20GameDataHolderWriter");
-    TasProConMotionHook::InstallAtSymbol("_ZN2al27getPadAccelerationDeviceNumEi");
     exlSetupDemoHooks();
     patch::CodePatcher p(0x004e7f84);
     p.BranchLinkInst((void*) LoadCurrentFilePatch);
