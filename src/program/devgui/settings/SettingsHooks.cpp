@@ -186,13 +186,7 @@ void LoadCurrentFilePatch()
     GameDataHolder* holder;
     __asm ("MOV %[result], X0" : [result] "=r" (holder));
 
-    if (!holder)
-        return;
-
-    s32 fileId = DevGuiManager::instance()->getSettings()->getStateByName("Allow Loading Current File") ? -1 : holder->getPlayingFileId();
-
-    if (!fileId)
-        return;
+    s32 fileId = DevGuiManager::instance()->getSettings()->getStateByName("Allow Loading Current File") ? 5 : holder->getPlayingFileId();
 
     __asm ("MOV X0, %[input]" : [input] "=r" (fileId));
 }
