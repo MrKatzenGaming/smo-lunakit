@@ -125,82 +125,67 @@ void CategoryInfPlayer::updateCatDisplay()
 
     float hSpeed = al::calcSpeedH(playerHak), vSpeed = al::calcSpeedV(playerHak), speed = al::calcSpeed(playerHak);
     float hSpeedAngle = atan2f(pose->getVelocityPtr()->z, pose->getVelocityPtr()->x);
-    if (hSpeedAngle < 0)
-        hSpeedAngle += M_PI * 2;
-        
+    if (hSpeedAngle < 0) hSpeedAngle += M_PI * 2;
     float hSpeedAngleDeg = DEG(hSpeedAngle);
 
     static sead::Vector3f prevPlayerVel = { 0.0f, 0.0f, 0.0f };
     sead::Vector3f playerVelDelta = pose->getVelocity() - prevPlayerVel;
+    
+    prevPlayerVel = pose->getVelocity();
+    sead::Vector3f playerRot = QuatToEuler(pose->getQuatPtr());
+
+    sead::LookAtCamera* camera = al::getLookAtCamera(stageScene, 0);
+    sead::Vector3f cameraPos = camera->mPos;
+    sead::Vector3f cameraAt = camera->mAt;
+    sead::Vector3f cameraUp = camera->mUp;
+    sead::Vector3f camDiff = cameraAt - cameraPos;
+
+    float verticalCamAngle = DEG(atan2f(camDiff.y, sqrtf(camDiff.x * camDiff.x + camDiff.z * camDiff.z)));
+    float horizontalCamAngle = DEG(atan2f(camDiff.z, camDiff.x));
+    float camHAngle = atan2f(camDiff.z, camDiff.x);
+    if (camHAngle < 0) camHAngle += M_PI * 2;
+
+    float relAngleVel = hSpeedAngle - camHAngle - (M_PI / 2); // offset to move 0 to the right
+    if (relAngleVel < 0) relAngleVel += M_PI * 2;
+    relAngleVel = -relAngleVel + M_PI*2; // invert to conform normal anti-clockwise angle system
+
+    float relVelAngleDeg = DEG(relAngleVel);
 
     ImGui::DragFloat3("Trans", &pose->mTrans.x, 50.f, 0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
     ImGui::DragFloat3("Velocity", &pose->getVelocityPtr()->x, 1.f, 0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
     ImGui::DragFloat3("Vel Delta", &playerVelDelta.x, 1.f, 0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
-
-    ImGui::DragFloat("Vel Angle", &hSpeedAngleDeg, 1.f, 0.f, 360.f, format, ImGuiSliderFlags_NoInput);
-    prevPlayerVel = pose->getVelocity();
-    ImGuiHelper::Quat("Player Quaternion", pose->getQuatPtr());
     
-    if (pose->getQuatPtr() != nullptr){
-        f32 x = pose->getQuatPtr()->z;
-        f32 y = pose->getQuatPtr()->y;
-        f32 z = pose->getQuatPtr()->x;
-        f32 w = pose->getQuatPtr()->w;
+    snprintf(textBuffer, sizeof(textBuffer), "Speed H: %s", format);
+    ImGui::Text(textBuffer, hSpeed);
+    ImGui::SameLine();
+    snprintf(textBuffer, sizeof(textBuffer), "V: %s", format);
+    ImGui::Text(textBuffer, vSpeed);
+    ImGui::SameLine();
+    snprintf(textBuffer, sizeof(textBuffer), "S: %s", format);
+    ImGui::Text(textBuffer, speed);
 
-        // Compute Euler angles
-        f32 t0 = 2.0f * (w * x + y * z);
-        f32 t1 = 1.0f - 2.0f * (x * x + y * y);
-        f32 roll = atan2f(t0, t1);
+    snprintf(textBuffer, sizeof(textBuffer), "H Speed Angle: %s", format);
+    ImGui::Text(textBuffer, hSpeedAngleDeg);
 
-        f32 t2 = 2.0f * (w * y - z * x);
-        t2 = t2 > 1.0f ? 1.0f : t2;
-        t2 = t2 < -1.0f ? -1.0f : t2;
-        f32 pitch = asinf(t2);
-
-        f32 t3 = 2.0f * (w * z + x * y);
-        f32 t4 = 1.0f - 2.0f * (y * y + z * z);
-        f32 yaw = atan2f(t3, t4);
-
-        sead::Vector3f playerEulerAngles = {yaw, pitch, roll};
-
-        sead::Vector3f playerRot = sead::Vector3f(DEG(playerEulerAngles.x), DEG(playerEulerAngles.y), DEG(playerEulerAngles.z));
-        ImGui::DragFloat3("Euler", &playerRot.x, 1.f, -1.f, 1.f, format, ImGuiSliderFlags_NoRoundToFormat);
-        }
-
-    sead::LookAtCamera* camera = al::getLookAtCamera(stageScene, 0);
-
-    sead::Vector3f cameraPos = camera->mPos;
-    sead::Vector3f cameraAt = camera->mAt;
-    sead::Vector3f cameraUp = camera->mUp;
-    sead::Vector3f diff = cameraAt - cameraPos;
-
+    ImGuiHelper::Quat("Player Quaternion", pose->getQuatPtr());
+    ImGui::DragFloat3("Euler", &playerRot.x, 1.f, -1.f, 1.f, format, ImGuiSliderFlags_NoRoundToFormat);
     ImGui::DragFloat3("Camera Pos", &cameraPos.x, 50.f, -0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
     ImGui::DragFloat3("Camera At", &cameraAt.x, 50.f, -0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
     //ImGui::DragFloat3("Camera Up", &cameraUp.x, 50.f, -0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
-
-    float verticalCamAngle = DEG(atan2f(diff.y, sqrtf(diff.x * diff.x + diff.z * diff.z)));
-    float horizontalCamAngle = DEG(atan2f(diff.z, diff.x));
-    float camHAngle = atan2f(diff.z, diff.x);
-    if (camHAngle < 0)
-        camHAngle += M_PI * 2;
-
-    ImGui::DragFloat("Vertical Cam Angle", &verticalCamAngle, 1.f, 0.f, 90.f, format, ImGuiSliderFlags_NoInput);
-    ImGui::DragFloat("Horizontal Cam Angle", &horizontalCamAngle, 1.f, 0.f, 90.f, format, ImGuiSliderFlags_NoInput);
-
-    float relAngleVel = hSpeedAngle - camHAngle - (M_PI / 2); // offset to move 0 to the right
-    if (relAngleVel < 0)
-        relAngleVel += M_PI * 2;
-    relAngleVel = -relAngleVel + M_PI*2; // invert to conform normal anti-clockwise angle system
-
-    float relVelAngleDeg = DEG(relAngleVel);
-    ImGui::DragFloat("Rel Vel Angle", &relVelAngleDeg, 1.f, 0.f, 360.f, format, ImGuiSliderFlags_NoInput);
+    snprintf(textBuffer, sizeof(textBuffer), "Cam Angle V: %s", format);
+    ImGui::Text(textBuffer, verticalCamAngle);
+    ImGui::SameLine();
+    snprintf(textBuffer, sizeof(textBuffer), "H: %s", format);
+    ImGui::Text(textBuffer, horizontalCamAngle);
+    snprintf(textBuffer, sizeof(textBuffer), "Rel. Vel. Angle: %s", format);
+    ImGui::Text(textBuffer, relVelAngleDeg);
 
     //sead::Vector3f kidsPos = playerHak->mRecoverySafetyPoint->mSafetyPointPos;
     //ImGui::InputFloat3("Assist Pos", &kidsPos.x, "%.00f", ImGuiInputTextFlags_ReadOnly);
 }
 
 
-sead::Vector3f QuatToEuler(const sead::Quatf* quat) {
+sead::Vector3f CategoryInfPlayer::QuatToEuler(sead::Quatf* quat) {
     // Check for null pointer
     if (!quat) {
         // Handle the error, e.g., return a default value or log an error

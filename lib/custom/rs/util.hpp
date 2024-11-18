@@ -71,5 +71,9 @@ namespace rs
     void calcPlayerFrontDir(sead::Vector3f* result, al::LiveActor const*);
 
     PlayerActorBase *getPlayerActor(al::Scene const *);
+
+    int getPlayerJumpCount(GameDataHolder const*);
+    int getPlayerThrowCapCount(GameDataHolder const*);
+    int getTotalCoinNum(GameDataHolder const*);
     
 }

@@ -3,6 +3,7 @@
 #include <sead/prim/seadSafeString.h>
 #include "game/System/GameDataHolderAccessor.h"
 #include "Library/Resource/Resource.h"
+#include "Library/Resource/ActorResourceHolder.h"
 
 namespace al {
 
