@@ -4,8 +4,8 @@
 
 #include "sead/heap/seadDisposer.h"
 
-#define GIT_API_PATH "https://api.github.com/repos/Amethyst-szs/smo-lunakit/releases/latest"
-#define GIT_RELEASE_PATH "https://github.com/Amethyst-szs/smo-lunakit/releases/latest/download"
+#define GIT_API_PATH "https://api.github.com/repos/MrKatzenGaming/smo-lunakit/releases/latest"
+#define GIT_RELEASE_PATH "https://github.com/MrKatzenGaming-szs/smo-lunakit/releases/latest/download"
 
 #define SUBSDK_PATH "sd:/atmosphere/contents/0100000000010000/exefs/subsdk9"
 #define NPDM_PATH "sd:/atmosphere/contents/0100000000010000/exefs/main.npdm"
