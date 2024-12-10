@@ -53,7 +53,7 @@ void HomeMenuExtra::updateMenuDisplay()
         }
     }
 
-    if(ImGui::MenuItem("Check for Updates (SWITCH ONLY)"))
+    if(ImGui::MenuItem("Check for Updates (SWITCH ONLY)", NULL, false, false))
         UpdateHandler::instance()->checkForUpdates();
 
     if(!mIsLoggerDisabled && ImGui::MenuItem("Disable Logger")) {
