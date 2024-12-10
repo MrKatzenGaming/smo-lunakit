@@ -145,7 +145,7 @@ HOOK_DEFINE_TRAMPOLINE(ShineRefreshHook) {
 
         exl::util::RwPages ShineRefreshText(exl::util::modules::GetTargetOffset(0x01832301), 24);
         
-        strncpy((char*)ShineRefreshText.GetRw(),WindowMoonRefresh::getRefreshText()  , 24);
+        strncpy((char*)ShineRefreshText.GetRw(),WindowMoonRefresh::getRefreshText() , strlen(WindowMoonRefresh::getRefreshText())+1);
     
         if (!WindowMoonRefresh::getIsRefreshEnabled()) 
             Orig(writer, shineInfo);

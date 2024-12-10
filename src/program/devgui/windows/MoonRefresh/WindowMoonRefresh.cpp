@@ -41,7 +41,7 @@ bool WindowMoonRefresh::tryUpdateWinDisplay()
         if (ImGui::IsItemHovered())
             ImGui::SetTooltip("The text that will be displayed when a moon is collected.");
         if(ImGui::Button("Set Text")){
-            mParent->tryOpenKeyboard(24, KEYTYPE_QWERTY, (const char**)&mRefreshText, &mIsKeyboardInUse);
+            mParent->tryOpenKeyboard(50, KEYTYPE_QWERTY, (const char**)&mRefreshText, &mIsKeyboardInUse);
             mWasKeyboardOpen = mIsKeyboardInUse;
         }
         if (ImGui::IsItemHovered())

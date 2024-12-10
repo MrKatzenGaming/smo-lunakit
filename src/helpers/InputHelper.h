@@ -42,6 +42,8 @@ public:
 
     static bool isKeyRelease(nn::hid::KeyboardKey key);
 
+    static bool isModifierHold(nn::hid::KeyboardModifier modifier);
+
     // mouse inputs
 
     static bool isMouseHold(nn::hid::MouseButton button);

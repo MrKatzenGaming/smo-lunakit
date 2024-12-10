@@ -142,6 +142,10 @@ bool InputHelper::isKeyHold(nn::hid::KeyboardKey key) {
     return curKeyboardState.keys.Test(static_cast<u64>(key));
 }
 
+bool InputHelper::isModifierHold(nn::hid::KeyboardModifier modifier) {
+    return curKeyboardState.modifiers.Test(static_cast<u64>(modifier));
+}
+
 bool InputHelper::isKeyPress(nn::hid::KeyboardKey key) {
     return curKeyboardState.keys.Test(static_cast<u64>(key)) && !prevKeyboardState.keys.Test(static_cast<u64>(key));
 }
