@@ -15,14 +15,11 @@ void CategoryHealth::updateCat()
 {
     // Get the player's hit point data pointer if it doesn't exist already
     HakoniwaSequence* gameSeq = tryGetHakoniwaSequence();
-
-    if (!mHitData && gameSeq)
-        mHitData = gameSeq->mGameDataHolder.mData->mGameDataFile->mPlayerHitPointData;
-
-    // Get the player actor and check if they are dead
     PlayerActorBase* player = tryGetPlayerActor(gameSeq);
     if (!player)
         return;
+
+    mHitData = gameSeq->mGameDataHolder.mData->mGameDataFile->mPlayerHitPointData;
 
     bool isPlayerDead = PlayerFunction::isPlayerDeadStatus(player);
 
