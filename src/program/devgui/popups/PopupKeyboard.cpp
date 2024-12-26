@@ -6,6 +6,7 @@
 #include "nn/hid.h"
 
 #include "logger/Logger.hpp"
+#include "prim/seadSafeString.h"
 
 void PopupKeyboard::update()
 {
@@ -39,60 +40,20 @@ void PopupKeyboard::update()
         ImGui::SameLine();
         ImGui::TextDisabled("%i/%u", mBuffer.calcLength(), mMaxCharacters);
         
+
+
         switch(mKeyboardType) {
+
             case PopupKeyboardType::KEYTYPE_QWERTY:
                 drawQuertyKeyset();
-                //FIXME: this can probably be done a lot cleaner then just hard coding every key
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::A) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("A"); else mBuffer.append("a"); mIsShift = false; }
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::B) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("B"); else mBuffer.append("b"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::C) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("C"); else mBuffer.append("c"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::D) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("D"); else mBuffer.append("d"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::E) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("E"); else mBuffer.append("e"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::F) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("F"); else mBuffer.append("f"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::G) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("G"); else mBuffer.append("g"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::H) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("H"); else mBuffer.append("h"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::I) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("I"); else mBuffer.append("i"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::J) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("J"); else mBuffer.append("j"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::K) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("K"); else mBuffer.append("k"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::L) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("L"); else mBuffer.append("l"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::M) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("M"); else mBuffer.append("m"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::N) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("N"); else mBuffer.append("n"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::O) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("O"); else mBuffer.append("o"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::P) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("P"); else mBuffer.append("p"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::Q) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("Q"); else mBuffer.append("q"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::R) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("R"); else mBuffer.append("r"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::S) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("S"); else mBuffer.append("s"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::T) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("T"); else mBuffer.append("t"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::U) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("U"); else mBuffer.append("u"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::V) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("V"); else mBuffer.append("v"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::W) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("W"); else mBuffer.append("w"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::X) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("X"); else mBuffer.append("x"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::Y) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("Y"); else mBuffer.append("y"); mIsShift = false;}
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::Z) && mBuffer.calcLength() < mMaxCharacters) { if (mIsCapsLock || mIsShift) mBuffer.append("Z"); else mBuffer.append("z"); mIsShift = false;}
-                
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::Space) && mBuffer.calcLength() < mMaxCharacters) mBuffer.append(" ");
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::Return) && mBuffer.calcLength() < mMaxCharacters) mBuffer.append("\n");
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::Backspace) && mBuffer.calcLength() < mMaxCharacters) mBuffer.chop(1);
-                if (InputHelper::isModifierHold(nn::hid::KeyboardModifier::Shift) && mBuffer.calcLength() < mMaxCharacters) mIsShift = true;
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::CapsLock) && mBuffer.calcLength() < mMaxCharacters) mIsCapsLock = !mIsCapsLock;
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::D0) && mBuffer.calcLength() < mMaxCharacters) mBuffer.append("0");
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::D1) && mBuffer.calcLength() < mMaxCharacters) mBuffer.append("1");
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::D2) && mBuffer.calcLength() < mMaxCharacters) mBuffer.append("2");
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::D3) && mBuffer.calcLength() < mMaxCharacters) mBuffer.append("3");
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::D4) && mBuffer.calcLength() < mMaxCharacters) mBuffer.append("4");
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::D5) && mBuffer.calcLength() < mMaxCharacters) mBuffer.append("5");
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::D6) && mBuffer.calcLength() < mMaxCharacters) mBuffer.append("6");
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::D7) && mBuffer.calcLength() < mMaxCharacters) mBuffer.append("7");
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::D8) && mBuffer.calcLength() < mMaxCharacters) mBuffer.append("8");
-                if (InputHelper::isKeyPress(nn::hid::KeyboardKey::D9) && mBuffer.calcLength() < mMaxCharacters) mBuffer.append("9");
-
-
+                checkInput(mMaxCharacters, mBuffer, mIsShift, mIsCapsLock, false);
                 break;
             case PopupKeyboardType::KEYTYPE_NUMBER:
                 drawNumberKeyset();
                 ImGui::Text("   ");
                 ImGui::SameLine();
                 drawKeyboardLine("0");
+                checkInput(mMaxCharacters, mBuffer, mIsShift, mIsCapsLock, true);
                 break;
             case PopupKeyboardType::KEYTYPE_IP:
                 drawNumberKeyset();
@@ -236,4 +197,46 @@ void PopupKeyboard::drawKeyboardLine(const char* keys)
     }
 
     ImGui::NewLine();
+}
+
+void PopupKeyboard::checkInput(int maxChars, sead::FixedSafeString<0xFF>& mBuffer, bool& mIsShift, bool& mIsCapsLock, bool numOnly)
+{
+
+struct funcs { static bool IsLegacyNativeDupe(ImGuiKey key) { return key < 512 && ImGui::GetIO().KeyMap[key] != -1; } }; // Hide Native<>ImGuiKey duplicates when both exists in the array
+ImGuiKey start_key = (ImGuiKey)0;
+
+for (ImGuiKey key = start_key; key < ImGuiKey_NamedKey_END; key = (ImGuiKey)(key + 1)) {
+    if (funcs::IsLegacyNativeDupe(key) || !ImGui::IsKeyPressed(key)) continue;
+    if (key == ImGuiKey_Backspace && mBuffer.calcLength() <= maxChars) {
+        mBuffer.chop(1);
+    }
+    if (mBuffer.calcLength() < maxChars) {
+        if (key >= ImGuiKey_A && key <= ImGuiKey_Z && !numOnly) {
+            if (mIsCapsLock || mIsShift) {
+                mBuffer.append(ImGui::GetKeyName(key));
+                mIsShift = false;
+            }
+            else {
+                mBuffer.append(tolower((int)*ImGui::GetKeyName(key)));
+                mIsShift = false;
+            }
+        }
+        else if (key >= ImGuiKey_0 && key <= ImGuiKey_9) {
+            mBuffer.append(ImGui::GetKeyName(key));
+            mIsShift = false;
+        }
+        else if (key == ImGuiKey_Space) {
+            mBuffer.append(" ");
+        }
+        else if (key == ImGuiKey_Enter && !numOnly) {
+            mBuffer.append("\n");
+        }
+        else if (!numOnly &&(key == ImGuiKey_LeftShift || key == ImGuiKey_RightShift )) {
+            mIsShift = true;
+        }
+        else if (key == ImGuiKey_CapsLock && !numOnly) {
+            mIsCapsLock = !mIsCapsLock;
+        }
+    } 
+}
 }

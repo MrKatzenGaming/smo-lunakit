@@ -52,6 +52,8 @@ public:
 
     static bool isMouseRelease(nn::hid::MouseButton button);
 
+    static bool isMouseConnected();
+
     // mouse coordinate getters
 
     static void getMouseCoords(float *x, float *y);

@@ -166,6 +166,10 @@ bool InputHelper::isMouseRelease(nn::hid::MouseButton button) {
     return !curMouseState.buttons.Test(static_cast<u64>(button)) && prevMouseState.buttons.Test(static_cast<u64>(button));
 }
 
+bool InputHelper::isMouseConnected() {
+    return curMouseState.attributes.Test((int) nn::hid::MouseAttribute::IsConnected);
+}
+
 void InputHelper::getMouseCoords(float *x, float *y) {
     *x = curMouseState.x;
     *y = curMouseState.y;

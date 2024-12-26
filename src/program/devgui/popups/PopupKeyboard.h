@@ -34,6 +34,7 @@ private:
 
     void drawKeyboardLine(const char* keys);
 
+    void checkInput(int maxChars, sead::FixedSafeString<0xFF>& mBuffer, bool& mIsShift, bool& mIsCapsLock, bool numOnly);
     bool* mIsKeyboardOpen = nullptr;
     bool mIsFirstStep = false;
     PopupKeyboardType mKeyboardType = PopupKeyboardType::KEYTYPE_QWERTY;

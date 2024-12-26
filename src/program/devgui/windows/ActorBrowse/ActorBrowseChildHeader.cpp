@@ -32,6 +32,8 @@ void WindowActorBrowse::childButtonHeader(al::Scene* scene)
 
     ImGui::SameLine();
 
+
+
     if (!isFilterBySearch()) {
         if (ImGui::Button("Search")) {
             mFilterType |= ActorBrowseFilterType_SEARCH;

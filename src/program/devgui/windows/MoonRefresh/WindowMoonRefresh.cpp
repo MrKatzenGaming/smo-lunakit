@@ -37,7 +37,9 @@ bool WindowMoonRefresh::tryUpdateWinDisplay()
 
     if (mIsRefreshEnabled) {
         
-        ImGui::Text("Refresh Text: %s", mRefreshText);
+       if ( ImGui::InputText("Refresh Text", mRefreshText, 51)) {
+            mParent->getSaveData()->queueSaveWrite();
+        }
         if (ImGui::IsItemHovered())
             ImGui::SetTooltip("The text that will be displayed when a moon is collected.");
         if(ImGui::Button("Set Text")){

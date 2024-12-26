@@ -6,6 +6,7 @@
 #include "logger/Logger.hpp"
 #include <cmath>
 #include <imgui_internal.h>
+#include <nn/oe.h>
 
 #include "nn/os.h"
 #include "nn/hid.h"
@@ -474,16 +475,24 @@ namespace ImguiNvnBackend {
         io.BackendPlatformName = "Switch";
         io.BackendRendererName = "imgui_impl_nvn";
         io.IniFilename = nullptr;
-        io.MouseDrawCursor = true;
+        io.MouseDrawCursor = InputHelper::isMouseConnected();
         io.ConfigFlags |= ImGuiConfigFlags_IsTouchScreen;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
         io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
-        io.DisplaySize = ImVec2(1280, 720); // default size
+        bool isDockedMode = nn::oe::GetOperationMode() == nn::oe::OperationMode_Docked;
+        // these might be different depending on the game, but the setCrop hook should fix it.
+        if (isDockedMode) {
+            io.DisplaySize = ImVec2(1600, 900);
+        } else {
+            io.DisplaySize = ImVec2(1280, 720);
+        }
 
         auto *bd = IM_NEW(NvnBackendData)();
         io.BackendRendererUserData = (void *) bd;
+
+        ImguiNvnBackend::updateProjection(io.DisplaySize);
 
         bd->device = initInfo.device;
         bd->queue = initInfo.queue;
@@ -534,13 +543,26 @@ namespace ImguiNvnBackend {
     }
 
     void updateKeyboard(ImGuiIO &io) {
-        for (auto [im_k, nx_k]: key_mapping) {
-            if (InputHelper::isKeyPress((nn::hid::KeyboardKey) nx_k)) {
-                io.AddKeyEvent((ImGuiKey) im_k, true);
-            } else if (InputHelper::isKeyRelease((nn::hid::KeyboardKey) nx_k)) {
-                io.AddKeyEvent((ImGuiKey) im_k, false);
+        io.AddKeyEvent(ImGuiMod_Shift, InputHelper::isModifierHold(nn::hid::KeyboardModifier::Shift));
+        io.AddKeyEvent(ImGuiMod_Ctrl, InputHelper::isModifierHold(nn::hid::KeyboardModifier::Control));
+        io.AddKeyEvent(ImGuiMod_Super, InputHelper::isModifierHold(nn::hid::KeyboardModifier::Gui));
+        io.AddKeyEvent(ImGuiMod_Alt, InputHelper::isModifierHold(nn::hid::KeyboardModifier::LeftAlt) ||
+                                     InputHelper::isModifierHold(nn::hid::KeyboardModifier::RightAlt));
+        bool isAltCode = InputHelper::isModifierHold(nn::hid::KeyboardModifier::CapsLock) ||
+                         InputHelper::isModifierHold(nn::hid::KeyboardModifier::Shift);
+        bool isNumLock = InputHelper::isModifierHold(nn::hid::KeyboardModifier::NumLock);
+        for (auto [im_int, nx_int]: key_mapping) {
+            auto nx_k = (nn::hid::KeyboardKey) nx_int;
+            auto im_k = (ImGuiKey) im_int;
+            if (InputHelper::isKeyPress(nx_k)) {
+                io.AddKeyEvent(im_k, true);
+                char keyCode = getKeyCode(im_k, isAltCode, isNumLock);
+                if (keyCode != 0)
+                    io.AddInputCharacter(keyCode);
+            } else if (InputHelper::isKeyRelease(nx_k)) {
+                io.AddKeyEvent(im_k, false);
             }
-        }
+        }   
     }
 
     void updateGamepad(ImGuiIO &io) {
@@ -555,12 +577,14 @@ namespace ImguiNvnBackend {
     void updateInput() {
 
         ImGuiIO &io = ImGui::GetIO();
+        io.MouseDrawCursor = InputHelper::isMouseConnected();
         updateKeyboard(io);
         updateMouse(io);
 
-        if (InputHelper::isInputToggled()) {
+        if (io.MouseDrawCursor)
+            updateMouse(io);
+        if (InputHelper::isInputToggled())
             updateGamepad(io);
-        }
     }
 
     void updateProjection(ImVec2 dispSize) {
@@ -575,6 +599,7 @@ namespace ImguiNvnBackend {
         ImGuiStyle &stylePtr = ImGui::GetStyle();
         ImGuiViewport *viewport = ImGui::GetMainViewport();
         ImGuiIO &io = ImGui::GetIO();
+ 
 
         ImVec4 prevColors[ImGuiCol_COUNT] = {};
         memcpy(&prevColors, &stylePtr.Colors, sizeof(stylePtr.Colors));
