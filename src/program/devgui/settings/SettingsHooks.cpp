@@ -5,6 +5,7 @@
 #include "al/util/NerveUtil.h"
 #include "Library/LiveActor/ActorPoseKeeper.h"
 
+#include "devgui/DevGuiManager.h"
 #include "game/Player/PlayerFunction.h"
 #include "game/Player/HackCap.h"
 
@@ -183,12 +184,18 @@ void LoadCurrentFilePatch()
 {   
     __asm ("LDR W20, [X8, #0x3C]");
 
-    GameDataHolder* holder;
-    __asm ("MOV %[result], X0" : [result] "=r" (holder));
+    GameDataHolder* holder = tryGetGameDataHolder();
 
-    s32 fileId = DevGuiManager::instance()->getSettings()->getStateByName("Allow Loading Current File") ? 5 : holder->getPlayingFileId();
+    s32 fileId;
 
-    __asm ("MOV X0, %[input]" : [input] "=r" (fileId));
+    if (DevGuiManager::instance()->getSettings()->getStateByName("Allow Loading Current File")) {
+        __asm ("MOV X0, 0xFF");
+    } else {
+        fileId = holder->getPlayingFileId();
+        __asm ("MOV X0, %[input]" : [input] "=r" (fileId));
+    }
+
+    
 }
 
 void exlSetupSettingsHooks()
