@@ -87,3 +87,7 @@ if(RYU_PATH)
   add_custom_command(TARGET subsdk9_meta POST_BUILD COMMAND cp ${CMAKE_BINARY_DIR}/main.npdm ${RYU_PATH}/mods/contents/${TITLE_ID}/mods/exefs/main.npdm)
   add_custom_command(TARGET subsdk9_meta POST_BUILD COMMAND cp ${CMAKE_BINARY_DIR}/subsdk9 ${RYU_PATH}/mods/contents/${TITLE_ID}/mods/exefs/subsdk9)
 endif ()
+
+if (GAME_VERSION)
+    add_compile_definitions("GAME_VERSION=${GAME_VERSION}")
+endif ()

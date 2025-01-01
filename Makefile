@@ -1,11 +1,12 @@
 FTP_IP ?= 192.168.178.78 # put console IP here
+GAME_VERSION ?= 100
 .PHONY: all clean
 
 all:
 	cmake --toolchain=cmake/toolchain.cmake -S . -B build && $(MAKE) -C build subsdk9_meta
 
 send:
-	cmake --toolchain=cmake/toolchain.cmake -DFTP_IP=$(FTP_IP) -S . -B build && $(MAKE) -C build subsdk9_meta
+	cmake --toolchain=cmake/toolchain.cmake -DFTP_IP=$(FTP_IP) -DGAME_VERSION=$(GAME_VERSION) -S . -B build && $(MAKE) -C build subsdk9_meta
 
 clean:
 	rm -r build || true

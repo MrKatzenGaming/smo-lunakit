@@ -21,21 +21,23 @@ void PuppetCapActor::init(al::ActorInitInfo const &initInfo) {
 
     mJointKeeper->initCapJointControl(this);
 
-    mModelCap = new al::LiveActor("装着表示用帽子");
-    al::initActorWithArchiveName(mModelCap, initInfo, "MarioCap", "Display");
-    if (mModelCap) {
-        al::setEffectFollowPosPtr(mModelCap, "InvincibleStart", al::getTransPtr(mModelCap));
-        al::setEffectFollowPosPtr(mModelCap, "Invincible", al::getTransPtr(mModelCap));
-    }
-    mJointKeeper->initDisplayCapJointControl(mModelCap);
-    al::invalidateOcclusionQuery(mModelCap);
-    mModelCap->makeActorDead();
-    al::hideModelIfShow(mModelCap);
-    al::hideSilhouetteModelIfShow(mModelCap);
-    al::LiveActor* subActor1 = al::getSubActor(mModelCap, "デプスシャドウ");
-    al::invalidateOcclusionQuery(subActor1);
-    al::LiveActor* subActor2 = al::getSubActor(mModelCap,"ロックオン用キャップの目");
-    al::invalidateOcclusionQuery(subActor2);
+    #if GAME_VERSION == 100
+        mModelCap = new al::LiveActor("装着表示用帽子");
+        al::initActorWithArchiveName(mModelCap, initInfo, "MarioCap", "Display");
+        if (mModelCap) {
+            al::setEffectFollowPosPtr(mModelCap, "InvincibleStart", al::getTransPtr(mModelCap));
+            al::setEffectFollowPosPtr(mModelCap, "Invincible", al::getTransPtr(mModelCap));
+        }
+        mJointKeeper->initDisplayCapJointControl(mModelCap);
+        al::invalidateOcclusionQuery(mModelCap);
+        mModelCap->makeActorDead();
+        al::hideModelIfShow(mModelCap);
+        al::hideSilhouetteModelIfShow(mModelCap);
+        al::LiveActor* subActor1 = al::getSubActor(mModelCap, "デプスシャドウ");
+        al::invalidateOcclusionQuery(subActor1);
+        al::LiveActor* subActor2 = al::getSubActor(mModelCap,"ロックオン用キャップの目");
+        al::invalidateOcclusionQuery(subActor2);
+    #endif
 
     al::invalidateHitSensors(this);
     makeActorDead();

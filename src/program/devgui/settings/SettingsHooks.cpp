@@ -210,7 +210,9 @@ void exlSetupSettingsHooks()
     ButtonMotionRollHook::InstallAtSymbol("_ZNK23PlayerJudgeStartRolling21isTriggerRestartSwingEv");
     NoDamageHook::InstallAtSymbol("_ZN16GameDataFunction12damagePlayerE20GameDataHolderWriter");
     exlSetupDemoHooks();
-    patch::CodePatcher p(0x004e7f84);
-    p.BranchLinkInst((void*) LoadCurrentFilePatch);
-    p.WriteInst(inst::Nop());
+    #if GAME_VERSION == 100
+        patch::CodePatcher p(0x004e7f84);
+        p.BranchLinkInst((void*) LoadCurrentFilePatch);
+        p.WriteInst(inst::Nop());
+    #endif
 }
