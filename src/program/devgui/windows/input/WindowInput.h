@@ -16,6 +16,7 @@ public:
     bool tryUpdateWinDisplay() override;
 
     void drawInputDisplay();
+    void drawInputDisplayP2();
     ImVec2 getPos() { return mPos; }
     void setPos(const ImVec2& pos) { mPos = pos; }
 
@@ -53,8 +54,12 @@ enum class InputDisplayColor : u8 { None, White, Gray, Black, Red, Blue, Yellow,
     );
 
     ImVec2 mPos = ImVec2(1000, 500);
+    ImVec2 mPos2 = ImVec2(1000, 800);
     bool mIsEnabled = false;
+    bool mIs2P = false;
+    
 
     sead::ControllerMgr* controllerMgr;
     al::NpadController* controller;
+    al::NpadController* controller2;
 };

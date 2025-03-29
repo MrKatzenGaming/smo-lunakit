@@ -92,6 +92,7 @@ void drawLunaKit() {
     WindowInput* inp = (WindowInput*)DevGuiManager::instance()->getWindow("Input Display");
     if (inp) {
         inp->drawInputDisplay();
+        inp->drawInputDisplayP2();
     }
 
     DevGuiManager::instance()->updateDisplay();
