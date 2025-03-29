@@ -63,6 +63,7 @@
 #include "devgui/DevGuiHooks.h"
 #include "devgui/DevGuiManager.h"
 #include "helpers/GetHelper.h"
+#include "devgui/windows/input/WindowInput.h"
 
 #include "update/UpdateHandler.h"
 
@@ -87,6 +88,12 @@ static const char* DBG_TBL_PATH = "ImGuiData/Font/nvn_font_jis1_tbl.bin";
 sead::TextWriter* gTextWriter;
 
 void drawLunaKit() {
+
+    WindowInput* inp = (WindowInput*)DevGuiManager::instance()->getWindow("Input Display");
+    if (inp) {
+        inp->drawInputDisplay();
+    }
+
     DevGuiManager::instance()->updateDisplay();
 }
 
@@ -290,6 +297,7 @@ HOOK_DEFINE_TRAMPOLINE(UpdateLunaKit) {
         DevGuiManager::instance()->update();
     }
 };
+
 // clang-format on
 
 extern "C" void exl_main(void* x0, void* x1) {
