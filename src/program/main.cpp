@@ -312,7 +312,7 @@ extern "C" void exl_main(void* x0, void* x1) {
     });
 
     GameSystemInit::InstallAtSymbol("_ZN10GameSystem4initEv");
-    ReplaceSeadPrint::InstallAtSymbol("_ZN4sead6system5PrintEPKcz");
+    // ReplaceSeadPrint::InstallAtSymbol("_ZN4sead6system5PrintEPKcz");
 
     // SD File Redirection
     RedirectFileDevice::InstallAtSymbol("_ZNK4sead13FileDeviceMgr18findDeviceFromPathERKNS_14SafeStringBaseIcEEPNS_22BufferedSafeStringBaseIcEE");
