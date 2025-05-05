@@ -4,6 +4,7 @@
 #include "System/GameDataHolderAccessor.h"
 #include "al/Pad/NpadController.h"
 #include "imgui.h"
+#include "math/seadVectorFwd.h"
 #include "program/devgui/windows/WindowBase.h"
 
 __attribute__((used)) static const char* inputWindowName = "Input Display";
@@ -62,4 +63,11 @@ enum class InputDisplayColor : u8 { None, White, Gray, Black, Red, Blue, Yellow,
     sead::ControllerMgr* controllerMgr;
     al::NpadController* controller;
     al::NpadController* controller2;
+    sead::BitFlag<u32> padHold;
+    sead::BitFlag<u32> padHold2;
+    sead::Vector2f mLStick;
+    sead::Vector2f mRStick;
+    sead::Vector2f mLStick2;
+    sead::Vector2f mRStick2;
+
 };

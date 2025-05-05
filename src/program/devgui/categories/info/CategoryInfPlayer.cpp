@@ -5,34 +5,34 @@
 #include "Library/Nerve/NerveStateCtrl.h"
 
 #include "basis/seadTypes.h"
+#include "devgui/DevGuiManager.h"
+#include "devgui/windows/StagePause/WindowStagePause.h"
 #include "game/Player/PlayerActorBase.h"
 #include "game/Player/PlayerActorHakoniwa.h"
-#include "game/Player/PlayerFunction.h"
 #include "game/Player/PlayerAnimator.h"
+#include "game/Player/PlayerFunction.h"
 #include "game/Player/PlayerRecoverySafetyPoint.h"
 
+#include "helpers/GetHelper.h"
 #include "math/seadQuat.h"
 #include "rs/util.hpp"
-#include "helpers/GetHelper.h"
 
 #include "imgui.h"
 
-#include <cxxabi.h>
-#include <helpers/ImGuiHelper.h>
 #include <Library/LiveActor/ActorMovementFunction.h>
-#include "Library/LiveActor/ActorPoseKeeper.h"
+#include <cxxabi.h>
 #include <gfx/seadCamera.h>
+#include <helpers/ImGuiHelper.h>
+#include "Library/LiveActor/ActorPoseKeeper.h"
 #include "al/util/GraphicsUtil.h"
 #include "logger/Logger.hpp"
 
-CategoryInfPlayer::CategoryInfPlayer(const char* catName, const char* catDesc, sead::Heap* heap)
-    : CategoryBase(catName, catDesc, heap) {}
+CategoryInfPlayer::CategoryInfPlayer(const char* catName, const char* catDesc, sead::Heap* heap) : CategoryBase(catName, catDesc, heap) {}
 
-void CategoryInfPlayer::updateCatDisplay()
-{
+void CategoryInfPlayer::updateCatDisplay() {
     PlayerActorBase* player = tryGetPlayerActor();
 
-    if(!player) {
+    if (!player) {
         ImGui::Text("Player does not exist!");
         return;
     }
@@ -61,7 +61,7 @@ void CategoryInfPlayer::updateCatDisplay()
     /*
         // PLAYER CLASS, STATE, AND NERVES
     */
-    
+
     // Actor name and nerve
 
     char* playerName = nullptr;
@@ -71,10 +71,10 @@ void CategoryInfPlayer::updateCatDisplay()
     int status;
     const al::Nerve* playerNerve = player->getNerveKeeper()->getCurrentNerve();
     playerName = abi::__cxa_demangle(typeid(*player).name(), nullptr, nullptr, &status);
-    
+
     if (player->getNerveKeeper()->mStateCtrl) {
         al::NerveStateCtrl::State* state = player->getNerveKeeper()->mStateCtrl->findStateInfo(playerNerve);
-        if(state) {
+        if (state) {
             const al::Nerve* stateNerve = state->state->getNerveKeeper()->getCurrentNerve();
             stateName = abi::__cxa_demangle(typeid(*state->state).name(), nullptr, nullptr, &status);
             stateNrvName = abi::__cxa_demangle(typeid(*stateNerve).name(), nullptr, nullptr, &status);
@@ -88,7 +88,7 @@ void CategoryInfPlayer::updateCatDisplay()
         free(playerName);
     }
 
-    if(stateName && stateNrvName) {
+    if (stateName && stateNrvName) {
         ImGui::Text("State: %s", stateName);
         if (ImGui::IsItemHovered())
             ImGui::SetTooltip("Current type of action\nthe player is performing");
@@ -106,7 +106,7 @@ void CategoryInfPlayer::updateCatDisplay()
     */
 
     PlayerActorHakoniwa* playerHak = tryGetPlayerActorHakoniwa();
-    if(!playerHak) {
+    if (!playerHak) {
         ImGui::TextDisabled("Cannot display additional info, not Hakoniwa");
         return;
     }
@@ -122,24 +122,27 @@ void CategoryInfPlayer::updateCatDisplay()
     al::ActorPoseKeeperBase* pose = playerHak->mPoseKeeper;
     StageScene* stageScene = tryGetStageScene();
 
-    if(!pose)
+    if (!pose)
         return;
 
     float hSpeed = al::calcSpeedH(playerHak), vSpeed = al::calcSpeedV(playerHak), speed = al::calcSpeed(playerHak);
     float hSpeedAngle = atan2f(pose->getVelocityPtr()->z, pose->getVelocityPtr()->x);
-    if (hSpeedAngle < 0) hSpeedAngle += M_PI * 2;
+    if (hSpeedAngle < 0)
+        hSpeedAngle += M_PI * 2;
     float hSpeedAngleDeg = DEG(hSpeedAngle);
 
-    static sead::Vector3f prevPlayerVel = { 0.0f, 0.0f, 0.0f };
+    static sead::Vector3f prevPlayerVel = {0.0f, 0.0f, 0.0f};
     sead::Vector3f playerVelDelta = pose->getVelocity() - prevPlayerVel;
-    
-    prevPlayerVel = pose->getVelocity();
+
+    WindowStagePause* win = (WindowStagePause*)DevGuiManager::instance()->getWindow("Stage Pauser");
+    prevPlayerVel = win->getStagePaused() ? prevPlayerVel : pose->getVelocity();
+
     sead::Vector3f playerRot = QuatToEuler(pose->getQuatPtr());
 
     ImGui::DragFloat3("Trans", &pose->mTrans.x, 50.f, 0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
     ImGui::DragFloat3("Velocity", &pose->getVelocityPtr()->x, 1.f, 0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
     ImGui::DragFloat3("Vel Delta", &playerVelDelta.x, 1.f, 0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
-    
+
     snprintf(textBuffer, sizeof(textBuffer), "Speed H: %s", format);
     ImGui::Text(textBuffer, hSpeed);
     ImGui::SameLine();
@@ -155,7 +158,6 @@ void CategoryInfPlayer::updateCatDisplay()
     ImGuiHelper::Quat("Player Quaternion", pose->getQuatPtr());
     ImGui::DragFloat3("Euler", &playerRot.x, 1.f, -1.f, 1.f, format, ImGuiSliderFlags_NoRoundToFormat);
 
-
     sead::LookAtCamera* camera = al::getLookAtCamera(stageScene, 0);
     if (!camera) {
         ImGui::TextDisabled("No camera found");
@@ -169,24 +171,26 @@ void CategoryInfPlayer::updateCatDisplay()
     float verticalCamAngle = DEG(atan2f(camDiff.y, sqrtf(camDiff.x * camDiff.x + camDiff.z * camDiff.z)));
     float horizontalCamAngle = DEG(atan2f(camDiff.z, camDiff.x));
     float camHAngle = atan2f(camDiff.z, camDiff.x);
-    if (camHAngle < 0) camHAngle += M_PI * 2;
+    if (camHAngle < 0)
+        camHAngle += M_PI * 2;
 
-    float relAngleVel = hSpeedAngle - camHAngle - (M_PI / 2); // offset to move 0 to the right
-    if (relAngleVel < 0) relAngleVel += M_PI * 2;
-    relAngleVel = -relAngleVel + M_PI*2; // invert to conform normal anti-clockwise angle system
+    float relAngleVel = hSpeedAngle - camHAngle - (M_PI / 2);  // offset to move 0 to the right
+    if (relAngleVel < 0)
+        relAngleVel += M_PI * 2;
+    relAngleVel = -relAngleVel + M_PI * 2;  // invert to conform normal anti-clockwise angle system
 
     float relVelAngleDeg = DEG(relAngleVel);
 
-    float relRotAngle = playerRot.y - camHAngle - (M_PI / 2); // offset to move 0 to the right
-    if (relRotAngle < 0) relRotAngle += M_PI * 2;
+    float relRotAngle = playerRot.y - camHAngle - (M_PI / 2);  // offset to move 0 to the right
+    if (relRotAngle < 0)
+        relRotAngle += M_PI * 2;
     // relRotAngle = -relRotAngle + M_PI*2; // invert to conform normal anti-clockwise angle system
 
     float relRotAngleDeg = DEG(relRotAngle);
 
-
     ImGui::DragFloat3("Camera Pos", &cameraPos.x, 50.f, -0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
     ImGui::DragFloat3("Camera At", &cameraAt.x, 50.f, -0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
-    //ImGui::DragFloat3("Camera Up", &cameraUp.x, 50.f, -0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
+    // ImGui::DragFloat3("Camera Up", &cameraUp.x, 50.f, -0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
     snprintf(textBuffer, sizeof(textBuffer), "Cam Angle V: %s", format);
     ImGui::Text(textBuffer, verticalCamAngle);
     ImGui::SameLine();
@@ -196,10 +200,9 @@ void CategoryInfPlayer::updateCatDisplay()
     ImGui::Text(textBuffer, relVelAngleDeg);
     snprintf(textBuffer, sizeof(textBuffer), "Rel. Rot. Angle: %s", format);
     ImGui::Text(textBuffer, relRotAngleDeg);
-    //sead::Vector3f kidsPos = playerHak->mRecoverySafetyPoint->mSafetyPointPos;
-    //ImGui::InputFloat3("Assist Pos", &kidsPos.x, "%.00f", ImGuiInputTextFlags_ReadOnly);
+    // sead::Vector3f kidsPos = playerHak->mRecoverySafetyPoint->mSafetyPointPos;
+    // ImGui::InputFloat3("Assist Pos", &kidsPos.x, "%.00f", ImGuiInputTextFlags_ReadOnly);
 }
-
 
 sead::Vector3f CategoryInfPlayer::QuatToEuler(sead::Quatf* quat) {
     // Check for null pointer
@@ -219,7 +222,7 @@ sead::Vector3f CategoryInfPlayer::QuatToEuler(sead::Quatf* quat) {
     f32 roll = atan2f(t0, t1);
     f32 adjustedRoll = roll;
     if (adjustedRoll < 0)
-      adjustedRoll += M_PI * 2;
+        adjustedRoll += M_PI * 2;
 
     f32 t2 = 2.0f * (w * y - z * x);
     t2 = t2 > 1.0f ? 1.0f : t2;
@@ -227,14 +230,14 @@ sead::Vector3f CategoryInfPlayer::QuatToEuler(sead::Quatf* quat) {
     f32 pitch = asinf(t2);
     f32 adjustedPitch = pitch;
     if (adjustedPitch < 0)
-      adjustedPitch += M_PI * 2;
+        adjustedPitch += M_PI * 2;
 
     f32 t3 = 2.0f * (w * z + x * y);
     f32 t4 = 1.0f - 2.0f * (y * y + z * z);
     f32 yaw = atan2f(t3, t4);
     f32 adjustedYaw = yaw;
     if (adjustedYaw < 0)
-      adjustedYaw += M_PI * 2;
+        adjustedYaw += M_PI * 2;
 
-      return sead::Vector3f(adjustedYaw, adjustedPitch, adjustedRoll);
+    return sead::Vector3f(adjustedYaw, adjustedPitch, adjustedRoll);
 }

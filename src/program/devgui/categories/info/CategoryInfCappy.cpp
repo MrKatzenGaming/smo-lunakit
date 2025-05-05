@@ -4,34 +4,33 @@
 #include "Library/Nerve/NerveKeeper.h"
 #include "Library/Nerve/NerveStateCtrl.h"
 
+#include "devgui/DevGuiManager.h"
 #include "game/Player/PlayerActorBase.h"
 #include "game/Player/PlayerActorHakoniwa.h"
-#include "game/Player/PlayerFunction.h"
 #include "game/Player/PlayerAnimator.h"
+#include "game/Player/PlayerFunction.h"
 #include "game/Player/PlayerRecoverySafetyPoint.h"
 
-#include "rs/util.hpp"
 #include "helpers/GetHelper.h"
+#include "rs/util.hpp"
 
 #include "imgui.h"
 
-#include <cxxabi.h>
-#include <helpers/ImGuiHelper.h>
 #include <Library/LiveActor/ActorMovementFunction.h>
-#include "Library/LiveActor/ActorPoseKeeper.h"
+#include <cxxabi.h>
 #include <gfx/seadCamera.h>
+#include <helpers/ImGuiHelper.h>
+#include "Library/LiveActor/ActorPoseKeeper.h"
 #include "al/util/GraphicsUtil.h"
+#include "devgui/windows/StagePause/WindowStagePause.h"
 #include "logger/Logger.hpp"
 
-CategoryInfCappy::CategoryInfCappy(const char* catName, const char* catDesc, sead::Heap* heap)
-    : CategoryBase(catName, catDesc, heap) {}
+CategoryInfCappy::CategoryInfCappy(const char* catName, const char* catDesc, sead::Heap* heap) : CategoryBase(catName, catDesc, heap) {}
 
-void CategoryInfCappy::updateCatDisplay()
-{
+void CategoryInfCappy::updateCatDisplay() {
     PlayerActorBase* player = tryGetPlayerActor();
 
-
-    if(!player) {
+    if (!player) {
         ImGui::Text("Player does not exist!");
         return;
     }
@@ -48,7 +47,7 @@ void CategoryInfCappy::updateCatDisplay()
     /*
         // PLAYER CLASS, STATE, AND NERVES
     */
-    
+
     // Actor name and nerve
 
     char* stateName = nullptr;
@@ -56,10 +55,10 @@ void CategoryInfCappy::updateCatDisplay()
 
     int status;
     const al::Nerve* cappyNerve = cappy->getNerveKeeper()->getCurrentNerve();
-    
+
     if (cappy->getNerveKeeper()->mStateCtrl) {
         al::NerveStateCtrl::State* state = cappy->getNerveKeeper()->mStateCtrl->findStateInfo(cappyNerve);
-        if(state) {
+        if (state) {
             const al::Nerve* stateNerve = state->state->getNerveKeeper()->getCurrentNerve();
             stateName = abi::__cxa_demangle(typeid(*state->state).name(), nullptr, nullptr, &status);
             stateNrvName = abi::__cxa_demangle(typeid(*stateNerve).name(), nullptr, nullptr, &status);
@@ -71,17 +70,17 @@ void CategoryInfCappy::updateCatDisplay()
     al::ActorPoseKeeperBase* pose = cappy->mPoseKeeper;
     StageScene* stageScene = tryGetStageScene();
 
-    if(!pose)
+    if (!pose)
         return;
 
     float hSpeed = al::calcSpeedH(cappy), vSpeed = al::calcSpeedV(cappy), speed = al::calcSpeed(cappy);
     float hSpeedAngle = atan2f(pose->getVelocityPtr()->z, pose->getVelocityPtr()->x);
     if (hSpeedAngle < 0)
         hSpeedAngle += M_PI * 2;
-        
+
     float hSpeedAngleDeg = DEG(hSpeedAngle);
 
-    static sead::Vector3f prevCappyVel = { 0.0f, 0.0f, 0.0f };
+    static sead::Vector3f prevCappyVel = {0.0f, 0.0f, 0.0f};
     sead::Vector3f cappyVelDelta = pose->getVelocity() - prevCappyVel;
 
     ImGui::DragFloat3("Trans", &pose->mTrans.x, 50.f, 0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
@@ -89,10 +88,11 @@ void CategoryInfCappy::updateCatDisplay()
     ImGui::DragFloat3("Vel Delta", &cappyVelDelta.x, 1.f, 0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
 
     ImGui::DragFloat("Vel Angle", &hSpeedAngleDeg, 1.f, 0.f, 360.f, format, ImGuiSliderFlags_NoInput);
-    prevCappyVel = pose->getVelocity();
+    WindowStagePause* win = (WindowStagePause*)DevGuiManager::instance()->getWindow("Stage Pauser");
+    prevCappyVel = win->getStagePaused() ? prevCappyVel : pose->getVelocity();
     ImGuiHelper::Quat("Player Quaternion", pose->getQuatPtr());
-    
-    if (pose->getQuatPtr() != nullptr){
+
+    if (pose->getQuatPtr() != nullptr) {
         f32 x = pose->getQuatPtr()->z;
         f32 y = pose->getQuatPtr()->y;
         f32 z = pose->getQuatPtr()->x;
@@ -118,7 +118,7 @@ void CategoryInfCappy::updateCatDisplay()
         ImGui::DragFloat3("Euler", &cappyRot.x, 1.f, -1.f, 1.f, format, ImGuiSliderFlags_NoRoundToFormat);
     }
 
-    if(stateName && stateNrvName) {
+    if (stateName && stateNrvName) {
         ImGui::Text("State: %s", stateName);
         if (ImGui::IsItemHovered())
             ImGui::SetTooltip("Current type of action\nthe player is performing");
@@ -130,5 +130,4 @@ void CategoryInfCappy::updateCatDisplay()
         free(stateName);
         free(stateNrvName);
     }
-
 }
