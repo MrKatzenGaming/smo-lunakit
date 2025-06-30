@@ -4,12 +4,8 @@
     Head to src/program/devgui/DevGuiManager.h to get started!
 */
 
-#include "nn/fs/fs_directories.h"
-#include "nn/fs/fs_files.h"
+#include "devgui/windows/TASTools/WindowTASTools.h"
 #include "nn/fs/fs_mount.h"
-#include "nn/fs/fs_types.h"
-#include "imgui_backend/imgui_impl_nvn.hpp"
-#include "lib.hpp"
 
 #include <gfx/nvn/seadDebugFontMgrNvn.h>
 
@@ -29,55 +25,35 @@
 #include <resource/seadArchiveRes.h>
 #include <resource/seadResourceMgr.h>
 
-#include "rs/util.hpp"
-
-#include "game/System/GameDataFile.h"
-#include "game/System/GameDataHolderWriter.h"
-#include "game/Sequence/HakoniwaSequence.h"
 #include "game/Player/PlayerFunction.h"
-#include "game/Player/PlayerTrigger.h"
 #include "game/Scene/StageScene.h"
+#include "game/Sequence/HakoniwaSequence.h"
 #include "game/System/Application.h"
-#include "game/System/GameSystem.h"
+#include "game/System/GameDataFile.h"
 #include "game/System/GameDrawInfo.h"
+#include "game/System/GameSystem.h"
 
-#include "Library/Yaml/ByamlIter.h"
-#include "al/collision/KCollisionServer.h"
-#include "al/collision/alCollisionUtil.h"
 #include "al/fs/FileLoader.h"
-#include "Library/Resource/Resource.h"
 #include "al/util.hpp"
 #include "al/util/LiveActorUtil.h"
 
-#include "Library/LiveActor/LiveActor.h"
-#include "game/System/GameDataFunction.h"
 #include "game/Scene/StageScene.h"
-#include "helpers/helpers.h"
-#include "helpers/InputHelper.h"
-#include "helpers/PlayerHelper.h"
+#include "game/System/GameDataFunction.h"
+#include "Library/LiveActor/LiveActor.h"
 #include "imgui_nvn.h"
-#include "nn/init.h"
 #include "logger/Logger.hpp"
-#include "patch/code_patcher.hpp"
 
 #include "devgui/DevGuiHooks.h"
 #include "devgui/DevGuiManager.h"
-#include "helpers/GetHelper.h"
 #include "devgui/windows/input/WindowInput.h"
 
 #include "update/UpdateHandler.h"
-
-#include <typeinfo>
 
 #include "ExceptionHandler.h"
 #include "ghost/GhostManager.h"
 #include "random/seadGlobalRandom.h"
 #include "smo-tas/TAS.h"
 #include "xxhash.h"
-
-namespace patch = exl::patch;
-namespace inst = exl::armv8::inst;
-namespace reg = exl::armv8::reg;
 
 static const char* DBG_FONT_PATH = "ImGuiData/Font/nvn_font_jis1.ntx";
 static const char* DBG_SHADER_PATH = "ImGuiData/Font/nvn_font_shader_jis1.bin";
@@ -88,7 +64,6 @@ static const char* DBG_TBL_PATH = "ImGuiData/Font/nvn_font_jis1_tbl.bin";
 sead::TextWriter* gTextWriter;
 
 void drawLunaKit() {
-
     WindowInput* inp = (WindowInput*)DevGuiManager::instance()->getWindow("Input Display");
     if (inp) {
         inp->drawInputDisplay();
@@ -133,7 +108,13 @@ HOOK_DEFINE_TRAMPOLINE(SceneMovementHook) {
             ghostManager->setScene(scene);
             ghostManager->updateNerve();
             ghostManager->updateGhostNerve();
+
+            WindowTASTools* tools = (WindowTASTools*)DevGuiManager::instance()->getWindow("TAS Tools");
+            if (tools) {
+                tools->update();
+            }
         }
+        
             Orig(scene);
     }
 };

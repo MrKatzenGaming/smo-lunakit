@@ -4,14 +4,14 @@
 #include "Library/Nerve/NerveKeeper.h"
 #include "Library/Nerve/NerveStateCtrl.h"
 
-#include "basis/seadTypes.h"
-#include "devgui/DevGuiManager.h"
-#include "devgui/windows/StagePause/WindowStagePause.h"
 #include "game/Player/PlayerActorBase.h"
 #include "game/Player/PlayerActorHakoniwa.h"
 #include "game/Player/PlayerAnimator.h"
 #include "game/Player/PlayerFunction.h"
 #include "game/Player/PlayerRecoverySafetyPoint.h"
+#include "basis/seadTypes.h"
+#include "devgui/DevGuiManager.h"
+#include "devgui/windows/StagePause/WindowStagePause.h"
 
 #include "helpers/GetHelper.h"
 #include "math/seadQuat.h"
@@ -19,12 +19,12 @@
 
 #include "imgui.h"
 
+#include "al/util/GraphicsUtil.h"
 #include <Library/LiveActor/ActorMovementFunction.h>
 #include <cxxabi.h>
 #include <gfx/seadCamera.h>
 #include <helpers/ImGuiHelper.h>
 #include "Library/LiveActor/ActorPoseKeeper.h"
-#include "al/util/GraphicsUtil.h"
 #include "logger/Logger.hpp"
 
 CategoryInfPlayer::CategoryInfPlayer(const char* catName, const char* catDesc, sead::Heap* heap) : CategoryBase(catName, catDesc, heap) {}
@@ -83,23 +83,22 @@ void CategoryInfPlayer::updateCatDisplay() {
 
     if (playerName) {
         ImGui::Text("Class: %s", playerName);
-        if (ImGui::IsItemHovered())
-            ImGui::SetTooltip("Type of Player Actor\nHakoniwa is normal Mario\nYukimaru is Shiverian Racer");
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("Type of Player Actor\nHakoniwa is normal Mario\nYukimaru is Shiverian Racer");
         free(playerName);
     }
 
     if (stateName && stateNrvName) {
         ImGui::Text("State: %s", stateName);
-        if (ImGui::IsItemHovered())
-            ImGui::SetTooltip("Current type of action\nthe player is performing");
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("Current type of action\nthe player is performing");
 
         ImGui::Text("State Nrv: %s", stateNrvName + 23 + strlen(stateName) + 3);
-        if (ImGui::IsItemHovered())
-            ImGui::SetTooltip("Basically the sub-action\nCurrent nerve of the state");
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("Basically the sub-action\nCurrent nerve of the state");
 
         free(stateName);
         free(stateNrvName);
     }
+
+    ImGui::Text("NRV-Step: %d", player->getNerveKeeper()->getCurrentStep());
 
     /*
         // PLAYER ANIMATIONS (ONLY IF PlayerActorHakoniwa)
@@ -116,19 +115,16 @@ void CategoryInfPlayer::updateCatDisplay() {
     ImGui::Text("Sub Anim: %s (%.00f/%.00f)", anim->mCurSubAnim.cstr(), anim->getSubAnimFrame(), anim->getSubAnimFrameMax());
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
-    if (!playerHak)
-        return;
+    if (!playerHak) return;
 
     al::ActorPoseKeeperBase* pose = playerHak->mPoseKeeper;
     StageScene* stageScene = tryGetStageScene();
 
-    if (!pose)
-        return;
+    if (!pose) return;
 
     float hSpeed = al::calcSpeedH(playerHak), vSpeed = al::calcSpeedV(playerHak), speed = al::calcSpeed(playerHak);
     float hSpeedAngle = atan2f(pose->getVelocityPtr()->z, pose->getVelocityPtr()->x);
-    if (hSpeedAngle < 0)
-        hSpeedAngle += M_PI * 2;
+    if (hSpeedAngle < 0) hSpeedAngle += M_PI * 2;
     float hSpeedAngleDeg = DEG(hSpeedAngle);
 
     static sead::Vector3f prevPlayerVel = {0.0f, 0.0f, 0.0f};
@@ -171,19 +167,16 @@ void CategoryInfPlayer::updateCatDisplay() {
     float verticalCamAngle = DEG(atan2f(camDiff.y, sqrtf(camDiff.x * camDiff.x + camDiff.z * camDiff.z)));
     float horizontalCamAngle = DEG(atan2f(camDiff.z, camDiff.x));
     float camHAngle = atan2f(camDiff.z, camDiff.x);
-    if (camHAngle < 0)
-        camHAngle += M_PI * 2;
+    if (camHAngle < 0) camHAngle += M_PI * 2;
 
     float relAngleVel = hSpeedAngle - camHAngle - (M_PI / 2);  // offset to move 0 to the right
-    if (relAngleVel < 0)
-        relAngleVel += M_PI * 2;
+    if (relAngleVel < 0) relAngleVel += M_PI * 2;
     relAngleVel = -relAngleVel + M_PI * 2;  // invert to conform normal anti-clockwise angle system
 
     float relVelAngleDeg = DEG(relAngleVel);
 
     float relRotAngle = playerRot.y - camHAngle - (M_PI / 2);  // offset to move 0 to the right
-    if (relRotAngle < 0)
-        relRotAngle += M_PI * 2;
+    if (relRotAngle < 0) relRotAngle += M_PI * 2;
     // relRotAngle = -relRotAngle + M_PI*2; // invert to conform normal anti-clockwise angle system
 
     float relRotAngleDeg = DEG(relRotAngle);
@@ -221,23 +214,20 @@ sead::Vector3f CategoryInfPlayer::QuatToEuler(sead::Quatf* quat) {
     f32 t1 = 1.0f - 2.0f * (x * x + y * y);
     f32 roll = atan2f(t0, t1);
     f32 adjustedRoll = roll;
-    if (adjustedRoll < 0)
-        adjustedRoll += M_PI * 2;
+    if (adjustedRoll < 0) adjustedRoll += M_PI * 2;
 
     f32 t2 = 2.0f * (w * y - z * x);
     t2 = t2 > 1.0f ? 1.0f : t2;
     t2 = t2 < -1.0f ? -1.0f : t2;
     f32 pitch = asinf(t2);
     f32 adjustedPitch = pitch;
-    if (adjustedPitch < 0)
-        adjustedPitch += M_PI * 2;
+    if (adjustedPitch < 0) adjustedPitch += M_PI * 2;
 
     f32 t3 = 2.0f * (w * z + x * y);
     f32 t4 = 1.0f - 2.0f * (y * y + z * z);
     f32 yaw = atan2f(t3, t4);
     f32 adjustedYaw = yaw;
-    if (adjustedYaw < 0)
-        adjustedYaw += M_PI * 2;
+    if (adjustedYaw < 0) adjustedYaw += M_PI * 2;
 
     return sead::Vector3f(adjustedYaw, adjustedPitch, adjustedRoll);
 }

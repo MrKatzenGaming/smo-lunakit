@@ -1,20 +1,20 @@
-#include "GhostManager.h"
-#include "PlayerAnims.h"
 #include "al/util/NerveUtil.h"
+#include "GhostManager.h"
+#include "Library/LiveActor/SubActorKeeper.h"
+#include "PlayerAnims.h"
+#include "actors/Puppet/PuppetActor.h"
 #include "devgui/DevGuiManager.h"
 #include "helpers/GetHelper.h"
 #include "smo-tas/TAS.h"
-#include "actors/Puppet/PuppetActor.h"
-#include "Library/LiveActor/SubActorKeeper.h"
 
 namespace {
-    NERVE_IMPL(Ghost, Play);
-    NERVE_IMPL(Ghost, Wait);
-    struct {
-        NERVE_MAKE(Ghost, Play);
-        NERVE_MAKE(Ghost, Wait);
-    } nrvGhost;
-}
+NERVE_IMPL(Ghost, Play);
+NERVE_IMPL(Ghost, Wait);
+struct {
+    NERVE_MAKE(Ghost, Play);
+    NERVE_MAKE(Ghost, Wait);
+} nrvGhost;
+}  // namespace
 
 Ghost::Ghost() : al::NerveExecutor("Ghost") {
     initNerve(&nrvGhost.Wait, 0);
@@ -44,7 +44,6 @@ void Ghost::startReplay(ReplayFrame* frames, s32 frameCount) {
     }
 }
 
-
 void Ghost::endReplay() {
     delete[] mFrames;
     mFrameCount = 0;
@@ -59,31 +58,30 @@ bool Ghost::isRunning() {
     return al::isNerve(this, &nrvGhost.Play);
 }
 
-void Ghost::exeWait() {
-
-}
+void Ghost::exeWait() {}
 
 void Ghost::exePlay() {
-    if (!mPuppet)
-        return;
+    if (!mPuppet) return;
     int step = al::getNerveStep(this);
     if (step >= mFrameCount) {
         endReplay();
         return;
     }
 
-    ReplayFrame &curFrame = mFrames[step];
+    ReplayFrame& curFrame = mFrames[step];
     PuppetCapActor* cap = mPuppet->mPuppetCap;
     al::LiveActor* curModel = mPuppet->getCurrentModel();
 
     // cappy visibility updating
     if (curFrame.isCapVisible != al::isAlive(cap)) {
         if (curFrame.isCapVisible) {
-            cap->makeActorAlive(); // start vis action?
+            cap->makeActorAlive();  // start vis action?
         } else {
             cap->makeActorDead();
             al::LiveActor* headModel = al::getSubActor(curModel, "頭");
-            if (headModel) { al::startVisAnimForAction(headModel, "CapOn"); }
+            if (headModel) {
+                al::startVisAnimForAction(headModel, "CapOn");
+            }
         }
     }
 
@@ -93,12 +91,10 @@ void Ghost::exePlay() {
     }
 
     const char* animStr = PlayerAnims::FindStr(curFrame.playerAnim);
-    if (!al::isActionPlaying(curModel, animStr) || al::isActionEnd(curModel))
-        mPuppet->startAction(animStr);
+    if (!al::isActionPlaying(curModel, animStr) || al::isActionEnd(curModel)) mPuppet->startAction(animStr);
 
     const char* capAnimStr = PlayerAnims::FindStr(curFrame.capAnim);
-    if (capAnimStr && (!al::isActionPlaying(cap, capAnimStr) || al::isActionEnd(cap)))
-        cap->startAction(capAnimStr);
+    if (capAnimStr && (!al::isActionPlaying(cap, capAnimStr) || al::isActionEnd(cap))) cap->startAction(capAnimStr);
 
     if (mPuppet->isNeedBlending()) {
         for (int i = 0; i < 6; i++) {
@@ -114,7 +110,4 @@ void Ghost::exePlay() {
     cap->mJointKeeper->mJointRot.z = curFrame.cJoint.z;
     cap->mJointKeeper->mSkew = curFrame.cSkew;
     al::setQuat(cap, curFrame.cRotation);
-
 }
-
-

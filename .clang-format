@@ -1,16 +1,17 @@
 ---
 Language: Cpp
 AccessModifierOffset: -4
-AlignAfterOpenBracket: Align
-AlignConsecutiveAssignments: false
-AlignConsecutiveDeclarations: false
-AlignOperands: true
-AlignTrailingComments: true
+AlignAfterOpenBracket: BlockIndent
+AlignEscapedNewlines: Right
+AlignOperands: Align
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 0
 AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortBlocksOnASingleLine: Never
 AllowShortCaseLabelsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: Inline
-AllowShortIfStatementsOnASingleLine: Never
+AllowShortIfStatementsOnASingleLine: WithoutElse
 AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakAfterReturnType: None
@@ -23,27 +24,35 @@ BreakBeforeBraces: Attach
 BreakBeforeTernaryOperators: false
 BreakConstructorInitializersBeforeComma: false
 ColumnLimit: 150
-CommentPragmas: '^ (IWYU pragma:|NOLINT)'
+CommentPragmas: "^ (IWYU pragma:|NOLINT)"
 ConstructorInitializerAllOnOneLineOrOnePerLine: false
 ConstructorInitializerIndentWidth: 4
 ContinuationIndentWidth: 4
 Cpp11BracedListStyle: true
 DerivePointerAlignment: false
 DisableFormat: false
-ForEachMacros: [ ]
+ForEachMacros: []
 IncludeCategories:
   - Regex: '^<[Ww]indows\.h>$'
     Priority: 1
-  - Regex: '^<'
+  - Regex: ^("|<)al/
     Priority: 2
-  - Regex: '^"'
+  - Regex: ^("|<)agl/
     Priority: 3
+  - Regex: ^("|<)sead/
+    Priority: 4
+  - Regex: ^("|<)game/
+    Priority: 5
+  - Regex: ^<
+    Priority: 6
+  - Regex: ^"
+    Priority: 7
 IndentCaseLabels: false
 IndentWidth: 4
 IndentWrappedFunctionNames: false
 KeepEmptyLinesAtTheStartOfBlocks: false
-MacroBlockBegin: ''
-MacroBlockEnd: ''
+MacroBlockBegin: ""
+MacroBlockEnd: ""
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: None
 ObjCBlockIndentWidth: 4
@@ -71,5 +80,6 @@ SpacesInSquareBrackets: false
 Standard: c++17
 TabWidth: 4
 UseTab: Never
-WhitespaceSensitiveMacros: [ "SEAD_ENUM", "SEAD_ENUM_EX", "SEAD_ENUM_EX_VALUES", "HOOK_DEFINE_TRAMPOLINE" ]
-...
+TypeNames: [u8, s8, u16, s16, u32, s32, f32, u64, s64, f64]
+WhitespaceSensitiveMacros:
+  ["SEAD_ENUM", "SEAD_ENUM_EX", "SEAD_ENUM_EX_VALUES", "HOOK_DEFINE_TRAMPOLINE"]

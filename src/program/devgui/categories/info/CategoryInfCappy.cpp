@@ -4,24 +4,25 @@
 #include "Library/Nerve/NerveKeeper.h"
 #include "Library/Nerve/NerveStateCtrl.h"
 
-#include "devgui/DevGuiManager.h"
 #include "game/Player/PlayerActorBase.h"
 #include "game/Player/PlayerActorHakoniwa.h"
 #include "game/Player/PlayerAnimator.h"
 #include "game/Player/PlayerFunction.h"
 #include "game/Player/PlayerRecoverySafetyPoint.h"
+#include "Library/Nerve/NerveUtil.h"
+#include "devgui/DevGuiManager.h"
 
 #include "helpers/GetHelper.h"
 #include "rs/util.hpp"
 
 #include "imgui.h"
 
+#include "al/util/GraphicsUtil.h"
 #include <Library/LiveActor/ActorMovementFunction.h>
 #include <cxxabi.h>
 #include <gfx/seadCamera.h>
 #include <helpers/ImGuiHelper.h>
 #include "Library/LiveActor/ActorPoseKeeper.h"
-#include "al/util/GraphicsUtil.h"
 #include "devgui/windows/StagePause/WindowStagePause.h"
 #include "logger/Logger.hpp"
 
@@ -65,18 +66,34 @@ void CategoryInfCappy::updateCatDisplay() {
         }
     }
 
+    if (cappy) {
+        int status;
+        al::NerveKeeper* nerveKeeper = cappy->getNerveKeeper();
+        char* nerveName = nullptr;
+        int prefixLen = 0;
+
+        if (nerveKeeper) {
+            const al::Nerve* currentNerve = nerveKeeper->getCurrentNerve();
+            if (currentNerve) {
+                nerveName = abi::__cxa_demangle(typeid(*currentNerve).name(), nullptr, nullptr, &status);
+                prefixLen = nerveName[0] == '(' ? strlen("(anonymous namespace)::") : 0;
+            }
+        }
+
+        ImGui::Text("CappyNrv: %s", nerveName + prefixLen);
+        free(nerveName);
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////////////
 
     al::ActorPoseKeeperBase* pose = cappy->mPoseKeeper;
     StageScene* stageScene = tryGetStageScene();
 
-    if (!pose)
-        return;
+    if (!pose) return;
 
     float hSpeed = al::calcSpeedH(cappy), vSpeed = al::calcSpeedV(cappy), speed = al::calcSpeed(cappy);
     float hSpeedAngle = atan2f(pose->getVelocityPtr()->z, pose->getVelocityPtr()->x);
-    if (hSpeedAngle < 0)
-        hSpeedAngle += M_PI * 2;
+    if (hSpeedAngle < 0) hSpeedAngle += M_PI * 2;
 
     float hSpeedAngleDeg = DEG(hSpeedAngle);
 
@@ -120,12 +137,10 @@ void CategoryInfCappy::updateCatDisplay() {
 
     if (stateName && stateNrvName) {
         ImGui::Text("State: %s", stateName);
-        if (ImGui::IsItemHovered())
-            ImGui::SetTooltip("Current type of action\nthe player is performing");
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("Current type of action\nthe player is performing");
 
         ImGui::Text("State Nrv: %s", stateNrvName + 23 + strlen(stateName) + 3);
-        if (ImGui::IsItemHovered())
-            ImGui::SetTooltip("Basically the sub-action\nCurrent nerve of the state");
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("Basically the sub-action\nCurrent nerve of the state");
 
         free(stateName);
         free(stateNrvName);
