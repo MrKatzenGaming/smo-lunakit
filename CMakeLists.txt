@@ -27,6 +27,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/module/subsdk9.json.template ${CMAKE_
 include_directories(${PROJECT_SOURCE_DIR}/lib/custom)
 include_directories(${PROJECT_SOURCE_DIR}/lib/custom/sead)
 include_directories(${PROJECT_SOURCE_DIR}/lib/custom/agl)
+include_directories(${PROJECT_SOURCE_DIR}/lib/custom/al)
+include_directories(${PROJECT_SOURCE_DIR}/lib/custom/game)
 include_directories(${PROJECT_SOURCE_DIR}/lib/exlaunch)
 include_directories(${PROJECT_SOURCE_DIR}/lib/exlaunch/lib)
 include_directories(${PROJECT_SOURCE_DIR}/lib/smo)

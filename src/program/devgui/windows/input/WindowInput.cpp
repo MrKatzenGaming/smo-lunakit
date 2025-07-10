@@ -3,12 +3,13 @@
 #include "al/Pad/NpadController.h"
 #include "al/util.hpp"
 #include "al/util/ControllerUtil.h"
-#include "controller/seadControllerMgr.h"
-#include "devgui/DevGuiManager.h"
-#include "devgui/windows/StagePause/WindowStagePause.h"
-#include "devgui/windows/WindowBase.h"
 #include "game/Player/PlayerFunction.h"
 #include "game/System/GameDataFunction.h"
+#include "controller/seadControllerMgr.h"
+#include "devgui/DevGuiManager.h"
+#include "devgui/savedata/DevGuiSaveData.h"
+#include "devgui/windows/StagePause/WindowStagePause.h"
+#include "devgui/windows/WindowBase.h"
 #include "helpers/GetHelper.h"
 #include "helpers/InputHelper.h"
 #include "helpers/PlayerHelper.h"
@@ -54,8 +55,9 @@ void WindowInput::drawInputDisplay() {
     }
 
     if (mIs2P)
-        ImGui::GetForegroundDrawList()->AddText(ImGui::GetDefaultFont(), 30.f, {pos.x + 20, pos.y - 100},
-                                                makeColor(getInputDisplayColor(InputDisplayColor::White)), "Player 1");
+        ImGui::GetForegroundDrawList()->AddText(
+            ImGui::GetDefaultFont(), 30.f, {pos.x + 20, pos.y - 100}, makeColor(getInputDisplayColor(InputDisplayColor::White)), "Player 1"
+        );
 
     ImGui::GetForegroundDrawList()->AddCircle(pos, 25, makeColor(getInputDisplayColor(InputDisplayColor::Gray)), 0, 2);
     ImVec2 leftPos = {pos.x + mLStick.x * 30, pos.y - mLStick.y * 30};  // stickl
@@ -120,8 +122,9 @@ void WindowInput::drawInputDisplayP2() {
         color.w = 128;
         ImGui::GetForegroundDrawList()->AddRectFilled({pos.x - 50, pos.y - 100}, {pos.x + 200, pos.y + 100}, makeColor(color), 20.0f);
     }
-    ImGui::GetForegroundDrawList()->AddText(ImGui::GetDefaultFont(), 30.f, {pos.x + 20, pos.y - 100},
-                                            makeColor(getInputDisplayColor(InputDisplayColor::White)), "Player 2");
+    ImGui::GetForegroundDrawList()->AddText(
+        ImGui::GetDefaultFont(), 30.f, {pos.x + 20, pos.y - 100}, makeColor(getInputDisplayColor(InputDisplayColor::White)), "Player 2"
+    );
 
     ImGui::GetForegroundDrawList()->AddCircle(pos, 25, makeColor(getInputDisplayColor(InputDisplayColor::Gray)), 0, 2);
     ImVec2 leftPos = {pos.x + mLStick2.x * 30, pos.y - mLStick2.y * 30};  // stickl
@@ -173,38 +176,82 @@ void WindowInput::drawInputDisplayP2() {
 }
 
 void WindowInput::updateWin() {
-    if (!mIsEnabled)
-        return;
+    if (!mIsEnabled) return;
     controllerMgr = sead::ControllerMgr::instance();
     WindowStagePause* win = (WindowStagePause*)DevGuiManager::instance()->getWindow("Stage Pauser");
     TAS* tas = TAS::instance();
 
     controller = (al::NpadController*)controllerMgr->getController(al::getPlayerControllerPort(0));
-    if (mIs2P)
-        controller2 = (al::NpadController*)controllerMgr->getController(al::getPlayerControllerPort(1));
+    if (mIs2P) controller2 = (al::NpadController*)controllerMgr->getController(al::getPlayerControllerPort(1));
 
-
-        if (controller) {
-            padHold = win->getStagePaused() ? (!tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer&&tas->isRunning() ? (sead::BitFlag<u32>)tas->getScript()->mFrames[tas->getFrameIndex()].mButtons : padHold) : controller->mPadHold;
-            mLStick = win->getStagePaused() ? (!tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer&&tas->isRunning() ? tas->getScript()->mFrames[tas->getFrameIndex()].mLeftStick : mLStick) : controller->mLeftStick;
-            mRStick = win->getStagePaused() ? (!tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer&&tas->isRunning() ? tas->getScript()->mFrames[tas->getFrameIndex()].mRightStick : mRStick) : controller->mRightStick;
-        }
-        if (controller2) {
-            padHold2 = win->getStagePaused() ? (tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer&&tas->isRunning() ? (sead::BitFlag<u32>)tas->getScript()->mFrames[tas->getFrameIndex()].mButtons : padHold2) : controller2->mPadHold;
-            mLStick2 = win->getStagePaused() ? (tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer&&tas->isRunning() ? tas->getScript()->mFrames[tas->getFrameIndex()].mLeftStick : mLStick2) : controller2->mLeftStick;
-            mRStick2 = win->getStagePaused() ? (tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer&&tas->isRunning() ? tas->getScript()->mFrames[tas->getFrameIndex()].mRightStick : mRStick2) : controller2->mRightStick;
-        }
-    
+    if (controller) {
+        padHold = win->getStagePaused() ? (!tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer && tas->isRunning() ?
+                                               (sead::BitFlag<u32>)tas->getScript()->mFrames[tas->getFrameIndex()].mButtons :
+                                               padHold) :
+                                          controller->mPadHold;
+        mLStick = win->getStagePaused() ? (!tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer && tas->isRunning() ?
+                                               tas->getScript()->mFrames[tas->getFrameIndex()].mLeftStick :
+                                               mLStick) :
+                                          controller->mLeftStick;
+        mRStick = win->getStagePaused() ? (!tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer && tas->isRunning() ?
+                                               tas->getScript()->mFrames[tas->getFrameIndex()].mRightStick :
+                                               mRStick) :
+                                          controller->mRightStick;
+    }
+    if (controller2) {
+        padHold2 = win->getStagePaused() ? (tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer && tas->isRunning() ?
+                                                (sead::BitFlag<u32>)tas->getScript()->mFrames[tas->getFrameIndex()].mButtons :
+                                                padHold2) :
+                                           controller2->mPadHold;
+        mLStick2 = win->getStagePaused() ? (tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer && tas->isRunning() ?
+                                                tas->getScript()->mFrames[tas->getFrameIndex()].mLeftStick :
+                                                mLStick2) :
+                                           controller2->mLeftStick;
+        mRStick2 = win->getStagePaused() ? (tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer && tas->isRunning() ?
+                                                tas->getScript()->mFrames[tas->getFrameIndex()].mRightStick :
+                                                mRStick2) :
+                                           controller2->mRightStick;
+    }
 }
 bool WindowInput::tryUpdateWinDisplay() {
-    if (!WindowBase::tryUpdateWinDisplay())
-        return false;
+    if (!WindowBase::tryUpdateWinDisplay()) return false;
+    DevGuiSaveData* saveData = DevGuiManager::instance()->getSaveData();
 
-    ImGui::DragFloat2("Position", &mPos.x, 1, 200, 1600, "%.1f");
-    ImGui::Checkbox("Enable", &mIsEnabled);
-    ImGui::Checkbox("Enable P2", &mIs2P);
+    if (ImGui::Checkbox("Enable", &mIsEnabled)) {
+        saveData->queueSaveWrite();
+    }
+    ImGui::PushItemWidth(100);
+    ImGui::PushID("1Paaaaaaaaaa");
+    if (ImGui::DragFloat(" ", &mPos.x, 1, 200, 1600, "%.1f")) {
+        saveData->queueSaveWrite();
+    }
+    ImGui::PopID();
+    ImGui::PushID("1P2aaaaaaaaaa");
+
+    ImGui::SameLine();
+    if (ImGui::DragFloat("Position", &mPos.y, 1, 200, 900, "%.1f")) {
+        saveData->queueSaveWrite();
+    }
+    ImGui::PopID();
+    ImGui::PopItemWidth();
+
+    if (ImGui::Checkbox("Enable P2", &mIs2P)) {
+        saveData->queueSaveWrite();
+    }
     if (mIs2P) {
-        ImGui::DragFloat2("Position P2", &mPos2.x, 1, 200, 1600, "%.1f");
+        ImGui::PushItemWidth(100);
+        ImGui::PushID("2Paaaaaaaaaa");
+        if (ImGui::DragFloat(" ", &mPos2.x, 1, 200, 1600, "%.1f")) {
+            saveData->queueSaveWrite();
+        }
+        ImGui::PopID();
+        ImGui::PushID("2P2aaaaaaaaaa");
+        ImGui::SameLine();
+        if (ImGui::DragFloat("Position P2", &mPos2.y, 1, 200, 900, "%.1f")) {
+            saveData->queueSaveWrite();
+        }
+        ImGui::PopID();
+        ImGui::PopItemWidth();
     }
 
     return true;

@@ -7,18 +7,15 @@
 #include "al/util.hpp"
 #include "al/util/NerveUtil.h"
 #include "al/util/OtherUtil.h"
-#include "devgui/DevGuiManager.h"
-#include "filedevice/seadFileDeviceMgr.h"
-#include "nn/fs/fs_directories.h"
-#include "nn/fs/fs_files.h"
-#include "game/Util/ControllerAppletFunction.h"
 #include "game/Scene/StageScene.h"
 #include "game/System/GameSystem.h"
+#include "game/Util/ControllerAppletFunction.h"
+#include "devgui/DevGuiManager.h"
 #include "ghost/GhostManager.h"
 #include "logger/Logger.hpp"
-#include "vapours/results.hpp"
+#include "nn/fs/fs_directories.h"
+#include "nn/fs/fs_files.h"
 #include "rs/util/LiveActorUtil.h"
-#include "sead/basis/seadNew.h"
 
 namespace {
 NERVE_IMPL(TAS, Update);
@@ -49,8 +46,7 @@ void TAS::updateDir() {
     sead::ScopedCurrentHeapSetter heapSetter(DevGuiManager::instance()->getHeap());
     nn::fs::DirectoryHandle handle = {};
     nn::Result r = nn::fs::OpenDirectory(&handle, TAS_SCRIPTPATH, nn::fs::OpenDirectoryMode_File);
-    if (r.IsFailure())
-        return;
+    if (r.IsFailure()) return;
     s64 entryCount = 0;
     r = nn::fs::GetDirectoryEntryCount(&entryCount, handle);
     if (r.IsFailure()) {
@@ -88,13 +84,11 @@ bool TAS::tryLoadScript() {
             isEntryExist = true;
         }
     }
-    if (!isEntryExist)
-        return false;
+    if (!isEntryExist) return false;
     sead::FormatFixedSafeString<256> scriptPath(TAS_SCRIPTPATH "/%s", mLoadedEntry.mName);
     nn::fs::FileHandle handle;
     nn::Result r = nn::fs::OpenFile(&handle, scriptPath.cstr(), nn::fs::OpenMode::OpenMode_Read);
-    if (r.IsFailure())
-        return false;
+    if (r.IsFailure()) return false;
     mScript = (Script*)new u8[mLoadedEntry.mFileSize];
     r = nn::fs::ReadFile(handle, 0, mScript, mLoadedEntry.mFileSize);
     nn::fs::CloseFile(handle);
@@ -116,13 +110,11 @@ void TAS::startScript() {
     if (mScript->mIsTwoPlayer != rs::isSeparatePlay(mScene)) {
         al::GamePadSystem* gamePadSystem = GameSystemFunction::getGameSystem()->mGamePadSystem;
         if (mScript->mIsTwoPlayer) {
-            if (!ControllerAppletFunction::connectControllerSeparatePlay(gamePadSystem))
-                return;
+            if (!ControllerAppletFunction::connectControllerSeparatePlay(gamePadSystem)) return;
             rs::changeSeparatePlayMode(mScene, true);
             isWait = true;
         } else {
-            if (!ControllerAppletFunction::connectControllerSinglePlay(gamePadSystem))
-                return;
+            if (!ControllerAppletFunction::connectControllerSinglePlay(gamePadSystem)) return;
             rs::changeSeparatePlayMode(mScene, false);
             isWait = true;
         }
@@ -182,8 +174,8 @@ void TAS::exeUpdate() {
         mPrevButtons[1] = 0;
         if (al::isEqualString(typeid(*mScene).name(), typeid(StageScene).name())) {
             PlayerActorBase* playerBase = rs::getPlayerActor(mScene);
-            if (playerBase && !(mScript->mStartPosition.x == 0 && mScript->mStartPosition.y == 0 &&
-                                mScript->mStartPosition.z == 0)) {  // teleport unless position is (0, 0, 0)
+            if (playerBase && !(mScript->mStartPosition.x == 0 && mScript->mStartPosition.y == 0 && mScript->mStartPosition.z == 0
+                              )) {  // teleport unless position is (0, 0, 0)
                 playerBase->startDemoPuppetable();
                 al::setTrans(playerBase, mScript->mStartPosition);
                 playerBase->endDemoPuppetable();
@@ -197,8 +189,7 @@ void TAS::exeUpdate() {
     while (mFrameIndex < mScript->mFrameCount) {
         // Logger::log("Frame Index: %d, Step: %d\n", mFrameIndex, al::getNerveStep(this));
         InputFrame& curFrame = mScript->mFrames[mFrameIndex];
-        if (step < curFrame.mStep)
-            break;
+        if (step < curFrame.mStep) break;
         mFrameIndex++;  // increment after checking step
         updated[curFrame.mSecondPlayer] = true;
         applyFrame(curFrame);
@@ -219,8 +210,7 @@ void TAS::exeUpdate() {
     }
     if (mFrameIndex >= mScript->mFrameCount) {
         auto* ghostMgr = GhostManager::instance();
-        if (ghostMgr->isRecording())
-            ghostMgr->setNerveRecordEnd();
+        if (ghostMgr->isRecording()) ghostMgr->setNerveRecordEnd();
         // Logger::log("Ended Script on Step: %d\n", al::getNerveStep(this));
         // al::setNerve(this, &nrvTASWait);
         endScript();
