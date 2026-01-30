@@ -1,7 +1,7 @@
 #pragma once
 
 namespace al {
-    class PadRumbleDirector {
-        public:
-    };
-}
+class PadRumbleDirector {
+public:
+};
+}  // namespace al

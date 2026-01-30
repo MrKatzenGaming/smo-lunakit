@@ -28,6 +28,7 @@ class PadRumbleDirector;
 class NatureDirector;
 class ModelGroup;
 ;
+
 class LiveActorKit : public al::HioNode {
 public:
     LiveActorKit(int, int);
@@ -47,6 +48,7 @@ public:
     void preDrawGraphics();
 
     al::CameraDirector* getCameraDirector() const { return mCameraDirector; }
+
     al::EffectSystem* getEffectSystem() const { return mEffectSystem; }
 
     int mMaxActors;

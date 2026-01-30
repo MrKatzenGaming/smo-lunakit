@@ -5,7 +5,4 @@
 
 #pragma once
 
-class InformationMoviePlayer
-{
-    
-};
+class InformationMoviePlayer {};

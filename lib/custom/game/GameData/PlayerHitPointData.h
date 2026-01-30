@@ -1,13 +1,12 @@
 #pragma once
 
 #include "game/System/ByamlSave.h"
-#include "types.h"
 
 class PlayerHitPointData : public ByamlSave {
 public:
     PlayerHitPointData(void);
-    void write(al::ByamlWriter *) override;
-    void read(al::ByamlIter const&) override;
+    void write(al::ByamlWriter*) override;
+    void read(const al::ByamlIter&) override;
 
     void setKidsModeFlag(bool);
     void init(void);
@@ -27,8 +26,8 @@ public:
     void endForceNormalMode(void);
     bool isForceNormalMode(void) const;
 
-    bool mIsKidsMode; // 0x8
-    int mCurrentHit; // 0xC
-    bool mIsHaveMaxUpItem; // 0x10
-    bool mIsForceNormalHealth; // 0x11
+    bool mIsKidsMode;           // 0x8
+    int mCurrentHit;            // 0xC
+    bool mIsHaveMaxUpItem;      // 0x10
+    bool mIsForceNormalHealth;  // 0x11
 };

@@ -7,18 +7,18 @@
 
 #include "Library/LiveActor/LiveActor.h"
 
+#include "game/Player/HackCapThrowParam.h"
 #include "game/Player/IUsePlayerCollision.h"
 #include "game/Player/PlayerInput.h"
+#include "game/Player/PlayerWallActionHistory.h"
 
 #include "HackCap/HackCapJointControlKeeper.h"
 #include "HackCap/PlayerCapActionHistory.h"
-#include "game/Player/HackCapThrowParam.h"
-#include "game/Player/PlayerWallActionHistory.h"
 
 namespace al {
 class SensorMsg;
 class HitSensor;
-}
+}  // namespace al
 
 class PlayerEyeSensorHitHolder;
 class IUsePlayerHeightCheck;
@@ -30,20 +30,20 @@ class PlayerSeparateCapFlag;
 
 class CapTargetInfo;
 
-class PlayerActorHakoniwa; // use a stub instead of the actual class file
+class PlayerActorHakoniwa;  // use a stub instead of the actual class file
 
 #define HACKSIZE sizeof(al::LiveActor)
 
 class HackCap : public al::LiveActor {
 public:
-    HackCap(al::LiveActor const*, char const*, PlayerInput const*, struct PlayerAreaChecker const*, PlayerWallActionHistory const*, PlayerCapActionHistory const*, PlayerEyeSensorHitHolder const*, PlayerSeparateCapFlag const*, IUsePlayerCollision const*, IUsePlayerHeightCheck const*, PlayerWetControl const*, PlayerJointControlKeeper const*, HackCapJudgePreInputSeparateThrow*, HackCapJudgePreInputSeparateJump*);
+    HackCap(const al::LiveActor*, const char*, const PlayerInput*, struct PlayerAreaChecker const*, const PlayerWallActionHistory*,
+            const PlayerCapActionHistory*, const PlayerEyeSensorHitHolder*, const PlayerSeparateCapFlag*, const IUsePlayerCollision*,
+            const IUsePlayerHeightCheck*, const PlayerWetControl*, const PlayerJointControlKeeper*, HackCapJudgePreInputSeparateThrow*,
+            HackCapJudgePreInputSeparateJump*);
 
-    enum SwingHandType {
-        Left,
-        Right
-    };
+    enum SwingHandType { Left, Right };
 
-    void init(al::ActorInitInfo const&);
+    void init(const al::ActorInitInfo&);
     void hide(bool);
     void movement(void);
     void updateShadowMaskOffset(void);
@@ -55,7 +55,7 @@ public:
     void prepareLockOn(al::HitSensor*);
     void sendMsgStartHack(al::HitSensor*);
     void receiveRequestTransferHack(al::HitSensor*, al::HitSensor*);
-    void startThrowSeparatePlayHack(al::HitSensor*, sead::Vector3f const&, sead::Vector3f const&, float);
+    void startThrowSeparatePlayHack(al::HitSensor*, const sead::Vector3f&, const sead::Vector3f&, float);
     void startHack(void);
     void emitHackStartEffect(void);
     void noticeHackMarioEnter(void);
@@ -65,13 +65,14 @@ public:
     void addLockOnKeepDemo(void);
     void syncHackDamageVisibility(bool);
     void endHack(void);
-    void startSpinAttack(char const*);
-    void startThrow(bool, sead::Vector3f const&, sead::Vector3f const&, float, sead::Vector2f const&, sead::Vector2f const&, sead::Vector3f const&, bool, sead::Vector3f const&, HackCap::SwingHandType, bool, float, int);
-    void startThrowSeparatePlay(sead::Vector3f const&, sead::Vector3f const&, float, bool);
-    void startThrowSeparatePlayJump(sead::Vector3f const&, sead::Vector3f const&, float);
-    void startCatch(char const*, bool, sead::Vector3f const&);
+    void startSpinAttack(const char*);
+    void startThrow(bool, const sead::Vector3f&, const sead::Vector3f&, float, const sead::Vector2f&, const sead::Vector2f&, const sead::Vector3f&,
+                    bool, const sead::Vector3f&, HackCap::SwingHandType, bool, float, int);
+    void startThrowSeparatePlay(const sead::Vector3f&, const sead::Vector3f&, float, bool);
+    void startThrowSeparatePlayJump(const sead::Vector3f&, const sead::Vector3f&, float);
+    void startCatch(const char*, bool, const sead::Vector3f&);
     void forcePutOn(void);
-    void forceHack(al::HitSensor*, CapTargetInfo const*); // :eyes:
+    void forceHack(al::HitSensor*, const CapTargetInfo*);  // :eyes:
     void resetLockOnParam(void);
     void setupStartLockOn(void);
     void cancelCapState(void);
@@ -83,7 +84,7 @@ public:
     void recordCapJump(PlayerWallActionHistory*);
     void getFlyingSpeedMax(void);
     void getThrowSpeed(void);
-    void requestLockOnHitReaction(CapTargetInfo const*, char const*);
+    void requestLockOnHitReaction(const CapTargetInfo*, const char*);
     void startPuppet(void);
     void endPuppet(void);
     void hidePuppetCap(void);
@@ -99,17 +100,18 @@ public:
     void updateCapEyeShowHide(bool, int);
     void activateInvincibleEffect(void);
     void syncInvincibleEffect(bool);
-    void updateSeparateMode(PlayerSeparateCapFlag const*);
+    void updateSeparateMode(const PlayerSeparateCapFlag*);
     void startRescuePlayer(void);
     void prepareCooperateThrow(void);
     void requestForceFollowSeparateHide(void);
-    void calcSeparateHideSpeedH(sead::Vector3f const&);
+    void calcSeparateHideSpeedH(const sead::Vector3f&);
     void updateModelAlphaForSnapShot(void);
     void getPadRumblePort(void);
     void updateThrowJoint(void);
     void setupThrowStart(void);
     void getThrowHeight(void);
-    void checkEnableThrowStartSpace(sead::Vector3f*, sead::Vector3f*, sead::Vector3f*, sead::Vector3f const&, float, float, bool, sead::Vector3f const&);
+    void checkEnableThrowStartSpace(sead::Vector3f*, sead::Vector3f*, sead::Vector3f*, const sead::Vector3f&, float, float, bool,
+                                    const sead::Vector3f&);
     void updateWaterArea(void);
     void getThrowRange(void);
     void getThrowBrakeTime(void);
@@ -138,10 +140,10 @@ public:
     void calcReturnTargetPos(sead::Vector3f*);
     void attackSensor(al::HitSensor*, al::HitSensor*);
     void stayRollingOrReflect(void);
-    bool receiveMsg(al::SensorMsg const*, al::HitSensor*, al::HitSensor*);
+    bool receiveMsg(const al::SensorMsg*, al::HitSensor*, al::HitSensor*);
     void endMove(void);
     void prepareTransferLockOn(al::HitSensor*);
-    void collideThrowStartArrow(al::HitSensor*, sead::Vector3f const&, sead::Vector3f const&, sead::Vector3f const&);
+    void collideThrowStartArrow(al::HitSensor*, const sead::Vector3f&, const sead::Vector3f&, const sead::Vector3f&);
     void trySendAttackCollideAndReaction(bool*);
     void stayWallHit(void);
     void endHackThrow(void);
@@ -196,15 +198,15 @@ public:
     void exeReturn(void);
     void exeBlow(void);
 
-    void* unkPtr1; // 0x108
-    void* unkPtr2; // 0x110
-    al::LiveActor* mLockOnEyes; // 0x118
-    al::LiveActor* mCapEyes; // 0x120
-    PlayerActorHakoniwa* mPlayerActor; // 0x128
+    void* unkPtr1;                      // 0x108
+    void* unkPtr2;                      // 0x110
+    al::LiveActor* mLockOnEyes;         // 0x118
+    al::LiveActor* mCapEyes;            // 0x120
+    PlayerActorHakoniwa* mPlayerActor;  // 0x128
     unsigned char padding_220[0x220 - 0x130];
-    HackCapThrowParam* throwParam; // 0x220
+    HackCapThrowParam* throwParam;  // 0x220
     unsigned char padding_2B8[0x2B8 - 0x228];
-    PlayerCapActionHistory* mCapActionHistory; // 0x2B8
+    PlayerCapActionHistory* mCapActionHistory;  // 0x2B8
     unsigned char padding_2E0[0x2E0 - 0x2C0];
-    HackCapJointControlKeeper* mJointKeeper; // 0x2E0
+    HackCapJointControlKeeper* mJointKeeper;  // 0x2E0
 };

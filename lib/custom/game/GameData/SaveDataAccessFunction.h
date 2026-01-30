@@ -4,7 +4,7 @@
 
 namespace SaveDataAccessFunction {
 
-    void startSaveDataInitSync(GameDataHolder *);
+void startSaveDataInitSync(GameDataHolder*);
 
-    void startSaveDataReadSync(GameDataHolder *);
-}
+void startSaveDataReadSync(GameDataHolder*);
+}  // namespace SaveDataAccessFunction

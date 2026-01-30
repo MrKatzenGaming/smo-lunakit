@@ -1,7 +1,8 @@
 #pragma once
 
-#include <math/seadMatrix.h>
 #include "Library/Effect/EffectSystemInfo.h"
+
+#include <math/seadMatrix.h>
 
 namespace sead {
 class Heap;

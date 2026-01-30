@@ -1,13 +1,11 @@
 #pragma once
 
-namespace al
-{
-    class SceneCreator;
+namespace al {
+class SceneCreator;
 
-    class IUseSceneCreator
-    {
-    public:
-        virtual al::SceneCreator* getSceneCreator() const = 0;
-        virtual void setSceneCreator(al::SceneCreator* ) = 0;
-    };
+class IUseSceneCreator {
+public:
+    virtual al::SceneCreator* getSceneCreator() const = 0;
+    virtual void setSceneCreator(al::SceneCreator*) = 0;
 };
+};  // namespace al

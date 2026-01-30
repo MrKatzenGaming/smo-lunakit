@@ -1,7 +1,5 @@
 #pragma once
 
 namespace al {
-    class CameraStartInfo {
-    
-    };
-}
+class CameraStartInfo {};
+}  // namespace al

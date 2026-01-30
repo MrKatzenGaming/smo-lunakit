@@ -13,9 +13,8 @@ void turnVecToVecDegree(sead::Vector3f*, const sead::Vector3f&, const sead::Vect
 void turnVecToVecRate(sead::Vector3f*, const sead::Vector3f&, const sead::Vector3f&, float);
 
 void calcQuatFront(sead::Vector3f*, const sead::Quatf&);
-void makeQuatFrontUp(sead::Quatf *, const sead::Vector3f &,
-                     const sead::Vector3f &);
+void makeQuatFrontUp(sead::Quatf*, const sead::Vector3f&, const sead::Vector3f&);
 
-float calcAngleOnPlaneDegree(sead::Vector3f const&,sead::Vector3f const&,sead::Vector3f const&);
+float calcAngleOnPlaneDegree(const sead::Vector3f&, const sead::Vector3f&, const sead::Vector3f&);
 
 }  // namespace al

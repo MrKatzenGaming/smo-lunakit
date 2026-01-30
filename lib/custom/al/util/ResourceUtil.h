@@ -1,17 +1,19 @@
 #pragma once
 
 #include <sead/prim/seadSafeString.h>
-#include "game/System/GameDataHolderAccessor.h"
-#include "Library/Resource/Resource.h"
+
 #include "Library/Resource/ActorResourceHolder.h"
+#include "Library/Resource/Resource.h"
+
+#include "game/System/GameDataHolderAccessor.h"
 
 namespace al {
 
 Resource* findOrCreateResource(const sead::SafeString&, const char*);
-void* findOrCreateResourceCategory(sead::SafeString const&,sead::SafeString const&,char const*);
+void* findOrCreateResourceCategory(const sead::SafeString&, const sead::SafeString&, const char*);
 ActorResource* findOrCreateActorResourceWithAnimResource(al::ActorResourceHolder*, const char*, const char*, const char*, bool);
 
-}
+}  // namespace al
 
 namespace rs {
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Library/Yaml/ByamlIter.h"
+
 #include "math/seadVector.h"
 
 struct CollisionParts;
@@ -27,4 +28,4 @@ public:
     sead::Vector3f mPosition3;
 };
 
-} // namespace al
+}  // namespace al

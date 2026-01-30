@@ -30,7 +30,7 @@ float lerpValue(float, float, float);
 
 bool isNearZero(float, float);
 
-bool isNearZero(sead::Vector3f const &, float);
+bool isNearZero(const sead::Vector3f&, float);
 
 template <typename T>
 inline T clamp(T value, T min, T max) {
@@ -43,27 +43,26 @@ inline T clamp(T value, T min, T max) {
 
 float calcSpringDumperForce(float unk1, float unk2, float unk3, float unk4);
 
-void separateVectorHV(sead::Vector3f*, sead::Vector3f*, const sead::Vector3f &,
-                      const sead::Vector3f &);
+void separateVectorHV(sead::Vector3f*, sead::Vector3f*, const sead::Vector3f&, const sead::Vector3f&);
 
-bool tryNormalizeOrDirZ(sead::Vector3f *);
-bool tryNormalizeOrDirZ(sead::Vector3f *, sead::Vector3f const&);
-bool tryNormalizeOrZero(sead::Vector3f*, sead::Vector3f const&);
-void rotateVectorDegree(sead::Vector3f *, const sead::Vector3f &, const sead::Vector3f &, float);
+bool tryNormalizeOrDirZ(sead::Vector3f*);
+bool tryNormalizeOrDirZ(sead::Vector3f*, const sead::Vector3f&);
+bool tryNormalizeOrZero(sead::Vector3f*, const sead::Vector3f&);
+void rotateVectorDegree(sead::Vector3f*, const sead::Vector3f&, const sead::Vector3f&, float);
 void rotateVectorDegreeX(sead::Vector3f*, float);
 void rotateVectorDegreeY(sead::Vector3f*, float);
 void rotateVectorDegreeZ(sead::Vector3f*, float);
 
-float calcAngleToTargetH(LiveActor const*,sead::Vector3f const&);
-float calcAngleToTargetV(LiveActor const*,sead::Vector3f const&);
-float calcAngleRadian(sead::Vector3f const&,sead::Vector3f const&);
-float calcAngleDegree(sead::Vector3f const&,sead::Vector3f const&);
-float calcAngleDegree(sead::Vector2f const&,sead::Vector2f const&);
-float calcAngleOnPlaneRadian(sead::Vector3f const&,sead::Vector3f const&,sead::Vector3f const&);
-float calcAngleOnPlaneDegree(sead::Vector3f const&,sead::Vector3f const&,sead::Vector3f const&);
-float calcAngleOnPlaneDegreeOrZero(sead::Vector3f const&,sead::Vector3f const&,sead::Vector3f const&);
-float calcAngleSignOnPlane(sead::Vector3f const&,sead::Vector3f const&,sead::Vector3f const&);
-bool tryCalcAngleDegree(float *,sead::Vector3f const&,sead::Vector3f const&);
-bool tryCalcAngleOnPlaneDegree(float *,sead::Vector3f const&,sead::Vector3f const&,sead::Vector3f const&);
+float calcAngleToTargetH(const LiveActor*, const sead::Vector3f&);
+float calcAngleToTargetV(const LiveActor*, const sead::Vector3f&);
+float calcAngleRadian(const sead::Vector3f&, const sead::Vector3f&);
+float calcAngleDegree(const sead::Vector3f&, const sead::Vector3f&);
+float calcAngleDegree(const sead::Vector2f&, const sead::Vector2f&);
+float calcAngleOnPlaneRadian(const sead::Vector3f&, const sead::Vector3f&, const sead::Vector3f&);
+float calcAngleOnPlaneDegree(const sead::Vector3f&, const sead::Vector3f&, const sead::Vector3f&);
+float calcAngleOnPlaneDegreeOrZero(const sead::Vector3f&, const sead::Vector3f&, const sead::Vector3f&);
+float calcAngleSignOnPlane(const sead::Vector3f&, const sead::Vector3f&, const sead::Vector3f&);
+bool tryCalcAngleDegree(float*, const sead::Vector3f&, const sead::Vector3f&);
+bool tryCalcAngleOnPlaneDegree(float*, const sead::Vector3f&, const sead::Vector3f&, const sead::Vector3f&);
 
 };  // namespace al

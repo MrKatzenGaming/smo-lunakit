@@ -1,18 +1,18 @@
 #pragma once
 
-#include "Library/LiveActor/LiveActor.h"
-#include "game/Player/HackCap.h"
-#include <sead/prim/seadSafeString.h>
 #include <sead/container/seadPtrArray.h>
+#include <sead/prim/seadSafeString.h>
+
+#include "Library/LiveActor/LiveActor.h"
+
+#include "game/Player/HackCap.h"
 
 class PlayerModelChangerHakoniwa;
 class PlayerEffect;
 
 class PlayerStainControl {
 private:
-    enum StainType {
-        Poison = 1, Fire, Ice, SandDesert, SandSea, SandMoon
-    };
+    enum StainType { Poison = 1, Fire, Ice, SandDesert, SandSea, SandMoon };
 
     struct unkstruct {
         int iVar1;
@@ -28,7 +28,7 @@ private:
     };
 
 public:
-    PlayerStainControl(al::LiveActor const*, al::LiveActor*, PlayerModelChangerHakoniwa const*, HackCap const*, PlayerEffect*);
+    PlayerStainControl(const al::LiveActor*, al::LiveActor*, const PlayerModelChangerHakoniwa*, const HackCap*, PlayerEffect*);
 
     void clearCurrentStain(bool);
     void clearStain();

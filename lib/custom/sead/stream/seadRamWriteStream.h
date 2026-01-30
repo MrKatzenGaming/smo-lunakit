@@ -6,17 +6,18 @@
 namespace sead {
 class RamStreamSrc : public StreamSrc {
 public:
-    RamStreamSrc(void *buffer, u32 size);
+    RamStreamSrc(void* buffer, u32 size);
     virtual ~RamStreamSrc();
 
-    u32 read(void *ptr,u32 size) override;
-    u32 write(void const*,u32) override;
+    u32 read(void* ptr, u32 size) override;
+    u32 write(const void*, u32) override;
     u32 skip(int) override;
     void rewind() override;
     bool isEOF() override;
+
 private:
-    void *mSrcBuffer;
+    void* mSrcBuffer;
     u32 mSrcSize;
     u32 mCursorPos;
 };
-}
+}  // namespace sead

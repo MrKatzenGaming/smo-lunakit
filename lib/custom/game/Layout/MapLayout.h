@@ -1,10 +1,13 @@
-#include "Library/Layout/LayoutActor.h"
-#include "al/layout/LayoutInitInfo.h"
 #include "sead/math/seadMatrix.h"
 #include "sead/math/seadVector.h"
 
-class MapIconLayout{};
+#include "Library/Layout/LayoutActor.h"
+#include "al/layout/LayoutInitInfo.h"
+
+class MapIconLayout {};
+
 class IconType {};
+
 class MapIconInfo {};
 
 struct MapLayout : public al::LayoutActor {
@@ -42,9 +45,8 @@ struct MapLayout : public al::LayoutActor {
     void focusIcon(const MapIconInfo*);
     void lostFocusIcon(MapIconLayout*);
     void tryCalcNorthDir(sead::Vector3f*);
-    const char* getSceneObjName() {
-        return "マップレイアウト";
-    }
+
+    const char* getSceneObjName() { return "マップレイアウト"; }
 
     void exeAppear();
     void exeWait();

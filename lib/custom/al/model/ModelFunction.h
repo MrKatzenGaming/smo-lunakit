@@ -7,6 +7,6 @@ class ModelCtrl;
 }
 
 namespace alModelFunction {
-    void calcBoundingBox(sead::BoundBox3<float> *,al::ModelCtrl const*);
-    void calcBoundingBoxMtx(sead::Matrix34<float> *,al::ModelCtrl const*);
-};
+void calcBoundingBox(sead::BoundBox3<float>*, const al::ModelCtrl*);
+void calcBoundingBoxMtx(sead::Matrix34<float>*, const al::ModelCtrl*);
+};  // namespace alModelFunction

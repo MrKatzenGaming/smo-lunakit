@@ -1,0 +1,321 @@
+
+/*
+    Looking for LunaKit code?
+    Head to src/devgui/DevGuiManager.h to get started!
+*/
+
+#include "hk/gfx/ImGuiBackendNvn.h"
+#include "hk/hook/Trampoline.h"
+#include "hk/ro/RoUtil.h"
+#include "hk/svc/api.h"
+#include "hk/svc/types.h"
+
+#include "nn/diag.h"
+#include "nn/fs/fs_mount.h"
+#include "nn/nifm.h"
+
+#include "sead/filedevice/seadFileDeviceMgr.h"
+#include "sead/filedevice/seadPath.h"
+#include "sead/gfx/seadPrimitiveRenderer.h"
+#include "sead/heap/seadExpHeap.h"
+#include "sead/prim/seadSafeString.h"
+#include "sead/random/seadGlobalRandom.h"
+#include "sead/random/seadRandom.h"
+#include "sead/resource/seadArchiveRes.h"
+
+#include "Library/Thread/AsyncFunctorThread.h"
+#include "Project/Draw/GpuPerf.h"
+#include "al/Library/LiveActor/ActorInitInfo.h"
+#include "al/Library/LiveActor/LiveActor.h"
+#include "al/Library/Memory/HeapUtil.h"
+#include "al/Library/Nerve/NerveUtil.h"
+#include "al/Library/Scene/Scene.h"
+#include "al/Library/System/GameSystemInfo.h"
+#include "al/Project/File/FileLoader.h"
+
+#include "agl/common/aglDrawContext.h"
+
+#include "game/Player/PlayerFunction.h"
+#include "game/Sequence/HakoniwaSequence.h"
+#include "game/System/Application.h"
+#include "game/System/GameDataFile.h"
+#include "game/System/GameDataFunction.h"
+#include "game/System/GameSystem.h"
+
+#include "custom/game/Scene/StageScene.h"
+
+#include <cstring>
+
+#include "Imgui.hpp"
+#include "basis/seadNew.h"
+#include "devgui/DevGuiHooks.h"
+#include "devgui/DevGuiManager.h"
+#include "devgui/windows/TASTools/WindowTASTools.h"
+#include "devgui/windows/input/WindowInput.h"
+#include "filedevice/nin/seadNinFileDeviceBaseNin.h"
+#include "framework/nx/seadGameFrameworkNx.h"
+#include "ghost/GhostManager.h"
+#include "helpers/InputHelper.h"
+#include "imgui.h"
+#include "logger/LoadLogger.hpp"
+#include "logger/Logger.hpp"
+#include "smo-tas/TAS.h"
+#include "stage-pause/StageSceneStateStagePause.h"
+#include "update/UpdateHandler.h"
+
+void getSymbolName(char* buffer, uintptr_t address) {
+    nn::diag::GetSymbolName(buffer, 0x100, address);
+}
+
+struct stack_frame {
+    stack_frame* fp;
+    size_t lr;
+};
+
+HkTrampoline<u32, sead::Random*> RandomGetU32 = hk::hook::trampoline([](sead::Random* random) -> u32 {
+    if (random != sead::GlobalRandom::instance())
+        return RandomGetU32.orig(random);
+    register stack_frame* framePointer asm("x29");
+    register uintptr_t startingLink asm("x30");
+    stack_frame* fp = framePointer;
+    uintptr_t lr = startingLink - hk::ro::getMainModule()->data().start();
+    while (fp) {
+        hk::svc::MemoryInfo memInfo;
+        u32 pageInfo;
+        if (hk::svc::QueryMemory(&memInfo, &pageInfo, (uintptr_t)fp).failed() || (memInfo.permission & hk::svc::MemoryPermission_Read) == 0)
+            break;
+
+        lr += fp->lr - hk::ro::getMainModule()->data().start();
+        fp = fp->fp;
+    }
+    return RandomGetU32.orig(random);
+});
+
+class ImGuiDrawer {
+    SEAD_SINGLETON_DISPOSER(ImGuiDrawer);
+
+public:
+    ImGuiDrawer();
+    void draw();
+    al::AsyncFunctorThread* mDrawThread;
+    bool shouldDraw = false;
+};
+SEAD_SINGLETON_DISPOSER_IMPL(ImGuiDrawer)
+
+HkTrampoline<void, al::Scene*> SceneMovementHook = hk::hook::trampoline([](al::Scene* scene) -> void {
+    if (!al::isNerve(scene, &StageSceneNrvStagePause::sInstance)) {
+        auto* tas = TAS::instance();
+        tas->setScene(scene);
+        tas->updateNerve();
+        auto* ghostManager = GhostManager::instance();
+        ghostManager->setScene(scene);
+        ghostManager->updateNerve();
+        ghostManager->updateGhostNerve();
+
+        WindowTASTools* tools = (WindowTASTools*)DevGuiManager::instance()->getWindow("TAS Tools");
+        if (tools)
+            tools->update();
+    }
+
+    SceneMovementHook.orig(scene);
+});
+
+HkTrampoline<void, al::Scene*, const al::ActorInitInfo&> SceneEndInitHook =
+    hk::hook::trampoline([](al::Scene* scene, const al::ActorInitInfo& info) -> void {
+        GhostManager::instance()->init(info);
+        SceneEndInitHook.orig(scene, info);
+    });
+
+HkTrampoline<void, sead::FileDeviceMgr*> CreateFileDeviceMgr = hk::hook::trampoline([](sead::FileDeviceMgr* thisPtr) -> void {
+    CreateFileDeviceMgr.orig(thisPtr);
+    thisPtr->mMountedSd = nn::fs::MountSdCardForDebug("sd");
+    sead::NinFileDeviceBase* sdFileDevice = new sead::NinFileDeviceBase("sd", "sd");
+    thisPtr->mount(sdFileDevice);
+});
+
+HkTrampoline<sead::FileDevice*, sead::FileDeviceMgr*, sead::SafeString&, sead::BufferedSafeString*> RedirectFileDevice =
+    hk::hook::trampoline([](sead::FileDeviceMgr* thisPtr, sead::SafeString& path, sead::BufferedSafeString* pathNoDrive) -> sead::FileDevice* {
+        sead::FixedSafeString<32> driveName;
+        sead::FileDevice* device;
+        if (!sead::Path::getDriveName(&driveName, path)) {
+            device = thisPtr->findDevice("sd");
+            if (!(device && device->isExistFile(path))) {
+                device = thisPtr->getDefaultFileDevice();
+                if (!device)
+                    return nullptr;
+            } else {
+            }
+        } else
+            device = thisPtr->findDevice(driveName);
+
+        if (!device)
+            return nullptr;
+
+        if (pathNoDrive != nullptr)
+            sead::Path::getPathExceptDrive(pathNoDrive, path);
+
+        return device;
+    });
+
+HkTrampoline<sead::ArchiveRes*, al::FileLoader*, sead::SafeString&, const char*, sead::FileDevice*> FileLoaderLoadArc =
+    hk::hook::trampoline([](al::FileLoader* thisPtr, sead::SafeString& path, const char* ext, sead::FileDevice* device) -> sead::ArchiveRes* {
+        ResourceLoadLogger* log = ResourceLoadLogger::instance();
+
+        if (log)
+            log->pushTextToVector(path.cstr());
+
+        sead::FileDevice* sdFileDevice = sead::FileDeviceMgr::instance()->findDevice("sd");
+
+        if (sdFileDevice && sdFileDevice->isExistFile(path))
+            device = sdFileDevice;
+
+        return FileLoaderLoadArc.orig(thisPtr, path, ext, device);
+    });
+
+HkTrampoline<bool, al::FileLoader*, sead::SafeString&, sead::FileDevice*> FileLoaderIsExistFile =
+    hk::hook::trampoline([](al::FileLoader* thisPtr, sead::SafeString& path, sead::FileDevice* device) -> bool {
+        ResourceLoadLogger* log = ResourceLoadLogger::instance();
+
+        if (log)
+            log->pushTextToVector(path.cstr());
+
+        sead::FileDevice* sdFileDevice = sead::FileDeviceMgr::instance()->findDevice("sd");
+
+        if (sdFileDevice && sdFileDevice->isExistFile(path))
+            device = sdFileDevice;
+
+        return FileLoaderIsExistFile.orig(thisPtr, path, device);
+    });
+
+HkTrampoline<bool, al::FileLoader*, sead::SafeString&, sead::FileDevice*> FileLoaderIsExistArchive =
+    hk::hook::trampoline([](al::FileLoader* thisPtr, sead::SafeString& path, sead::FileDevice* device) -> bool {
+        sead::FileDevice* sdFileDevice = sead::FileDeviceMgr::instance()->findDevice("sd");
+
+        if (sdFileDevice && sdFileDevice->isExistFile(path))
+            device = sdFileDevice;
+
+        return FileLoaderIsExistArchive.orig(thisPtr, path, device);
+    });
+
+// HkTrampolineVarArgs<void, const char*> ReplaceSeadPrint = hk::hook::trampoline([](const char* format, ...) -> void {
+//     va_list args;
+//     va_start(args, format);
+//     Logger::log(format, args);
+//     va_end(args);
+// });
+
+HkTrampoline<void> DisableSocketInit = hk::hook::trampoline([]() -> void {});
+static sead::Heap* lkHeap;
+
+ImGuiDrawer::ImGuiDrawer() {
+    // mDrawThread =
+    //     new al::AsyncFunctorThread("DrawThread", al::FunctorV0M<ImGuiDrawer*, void (ImGuiDrawer::*)(void)>(this, &ImGuiDrawer::draw), 0, 0x1000,
+    //     {0});
+}
+
+void draw() {
+    agl::DrawContext* drawContext = Application::instance()->mDrawSystemInfo->drawContext;
+    // while (true) {
+    // nn::os::YieldThread();
+    // if (shouldDraw) {
+    static int prevsize = 0;
+    ImGui::NewFrame();
+    WindowInput* inp = (WindowInput*)DevGuiManager::instance()->getWindow("Input Display");
+    if (inp) {
+        inp->drawInputDisplay();
+        inp->drawInputDisplayP2();
+    }
+
+    DevGuiManager::instance()->updateDisplay();
+
+    // ImGui::Begin("a");
+    // ImGui::Text("Prev Size: %d", prevsize);
+    // ImGui::End();
+
+    ImGui::Render();
+    prevsize = ImGui::GetDrawData()->TotalVtxCount;
+    hk::gfx::ImGuiBackendNvn::instance()->draw(ImGui::GetDrawData(), drawContext->getCommandBuffer()->ToData()->pNvnCommandBuffer);
+    //     shouldDraw = false;
+    // }
+    // }
+};
+
+HkTrampoline<void, GameSystem*> GameSystemInit = hk::hook::trampoline([](GameSystem* thisPtr) -> void {
+    nn::nifm::Initialize();
+
+    // creates heap for LunaKit at 9MB directly off the Stationed heap
+    lkHeap = sead::ExpHeap::create(6_MB, "LunaKitHeap", al::getStationedHeap(), 8, sead::Heap::HeapDirection::cHeapDirection_Forward, false);
+    // lkHeap->enableLock(true);
+
+    imgui::setup(lkHeap);
+
+    // sead::Heap* updaterHeap = sead::ExpHeap::create(2500000, "UpdateHeap", lkHeap, 8,
+    // sead::Heap::HeapDirection::cHeapDirection_Forward, false);
+
+    Logger::instance().init(lkHeap);
+    DisableSocketInit.installAtSym<"_ZN2nn6socket10InitializeEPvmmi">();
+
+    ResourceLoadLogger::createInstance(lkHeap);
+    ResourceLoadLogger::instance()->init(lkHeap);
+
+    DevGuiManager::createInstance(lkHeap);
+    DevGuiManager::instance()->init(lkHeap);
+
+    // create TAS instance on LunaKit heap
+    TAS::createInstance(lkHeap);
+
+    // create GhostManager instance on LunaKit heap
+    GhostManager::createInstance(lkHeap);
+
+    // UpdateHandler::createInstance(updaterHeap);
+    // UpdateHandler::instance()->init(updaterHeap);
+
+    ImGuiDrawer::createInstance(imgui::sImGuiHeap);
+
+    GameSystemInit.orig(thisPtr);
+
+    InputHelper::initKBM();
+});
+
+HkTrampoline<void, HakoniwaSequence*> UpdateLunaKit = hk::hook::trampoline([](HakoniwaSequence* thisPtr) -> void {
+    UpdateLunaKit.orig(thisPtr);
+    DevGuiManager::instance()->update();
+});
+
+HkTrampoline<void, sead::GameFrameworkNx*> DrawMainHook = hk::hook::trampoline([](sead::GameFrameworkNx* system) -> void {
+    DrawMainHook.orig(system);
+
+    imgui::updateImGuiInput();
+    InputHelper::updatePadState();
+    draw();
+});
+
+extern "C" void hkMain() {
+    GameSystemInit.installAtSym<"_ZN10GameSystem4initEv">();
+    DrawMainHook.installAtSym<"_ZN10GameSystem8drawMainEv">();
+    // ReplaceSeadPrint::InstallAtSymbol("_ZN4sead6system5PrintEPKcz");
+
+    // RandomGetU32.installAtSym<"_ZN4sead6Random6getU32Ev">();
+
+    // DevGui cheats
+    DevGuiHooks::exlInstallDevGuiHooks();  // Located in devgui/DevGuiHooks.cpp
+
+    // SD File Redirection
+    // RedirectFileDevice.installAtSym<"_ZNK4sead13FileDeviceMgr18findDeviceFromPathERKNS_14SafeStringBaseIcEEPNS_22BufferedSafeStringBaseIcEE">();
+    // FileLoaderLoadArc.installAtSym<"_ZN2al10FileLoader16loadArchiveLocalERKN4sead14SafeStringBaseIcEEPKcPNS1_10FileDeviceE">();
+    CreateFileDeviceMgr.installAtSym<"_ZN4sead13FileDeviceMgrC2Ev">();
+    // FileLoaderIsExistFile.installAtSym<"_ZNK2al10FileLoader11isExistFileERKN4sead14SafeStringBaseIcEEPNS1_10FileDeviceE">();
+    // FileLoaderIsExistArchive.installAtSym<"_ZNK2al10FileLoader14isExistArchiveERKN4sead14SafeStringBaseIcEEPNS1_10FileDeviceE">();
+
+    // TAS
+    SceneMovementHook.installAtSym<"_ZN2al5Scene8movementEv">();
+    SceneEndInitHook.installAtSym<"_ZN2al5Scene7endInitERKNS_13ActorInitInfoE">();
+
+    // Debug Text Writer Drawing
+    UpdateLunaKit.installAtSym<"_ZNK16HakoniwaSequence8drawMainEv">();
+
+    // ImGui Hooks
+
+    hk::gfx::ImGuiBackendNvn::instance()->installHooks(false);
+    // hk::gfx::DebugRenderer::instance()->installHooks();
+}

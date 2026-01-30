@@ -1,25 +1,25 @@
 #pragma once
 
-#include "game/Player/PlayerActorBase.h"
-#include "PlayerActorHakoniwa.h"
-#include "YukimaruRacePlayer.h"
 #include "al/factory/Factory.h"
 
+#include "game/Player/PlayerActorBase.h"
+
+#include "PlayerActorHakoniwa.h"
+#include "YukimaruRacePlayer.h"
+
 template <class T>
-PlayerActorBase* createPlayerFunction(const char *name);
+PlayerActorBase* createPlayerFunction(const char* name);
 
 typedef PlayerActorBase* (*CreateHakoniwa)(const char* name);
 
-static al::NameToCreator<CreateHakoniwa> playerEntries[] = {
-    {"PlayerActorHakoniwa", &createPlayerFunction<PlayerActorHakoniwa>},
-    {"YukimaruRacePlayer", &createPlayerFunction<YukimaruRacePlayer>}
-};
+static al::NameToCreator<CreateHakoniwa> playerEntries[] = {{"PlayerActorHakoniwa", &createPlayerFunction<PlayerActorHakoniwa>},
+                                                            {"YukimaruRacePlayer", &createPlayerFunction<YukimaruRacePlayer>}};
 
 class PlayerFactory : public al::Factory<CreateHakoniwa> {
-    public:
-        PlayerFactory() {
-            this->factoryName = "プレイヤー生成";
-            this->actorTable = playerEntries;
-            this->factoryCount = sizeof(playerEntries)/sizeof(playerEntries[0]);
-        };
+public:
+    PlayerFactory() {
+        this->factoryName = "プレイヤー生成";
+        this->actorTable = playerEntries;
+        this->factoryCount = sizeof(playerEntries) / sizeof(playerEntries[0]);
+    };
 };

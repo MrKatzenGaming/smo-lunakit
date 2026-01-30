@@ -1,23 +1,22 @@
-#include "InputHelper.h"
-#include "diag/assert.hpp"
+#include "helpers/InputHelper.h"
 
 #include "devgui/DevGuiManager.h"
 
-static const char *styleNames[] = {
-        "Pro Controller",
-        "Joy-Con controller in handheld mode",
-        "Joy-Con controller in dual mode",
-        "Joy-Con left controller in single mode",
-        "Joy-Con right controller in single mode",
-        "GameCube controller",
-        "Poké Ball Plus controller",
-        "NES/Famicom controller",
-        "NES/Famicom controller in handheld mode",
-        "SNES controller",
-        "N64 controller",
-        "Sega Genesis controller",
-        "generic external controller",
-        "generic controller",
+static const char* styleNames[] = {
+    "Pro Controller",
+    "Joy-Con controller in handheld mode",
+    "Joy-Con controller in dual mode",
+    "Joy-Con left controller in single mode",
+    "Joy-Con right controller in single mode",
+    "GameCube controller",
+    "Poké Ball Plus controller",
+    "NES/Famicom controller",
+    "NES/Famicom controller in handheld mode",
+    "SNES controller",
+    "N64 controller",
+    "Sega Genesis controller",
+    "generic external controller",
+    "generic controller",
 };
 
 nn::hid::NpadBaseState InputHelper::prevControllerState{};
@@ -33,32 +32,6 @@ ulong InputHelper::selectedPort = -1;
 bool InputHelper::isReadInput = true;
 bool InputHelper::toggleInput = false;
 bool InputHelper::enableScroll = true;
-
-const char *getStyleName(nn::hid::NpadStyleSet style) {
-
-    u32 index = -1;
-
-    if (style.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleFullKey))) { index = 0; }
-    if (style.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleHandheld))) { index = 1; }
-    if (style.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleJoyDual))) { index = 2; }
-    if (style.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleJoyLeft))) { index = 3; }
-    if (style.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleJoyRight))) { index = 4; }
-    if (style.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleGc))) { index = 5; }
-    if (style.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStylePalma))) { index = 6; }
-    if (style.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleLark))) { index = 7; }
-    if (style.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleHandheldLark))) { index = 8; }
-    if (style.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleLucia))) { index = 9; }
-    if (style.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleLagon))) { index = 10; }
-    if (style.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleLager))) { index = 11; }
-    if (style.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleSystemExt))) { index = 12; }
-    if (style.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleSystem))) { index = 13; }
-
-    if (index != -1) {
-        return styleNames[index];
-    } else {
-        return "Unknown";
-    }
-}
 
 void InputHelper::initKBM() {
     nn::hid::InitializeKeyboard();
@@ -77,51 +50,50 @@ void InputHelper::updatePadState() {
     prevMouseState = curMouseState;
     nn::hid::GetMouseState(&curMouseState);
 
-    if (isHoldR() && isHoldZR() && isPressZL()) {
+    if (isHoldR() && isHoldZR() && isPressZL())
         toggleInput = !toggleInput;
-    }
 
     if (!DevGuiManager::instance()->isMenuActive())
         toggleInput = false;
 }
 
-bool InputHelper::tryGetContState(nn::hid::NpadBaseState *state, ulong port) {
-
+bool InputHelper::tryGetContState(nn::hid::NpadBaseState* state, ulong port) {
     nn::hid::NpadStyleSet styleSet = nn::hid::GetNpadStyleSet(port);
     isReadInput = true;
     bool result = true;
 
-    if (styleSet.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleFullKey))) {
-        nn::hid::GetNpadState((nn::hid::NpadFullKeyState *) state, port);
-    } else if (styleSet.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleHandheld))) {
-        nn::hid::GetNpadState((nn::hid::NpadHandheldState *) state, port);
-    } else if (styleSet.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleJoyDual))) {
-        nn::hid::GetNpadState((nn::hid::NpadJoyDualState *) state, port);
-    } else if (styleSet.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleJoyLeft))) {
-        nn::hid::GetNpadState((nn::hid::NpadJoyLeftState *) state, port);
-    } else if (styleSet.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleJoyRight))) {
-        nn::hid::GetNpadState((nn::hid::NpadJoyRightState *) state, port);
-    } else {
+    if (styleSet.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleFullKey)))
+        nn::hid::GetNpadState((nn::hid::NpadFullKeyState*)state, port);
+    else if (styleSet.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleHandheld)))
+        nn::hid::GetNpadState((nn::hid::NpadHandheldState*)state, port);
+    else if (styleSet.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleJoyDual)))
+        nn::hid::GetNpadState((nn::hid::NpadJoyDualState*)state, port);
+    else if (styleSet.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleJoyLeft)))
+        nn::hid::GetNpadState((nn::hid::NpadJoyLeftState*)state, port);
+    else if (styleSet.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleJoyRight)))
+        nn::hid::GetNpadState((nn::hid::NpadJoyRightState*)state, port);
+    else
         result = false;
-    }
 
     isReadInput = false;
 
     return result;
-
 }
 
-void InputHelper::setIsHandheldMode()
-{
+void InputHelper::setIsHandheldMode() {
     setPort(0);
 
-    nn::hid::NpadStyleSet style = nn::hid::GetNpadStyleSet(0); // Gets player 1's controller style
+    nn::hid::NpadStyleSet style = nn::hid::GetNpadStyleSet(0);  // Gets player 1's controller style
     // If no controller is connected in port 0, migrate selected port to handheld 0x20
 
-    if(style.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleFullKey))) return;
-    if(style.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleJoyDual))) return;
-    if(style.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleJoyLeft))) return;
-    if(style.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleJoyRight))) return;
+    if (style.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleFullKey)))
+        return;
+    if (style.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleJoyDual)))
+        return;
+    if (style.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleJoyLeft)))
+        return;
+    if (style.Test(static_cast<u64>(nn::hid::NpadStyleTag::NpadStyleJoyRight)))
+        return;
 
     setPort(0x20);
 }
@@ -139,46 +111,46 @@ bool InputHelper::isButtonRelease(nn::hid::NpadButton button) {
 }
 
 bool InputHelper::isKeyHold(nn::hid::KeyboardKey key) {
-    return curKeyboardState.keys.Test(static_cast<u64>(key));
+    return curKeyboardState.mKeys.Test(static_cast<u64>(key));
 }
 
 bool InputHelper::isModifierHold(nn::hid::KeyboardModifier modifier) {
-    return curKeyboardState.modifiers.Test(static_cast<u64>(modifier));
+    return curKeyboardState.mModifiers.Test(static_cast<u64>(modifier));
 }
 
 bool InputHelper::isKeyPress(nn::hid::KeyboardKey key) {
-    return curKeyboardState.keys.Test(static_cast<u64>(key)) && !prevKeyboardState.keys.Test(static_cast<u64>(key));
+    return curKeyboardState.mKeys.Test(static_cast<u64>(key)) && !prevKeyboardState.mKeys.Test(static_cast<u64>(key));
 }
 
 bool InputHelper::isKeyRelease(nn::hid::KeyboardKey key) {
-    return !curKeyboardState.keys.Test(static_cast<u64>(key)) && prevKeyboardState.keys.Test(static_cast<u64>(key));
+    return !curKeyboardState.mKeys.Test(static_cast<u64>(key)) && prevKeyboardState.mKeys.Test(static_cast<u64>(key));
 }
 
 bool InputHelper::isMouseHold(nn::hid::MouseButton button) {
-    return curMouseState.buttons.Test(static_cast<u64>(button));
+    return curMouseState.mButtons.Test(static_cast<u64>(button));
 }
 
 bool InputHelper::isMousePress(nn::hid::MouseButton button) {
-    return curMouseState.buttons.Test(static_cast<u64>(button)) && !prevMouseState.buttons.Test(static_cast<u64>(button));
+    return curMouseState.mButtons.Test(static_cast<u64>(button)) && !prevMouseState.mButtons.Test(static_cast<u64>(button));
 }
 
 bool InputHelper::isMouseRelease(nn::hid::MouseButton button) {
-    return !curMouseState.buttons.Test(static_cast<u64>(button)) && prevMouseState.buttons.Test(static_cast<u64>(button));
+    return !curMouseState.mButtons.Test(static_cast<u64>(button)) && prevMouseState.mButtons.Test(static_cast<u64>(button));
 }
 
 bool InputHelper::isMouseConnected() {
-    return curMouseState.attributes.Test((int) nn::hid::MouseAttribute::IsConnected);
+    return curMouseState.mAttributes.Test((int)nn::hid::MouseAttribute::IsConnected);
 }
 
-void InputHelper::getMouseCoords(float *x, float *y) {
-    *x = curMouseState.x;
-    *y = curMouseState.y;
+void InputHelper::getMouseCoords(float* x, float* y) {
+    *x = curMouseState.mX;
+    *y = curMouseState.mY;
 }
 
-void InputHelper::getScrollDelta(float *x, float *y) {
+void InputHelper::getScrollDelta(float* x, float* y) {
     if (InputHelper::canScroll()) {
-        *x = curMouseState.wheelDeltaX;
-        *y = curMouseState.wheelDeltaY;
+        *x = curMouseState.mWheelDeltaX;
+        *y = curMouseState.mWheelDeltaY;
     } else {
         *x = 0.f;
         *y = 0.f;

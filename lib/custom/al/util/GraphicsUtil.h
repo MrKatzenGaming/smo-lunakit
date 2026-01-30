@@ -14,7 +14,7 @@ void updateKitList(Scene*, const char*);
 void updateKitListPost(Scene*);
 void updateKitTable(al::Scene*, const char*);
 
-sead::LookAtCamera* getLookAtCamera(al::IUseCamera const*, int);
+sead::LookAtCamera* getLookAtCamera(const al::IUseCamera*, int);
 }  // namespace al
 
 // TODO: get this out of here

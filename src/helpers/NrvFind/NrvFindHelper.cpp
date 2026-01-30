@@ -1,9 +1,15 @@
-#include "NrvFindHelper.h"
+#include "helpers/NrvFind/NrvFindHelper.h"
+
+#include "hk/ro/RoUtil.h"
+
+#include "Library/Nerve/Nerve.h"
+#include "Library/Nerve/NerveUtil.h"
 
 namespace NrvFindHelper {
 
 const al::Nerve* getNerveAt(uintptr_t offset) {
-    return (const al::Nerve*)((((u64)malloc) - 0x00724b94) + offset);
+    // return (const al::Nerve*)((((u64)malloc) - 0x00724b94) + offset);
+    return (al::Nerve*)(hk::ro::getMainModule()->data().start() + offset);
 }
 
 bool isNerveAt(al::LiveActor* actor, uintptr_t offset) {
@@ -16,4 +22,4 @@ void setNerveAt(al::LiveActor* actor, uintptr_t offset) {
     al::setNerve(actor, nerve);
 }
 
-} // namespace NrvFindHelper
+}  // namespace NrvFindHelper

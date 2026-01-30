@@ -1,0 +1,248 @@
+#include "devgui/categories/info/CategoryInfPlayer.h"
+
+#include "sead/basis/seadTypes.h"
+#include "sead/gfx/seadCamera.h"
+#include "sead/math/seadQuat.h"
+
+#include "al/Library/Camera/CameraUtil.h"
+#include "al/Library/LiveActor/ActorMovementFunction.h"
+#include "al/Library/LiveActor/ActorPoseKeeper.h"
+#include "al/Library/Nerve/Nerve.h"
+#include "al/Library/Nerve/NerveKeeper.h"
+#include "al/Library/Nerve/NerveStateCtrl.h"
+
+#include "game/Player/PlayerActorBase.h"
+#include "game/Player/PlayerActorHakoniwa.h"
+#include "game/Player/PlayerAnimator.h"
+#include "game/Player/PlayerFunction.h"
+#include "game/Util/DemoUtil.h"
+#include "game/Util/PlayerUtil.h"
+
+#include <cstdio>
+#include <cxxabi.h>
+#include <typeinfo>
+
+#include "devgui/DevGuiManager.h"
+#include "devgui/windows/StagePause/WindowStagePause.h"
+#include "helpers/GetHelper.h"
+#include "helpers/ImGuiHelper.h"
+#include "imgui.h"
+
+#define DEG(X) X * 180 / M_PI
+
+CategoryInfPlayer::CategoryInfPlayer(const char* catName, const char* catDesc, sead::Heap* heap) : CategoryBase(catName, catDesc, heap) {}
+
+void CategoryInfPlayer::updateCatDisplay() {
+    PlayerActorBase* player = tryGetPlayerActor();
+
+    if (!player) {
+        ImGui::Text("Player does not exist!");
+        return;
+    }
+
+    /*
+        Precision Slider
+    */
+
+    ImGui::SliderInt("Precision", &sliderValue, 0, 10);
+    snprintf(format, sizeof(format), "%%.%df", static_cast<int>(sliderValue));
+
+    /*
+        // GENERIC BOOLEAN INFO
+    */
+
+    bool isDead = PlayerFunction::isPlayerDeadStatus(player);
+    bool isDemo = rs::isActiveDemo(player);
+    bool isGround = rs::isPlayerOnGround(player);
+
+    ImGui::Checkbox("Dead", &isDead);
+    ImGui::SameLine();
+    ImGui::Checkbox("Demo", &isDemo);
+    ImGui::SameLine();
+    ImGui::Checkbox("Grounded", &isGround);
+
+    /*
+        // PLAYER CLASS, STATE, AND NERVES
+    */
+
+    // Actor name and nerve
+
+    char* playerName = nullptr;
+    char* stateName = nullptr;
+    char* stateNrvName = nullptr;
+
+    int status;
+    const al::Nerve* playerNerve = player->getNerveKeeper()->getCurrentNerve();
+    playerName = abi::__cxa_demangle(typeid(*player).name(), nullptr, nullptr, &status);
+
+    if (player->getNerveKeeper()->mStateCtrl) {
+        al::NerveStateCtrl::State* state = player->getNerveKeeper()->mStateCtrl->findStateInfo(playerNerve);
+        if (state) {
+            const al::Nerve* stateNerve = state->state->getNerveKeeper()->getCurrentNerve();
+            stateName = abi::__cxa_demangle(typeid(*state->state).name(), nullptr, nullptr, &status);
+            stateNrvName = abi::__cxa_demangle(typeid(*stateNerve).name(), nullptr, nullptr, &status);
+        }
+    }
+
+    if (playerName) {
+        ImGui::Text("Class: %s", playerName);
+        if (ImGui::IsItemHovered())
+            ImGui::SetTooltip("Type of Player Actor\nHakoniwa is normal Mario\nYukimaru is Shiverian Racer");
+        free(playerName);
+    }
+
+    if (stateName && stateNrvName) {
+        ImGui::Text("State: %s", stateName);
+        if (ImGui::IsItemHovered())
+            ImGui::SetTooltip("Current type of action\nthe player is performing");
+
+        ImGui::Text("State Nrv: %s", stateNrvName + 23 + strlen(stateName) + 3);
+        if (ImGui::IsItemHovered())
+            ImGui::SetTooltip("Basically the sub-action\nCurrent nerve of the state");
+
+        free(stateName);
+        free(stateNrvName);
+    }
+
+    ImGui::Text("NRV-Step: %d", player->getNerveKeeper()->getCurrentStep());
+
+    /*
+        // PLAYER ANIMATIONS (ONLY IF PlayerActorHakoniwa)
+    */
+
+    PlayerActorHakoniwa* playerHak = tryGetPlayerActorHakoniwa();
+    if (!playerHak) {
+        ImGui::TextDisabled("Cannot display additional info, not Hakoniwa");
+        return;
+    }
+
+    PlayerAnimator* anim = playerHak->mAnimator;
+    ImGui::Text("Anim: %s (%.00f/%.00f)", anim->mCurAnim.cstr(), anim->getAnimFrame(), anim->getAnimFrameMax());
+    ImGui::Text("Sub Anim: %s (%.00f/%.00f)", anim->mCurSubAnim.cstr(), anim->getSubAnimFrame(), anim->getSubAnimFrameMax());
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+    if (!playerHak)
+        return;
+
+    al::ActorPoseKeeperBase* pose = playerHak->mPoseKeeper;
+    StageScene* stageScene = tryGetStageScene();
+
+    if (!pose)
+        return;
+
+    float hSpeed = al::calcSpeedH(playerHak), vSpeed = al::calcSpeedV(playerHak), speed = al::calcSpeed(playerHak);
+    float hSpeedAngle = atan2f(pose->getVelocityPtr()->z, pose->getVelocityPtr()->x);
+    if (hSpeedAngle < 0)
+        hSpeedAngle += M_PI * 2;
+    float hSpeedAngleDeg = DEG(hSpeedAngle);
+
+    static sead::Vector3f prevPlayerVel = {0.0f, 0.0f, 0.0f};
+    sead::Vector3f playerVelDelta = pose->getVelocity() - prevPlayerVel;
+
+    WindowStagePause* win = (WindowStagePause*)DevGuiManager::instance()->getWindow("Stage Pauser");
+    prevPlayerVel = win->getStagePaused() ? prevPlayerVel : pose->getVelocity();
+
+    sead::Vector3f playerRot = QuatToEuler(pose->getQuatPtr());
+
+    ImGui::DragFloat3("Trans", &pose->mTrans.x, 50.f, 0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
+    ImGui::DragFloat3("Velocity", &pose->getVelocityPtr()->x, 1.f, 0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
+    ImGui::DragFloat3("Vel Delta", &playerVelDelta.x, 1.f, 0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
+
+    snprintf(textBuffer, sizeof(textBuffer), "Speed H: %s", format);
+    ImGui::Text(textBuffer, hSpeed);
+    ImGui::SameLine();
+    snprintf(textBuffer, sizeof(textBuffer), "V: %s", format);
+    ImGui::Text(textBuffer, vSpeed);
+    ImGui::SameLine();
+    snprintf(textBuffer, sizeof(textBuffer), "S: %s", format);
+    ImGui::Text(textBuffer, speed);
+
+    snprintf(textBuffer, sizeof(textBuffer), "H Speed Angle: %s", format);
+    ImGui::Text(textBuffer, hSpeedAngleDeg);
+
+    ImGuiHelper::Quat("Player Quaternion", pose->getQuatPtr());
+    ImGui::DragFloat3("Euler", &playerRot.x, 1.f, -1.f, 1.f, format, ImGuiSliderFlags_NoRoundToFormat);
+
+    const sead::LookAtCamera* camera = &al::getLookAtCamera(stageScene, 0);
+    if (!camera) {
+        ImGui::TextDisabled("No camera found");
+        return;
+    }
+    sead::Vector3f cameraPos = camera->mPos;
+    sead::Vector3f cameraAt = camera->mAt;
+    sead::Vector3f cameraUp = camera->mUp;
+    sead::Vector3f camDiff = cameraAt - cameraPos;
+
+    float verticalCamAngle = DEG(atan2f(camDiff.y, sqrtf(camDiff.x * camDiff.x + camDiff.z * camDiff.z)));
+    float horizontalCamAngle = DEG(atan2f(camDiff.z, camDiff.x));
+    float camHAngle = atan2f(camDiff.z, camDiff.x);
+    if (camHAngle < 0)
+        camHAngle += M_PI * 2;
+
+    float relAngleVel = hSpeedAngle - camHAngle - (M_PI / 2);  // offset to move 0 to the right
+    if (relAngleVel < 0)
+        relAngleVel += M_PI * 2;
+    relAngleVel = -relAngleVel + M_PI * 2;  // invert to conform normal anti-clockwise angle system
+
+    float relVelAngleDeg = DEG(relAngleVel);
+
+    float relRotAngle = playerRot.y - camHAngle - (M_PI / 2);  // offset to move 0 to the right
+    if (relRotAngle < 0)
+        relRotAngle += M_PI * 2;
+    // relRotAngle = -relRotAngle + M_PI*2; // invert to conform normal anti-clockwise angle system
+
+    float relRotAngleDeg = DEG(relRotAngle);
+
+    ImGui::DragFloat3("Camera Pos", &cameraPos.x, 50.f, -0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
+    ImGui::DragFloat3("Camera At", &cameraAt.x, 50.f, -0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
+    // ImGui::DragFloat3("Camera Up", &cameraUp.x, 50.f, -0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
+    snprintf(textBuffer, sizeof(textBuffer), "Cam Angle V: %s", format);
+    ImGui::Text(textBuffer, verticalCamAngle);
+    ImGui::SameLine();
+    snprintf(textBuffer, sizeof(textBuffer), "H: %s", format);
+    ImGui::Text(textBuffer, horizontalCamAngle);
+    snprintf(textBuffer, sizeof(textBuffer), "Rel. Vel. Angle: %s", format);
+    ImGui::Text(textBuffer, relVelAngleDeg);
+    snprintf(textBuffer, sizeof(textBuffer), "Rel. Rot. Angle: %s", format);
+    ImGui::Text(textBuffer, relRotAngleDeg);
+    // sead::Vector3f kidsPos = playerHak->mRecoverySafetyPoint->mSafetyPointPos;
+    // ImGui::InputFloat3("Assist Pos", &kidsPos.x, "%.00f", ImGuiInputTextFlags_ReadOnly);
+}
+
+sead::Vector3f CategoryInfPlayer::QuatToEuler(sead::Quatf* quat) {
+    // Check for null pointer
+    if (!quat) {
+        // Handle the error, e.g., return a default value or log an error
+        return sead::Vector3f(0.0f, 0.0f, 0.0f);
+    }
+
+    // Extract quaternion components
+    f32 x = quat->z;
+    f32 y = quat->y;
+    f32 z = quat->x;
+    f32 w = quat->w;
+
+    f32 t0 = 2.0f * (w * x + y * z);
+    f32 t1 = 1.0f - 2.0f * (x * x + y * y);
+    f32 roll = atan2f(t0, t1);
+    f32 adjustedRoll = roll;
+    if (adjustedRoll < 0)
+        adjustedRoll += M_PI * 2;
+
+    f32 t2 = 2.0f * (w * y - z * x);
+    t2 = t2 > 1.0f ? 1.0f : t2;
+    t2 = t2 < -1.0f ? -1.0f : t2;
+    f32 pitch = asinf(t2);
+    f32 adjustedPitch = pitch;
+    if (adjustedPitch < 0)
+        adjustedPitch += M_PI * 2;
+
+    f32 t3 = 2.0f * (w * z + x * y);
+    f32 t4 = 1.0f - 2.0f * (y * y + z * z);
+    f32 yaw = atan2f(t3, t4);
+    f32 adjustedYaw = yaw;
+    if (adjustedYaw < 0)
+        adjustedYaw += M_PI * 2;
+
+    return sead::Vector3f(adjustedYaw, adjustedPitch, adjustedRoll);
+}

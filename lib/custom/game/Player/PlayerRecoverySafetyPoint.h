@@ -1,27 +1,29 @@
 #pragma once
 
-#include "Library/LiveActor/LiveActor.h"
-#include "Library/Collision/Collider.h"
-#include "Project/HitSensor/HitSensor.h"
-#include "game/Util/IUseDimension.h"
-#include "game/Player/HackCap.h"
 #include "sead/math/seadVector.h"
+
+#include "Library/Collision/Collider.h"
+#include "Library/LiveActor/LiveActor.h"
+#include "Project/HitSensor/HitSensor.h"
+
+#include "game/Player/HackCap.h"
+#include "game/Util/IUseDimension.h"
 
 class PlayerRecoverySafetyPoint {
 public:
     sead::Vector3f* getSafetyPoint();
     void startRecovery(float);
     void startBubbleWait();
-    void noticeDangerousPoint(sead::Vector3f const&, bool);
+    void noticeDangerousPoint(const sead::Vector3f&, bool);
 
-    al::LiveActor* mActor;                                      //0x00
-    HackCap* mHackCap;                                          //0x08
-    IUseDimension* mIUseDimension;                              //0x10
-    al::CollisionPartsFilterBase* mCollisionPartsFilterBase;    //0x18
-    al::HitSensor* mHitSensor;                                  //0x20
-    const char mUnk1[0x1c];                                     //0x28
-    sead::Vector3f mSafetyPointPos;                             //0x44
-    sead::Vector3f mSafetyPointGrav;                            //0x50
+    al::LiveActor* mActor;                                    // 0x00
+    HackCap* mHackCap;                                        // 0x08
+    IUseDimension* mIUseDimension;                            // 0x10
+    al::CollisionPartsFilterBase* mCollisionPartsFilterBase;  // 0x18
+    al::HitSensor* mHitSensor;                                // 0x20
+    const char mUnk1[0x1c];                                   // 0x28
+    sead::Vector3f mSafetyPointPos;                           // 0x44
+    sead::Vector3f mSafetyPointGrav;                          // 0x50
     const char mUnk2[0x54];
     const char mUnk3[0x8];
 };

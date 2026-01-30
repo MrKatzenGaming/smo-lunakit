@@ -14,4 +14,4 @@ public:
     const u8* mSaveDataDirector;
 };
 
-};
+};  // namespace al

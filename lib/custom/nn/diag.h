@@ -19,9 +19,9 @@ struct ModuleInfo {
 
 namespace detail {
 // LOG
-void LogImpl(nn::diag::LogMetaData const&, char const*, ...);
-void AbortImpl(char const*, char const*, char const*, s32);
-void AbortImpl(char const*, char const*, char const*, int, Result);
+void LogImpl(const nn::diag::LogMetaData&, const char*, ...);
+void AbortImpl(const char*, const char*, const char*, s32);
+void AbortImpl(const char*, const char*, const char*, int, Result);
 }  // namespace detail
 
 // MODULE / SYMBOL

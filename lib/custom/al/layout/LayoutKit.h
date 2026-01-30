@@ -6,8 +6,7 @@
 #pragma once
 
 namespace al {
-    class LayoutKit {
-        public:
-            
-    };
-}
+class LayoutKit {
+public:
+};
+}  // namespace al

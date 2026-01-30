@@ -1,34 +1,35 @@
 #pragma once
 
-#include "CameraPoserFactory.h"
 #include "al/factory/Factory.h"
+
+#include "CameraPoserFactory.h"
 
 class CameraPoserFollowLimit;
 class ScenarioStartCameraPoserSimpleZoom;
 class ScenarioStartCameraPoserRailMove;
 
 namespace al {
-    class CameraPoserFix;
-    class CameraPoserFixPoint;
-    class CameraPoserRace;
-    class CameraPoserRailMoveLookAt;
-    class CameraPoserKinopioBrigade;
-    class CameraPoserTalk;
-    class CameraPoserRailMoveMovie;
-    class CameraPoserBossBattle;
-    class CameraPoserEntrance;
-    class CameraPoserLookBoard;
-    class CameraPoserLookDown;
-    class CameraPoserSubjective;
-    class CameraPoserTower;
-    class CameraPoserFollowSimple;
-    class KeyMoveCameraFix;
-    class KeyMoveCameraRailMove;
-    class KeyMoveCameraZoom;
-} // namespace al
+class CameraPoserFix;
+class CameraPoserFixPoint;
+class CameraPoserRace;
+class CameraPoserRailMoveLookAt;
+class CameraPoserKinopioBrigade;
+class CameraPoserTalk;
+class CameraPoserRailMoveMovie;
+class CameraPoserBossBattle;
+class CameraPoserEntrance;
+class CameraPoserLookBoard;
+class CameraPoserLookDown;
+class CameraPoserSubjective;
+class CameraPoserTower;
+class CameraPoserFollowSimple;
+class KeyMoveCameraFix;
+class KeyMoveCameraRailMove;
+class KeyMoveCameraZoom;
+}  // namespace al
 
 // Note: if needed, poser entries 1 and 2 can be merged together, and the second static list can be used for custom cameras
-    
+
 // 0xE in size
 static al::NameToCreator<al::createCameraPoser> poserEntries[] = {
     // Vanilla Posers

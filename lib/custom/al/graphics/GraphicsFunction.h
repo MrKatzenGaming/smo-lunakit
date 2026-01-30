@@ -1,7 +1,6 @@
 #pragma once
 
 #include <math/seadVector.h>
-#include <types.h>
 
 namespace nn {
 
@@ -12,6 +11,7 @@ class ResMesh;
 }  // namespace g3d
 
 }  // namespace nn
+
 // TODO: Someone should add this to sead!
 namespace sead {
 class GraphicsContext;

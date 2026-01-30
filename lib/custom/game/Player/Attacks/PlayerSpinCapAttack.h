@@ -1,9 +1,10 @@
 #pragma once
 
-#include "game/Player/HackCap.h"
 #include "game/Player/PlayerAnimator.h"
 #include "game/Player/PlayerConst.h"
 #include "game/Player/PlayerInput.h"
+
+#include "custom/game/Player/HackCap.h"
 
 class PlayerTrigger;
 class PlayerJudgePreInputCapThrow;
@@ -11,16 +12,17 @@ class PlayerCounterAfterCapCatch;
 
 class PlayerSpinCapAttack {
 public:
-    PlayerSpinCapAttack(HackCap*, const PlayerConst*, const PlayerTrigger*, const PlayerInput*, const PlayerCounterAfterCapCatch*, const PlayerJudgePreInputCapThrow*);
+    PlayerSpinCapAttack(HackCap*, const PlayerConst*, const PlayerTrigger*, const PlayerInput*, const PlayerCounterAfterCapCatch*,
+                        const PlayerJudgePreInputCapThrow*);
     void clearAttackInfo(void);
     void setupAttackInfo(void);
-    void startCapSpinAttack(PlayerAnimator*, PlayerInput const*);
-    void startCapSpinAttackAir(PlayerAnimator*, PlayerInput const*);
-    void startCapSpinAttackSwim(PlayerAnimator*, PlayerInput const*);
-    void startSpinSeparate(PlayerAnimator*, PlayerInput const*);
-    void startSpinSeparateSwim(PlayerAnimator*, PlayerInput const*);
-    void startSpinSeparateSwimSurface(PlayerAnimator*, PlayerInput const*);
-    void startCapThrow(sead::Vector3f const& front, sead::Vector3f const& up, float speed, bool, sead::Vector3f const& unused);
+    void startCapSpinAttack(PlayerAnimator*, const PlayerInput*);
+    void startCapSpinAttackAir(PlayerAnimator*, const PlayerInput*);
+    void startCapSpinAttackSwim(PlayerAnimator*, const PlayerInput*);
+    void startSpinSeparate(PlayerAnimator*, const PlayerInput*);
+    void startSpinSeparateSwim(PlayerAnimator*, const PlayerInput*);
+    void startSpinSeparateSwimSurface(PlayerAnimator*, const PlayerInput*);
+    void startCapThrow(const sead::Vector3f& front, const sead::Vector3f& up, float speed, bool, const sead::Vector3f& unused);
     void attackSpinMsg(al::HitSensor*, al::HitSensor*);
     bool tryCancelCapState(PlayerAnimator*);
     bool tryStartCapSpinGroundMiss(PlayerAnimator*);

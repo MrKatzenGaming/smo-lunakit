@@ -27,6 +27,7 @@
 
 #define NERVE_MAKE(Class, Action) Class##Nrv##Action Action;
 // clang-format on
+
 namespace al {
 void setNerve(al::IUseNerve*, const al::Nerve*);
 void setNerveAtStep(al::IUseNerve*, const al::Nerve*, int);

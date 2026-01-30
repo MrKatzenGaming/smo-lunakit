@@ -1,24 +1,11 @@
-#include <lib.hpp>
-#include "FunctionHelper.h"
-#include "nn/ro.h"
+#include "helpers/FunctionHelper.h"
 
-namespace inst = exl::armv8::inst;
-namespace reg = exl::armv8::reg;
-
-static constexpr const u32 RetValue = exl::armv8::inst::Ret().Value();
+static constexpr const u32 RetValue = 0xD65F03C0;  // bytecode of "ret"
 
 uintptr_t FunctionHelper::findEndOfFunc(const char* symbol) {
     u32* ptr = (u32*)getAddressFromSymbol(symbol);
     // naive implementation, ignores the fact that functions can have multiple returns
-    while (*ptr != RetValue) {
+    while (*ptr != RetValue)
         ptr++;
-    }
-    return (uintptr_t) ptr;
-}
-
-ptrdiff_t FunctionHelper::readLdrOffset(const char* symbol) {
-    auto ldr = *reinterpret_cast<inst::LdrRegisterImmediate*>(getAddressFromSymbol(symbol));
-    auto rnReg = reg::Register(static_cast<reg::RegisterKind>(ldr.GetSize() & 0b01), ldr.GetRn());
-    return ldr.GetImm12() * rnReg.Width();
-
+    return (uintptr_t)ptr;
 }

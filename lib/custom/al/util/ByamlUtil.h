@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sead/math/seadVector.h>
+
 #include "al/byaml/ByamlIter.h"
 
 namespace sead {
@@ -21,11 +22,11 @@ bool tryGetByamlU32(unsigned int*, const al::ByamlIter&, const char*);
 bool tryGetByamlS64(long*, const al::ByamlIter&, const char*);
 bool tryGetByamlU64(unsigned long*, const al::ByamlIter&, const char*);
 bool tryGetByamlF32(float*, const al::ByamlIter&, const char*);
-bool tryGetByamlBool(bool *, const al::ByamlIter&, const char *);
-bool tryGetByamlString(const char**, al::ByamlIter const&, const char*);
+bool tryGetByamlBool(bool*, const al::ByamlIter&, const char*);
+bool tryGetByamlString(const char**, const al::ByamlIter&, const char*);
 bool tryGetByamlV2f(sead::Vector2<float>*, const al::ByamlIter&);
 bool tryGetByamlV3f(sead::Vector3<float>*, const al::ByamlIter&);
-bool tryGetByamlV3f(sead::Vector3<float>*, const al::ByamlIter&, const char *);
+bool tryGetByamlV3f(sead::Vector3<float>*, const al::ByamlIter&, const char*);
 bool tryGetByamlV4f(sead::Vector4<float>*, const al::ByamlIter&);
 bool tryGetByamlScale(sead::Vector3<float>*, const al::ByamlIter&);
 bool tryGetByamlV2s32(sead::Vector2<int>*, const al::ByamlIter&);

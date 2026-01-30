@@ -1,7 +1,8 @@
 #pragma once
 
-#include <prim/seadSafeString.h>
 #include "al/sensor/HitSensor.h"
+
+#include <prim/seadSafeString.h>
 
 class IUsePlayerPuppet {
 public:
@@ -17,9 +18,9 @@ public:
     virtual sead::Vector3f& getGravity() const = 0;
     virtual void calcFront(sead::Vector3f*) const = 0;
     virtual void calcUp(sead::Vector3f*) const = 0;
-    virtual void startAction(sead::SafeString const&) const = 0;
+    virtual void startAction(const sead::SafeString&) const = 0;
     virtual bool isActionEnd() const = 0;
-    virtual bool isActionPlaying(char const*) const = 0;
+    virtual bool isActionPlaying(const char*) const = 0;
     virtual void setAnimRate(float) const = 0;
     virtual int getAnimFrameMax() const = 0;
     virtual void hide() = 0;

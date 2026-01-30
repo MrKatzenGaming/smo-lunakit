@@ -1,17 +1,16 @@
 ---
 Language: Cpp
 AccessModifierOffset: -4
-AlignAfterOpenBracket: BlockIndent
-AlignEscapedNewlines: Right
-AlignOperands: Align
-AlignTrailingComments:
-  Kind: Always
-  OverEmptyLines: 0
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignOperands: true
+AlignTrailingComments: true
 AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortBlocksOnASingleLine: Never
 AllowShortCaseLabelsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: Inline
-AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakAfterReturnType: None
@@ -32,25 +31,32 @@ Cpp11BracedListStyle: true
 DerivePointerAlignment: false
 DisableFormat: false
 ForEachMacros: []
+IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex: '^<[Ww]indows\.h>$'
+  - Regex: ^("|<)hk/
     Priority: 1
-  - Regex: ^("|<)al/
+  - Regex: ^("|<)(nn/|nvn/|vapours/)
     Priority: 2
-  - Regex: ^("|<)agl/
-    Priority: 3
   - Regex: ^("|<)sead/
+    Priority: 3
+  - Regex: ^("|<)(al/|Library/|Project/)
     Priority: 4
-  - Regex: ^("|<)game/
+  - Regex: ^("|<)agl/
     Priority: 5
-  - Regex: ^<
+  - Regex: ^("|<)game/
     Priority: 6
-  - Regex: ^"
+  - Regex: ^("|<)custom/
     Priority: 7
+  - Regex: ^<
+    Priority: 8
+  - Regex: ^"
+    Priority: 9
 IndentCaseLabels: false
 IndentWidth: 4
 IndentWrappedFunctionNames: false
+InsertNewlineAtEOF: true
 KeepEmptyLinesAtTheStartOfBlocks: false
+LineEnding: LF
 MacroBlockBegin: ""
 MacroBlockEnd: ""
 MaxEmptyLinesToKeep: 1
@@ -65,7 +71,10 @@ PenaltyBreakString: 1000
 PenaltyExcessCharacter: 1000000
 PenaltyReturnTypeOnItsOwnLine: 60
 PointerAlignment: Left
+QualifierAlignment: Left
 ReflowComments: true
+RemoveBracesLLVM: true
+SeparateDefinitionBlocks: Always
 SortIncludes: true
 SpaceAfterCStyleCast: false
 SpaceBeforeAssignmentOperators: true
@@ -77,9 +86,9 @@ SpacesInContainerLiterals: true
 SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
-Standard: c++17
+Standard: c++20
+TypeNames: [u8, s8, u16, s16, u32, s32, f32, u64, s64, f64]
 TabWidth: 4
 UseTab: Never
-TypeNames: [u8, s8, u16, s16, u32, s32, f32, u64, s64, f64]
-WhitespaceSensitiveMacros:
-  ["SEAD_ENUM", "SEAD_ENUM_EX", "SEAD_ENUM_EX_VALUES", "HOOK_DEFINE_TRAMPOLINE"]
+WhitespaceSensitiveMacros: ["SEAD_ENUM", "SEAD_ENUM_EX", "SEAD_ENUM_EX_VALUES"]
+...

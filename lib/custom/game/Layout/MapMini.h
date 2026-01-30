@@ -1,13 +1,14 @@
 #pragma once
 
 #include "Library/Layout/LayoutActor.h"
+
 class MapMini : public al::LayoutActor {
 public:
-    MapMini(al::LayoutInitInfo const&,al::PlayerHolder const*);
+    MapMini(const al::LayoutInitInfo&, const al::PlayerHolder*);
     void appearSlideIn(void);
     void end(void);
     void calcNearHintTrans(void);
-    
+
     bool isEnd(void) const;
 
     void exeAppear(void);

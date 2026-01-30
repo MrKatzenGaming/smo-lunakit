@@ -1,10 +1,10 @@
 #pragma once
 
-#include <sead/math/seadVector.h>
 #include <sead/basis/seadTypes.h>
+#include <sead/math/seadVector.h>
 
 namespace al {
-class KCPrismData { // triangle
+class KCPrismData {  // triangle
 public:
     float mLength;
     u16 mPosIndex;
@@ -14,7 +14,7 @@ public:
     u32 mTriIndex;
 };
 
-class KCPrismHeader { // model
+class KCPrismHeader {  // model
 public:
     u32 mPositionsOffset;
     u32 mNormalsOffset;
@@ -30,4 +30,4 @@ public:
     u32 mZShift;
     float mHitboxRadiusCap;
 };
-}
+}  // namespace al

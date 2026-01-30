@@ -1,8 +1,11 @@
 #pragma once
 
+#include "Library/Nerve/Nerve.h"
 #include <Library/Scene/Scene.h>
-#include <al/util/NerveUtil.h>
+
 #include <game/System/GameDataHolderAccessor.h>
+
+#include "math/seadVector.h"
 
 class StageSceneStateWorldMap;
 class StageSceneStateShop;
@@ -270,5 +273,16 @@ public:
     // custom nerve func
     void exeStagePause();
 };
+
+namespace rs {
+al::LiveActor* getPlayerActor(const al::Scene*);
+}
+
+#define NERVE_HEADER_INSTANCE_(Class, Action, ActionFunc)                                                                                            \
+    class Class##Nrv##Action : public al::Nerve {                                                                                                    \
+    public:                                                                                                                                          \
+        void execute(al::NerveKeeper* keeper) const override;                                                                                        \
+        static Class##Nrv##Action sInstance;                                                                                                         \
+    };
 
 NERVE_HEADER_INSTANCE_(StageScene, StagePause, StagePause);

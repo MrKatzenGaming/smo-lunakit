@@ -1,0 +1,7 @@
+@smo:100
+
+$SkyInitHook = _ZN2al3Sky14initFromPresetERKNS_13ActorInitInfoE + 0x50
+$ViewportApplyHook = _ZNK2al12ViewRenderer8drawViewERKNS_8ViewInfoEPNS_14DrawSystemInfoERKNS_10ProjectionERKN4sead6CameraEPKN3agl12RenderBufferERKNS9_8ViewportEbbb + 0x199C
+$StagePauseHook1 = _ZN16HakoniwaSequence12exeLoadStageEv + 0x1f4
+$StagePauseHook2 = _ZN16HakoniwaSequence7exeMissEv + 0x13c
+$MoonRefreshText = 0x01832301

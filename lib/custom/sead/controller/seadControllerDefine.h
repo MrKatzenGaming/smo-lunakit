@@ -2,14 +2,11 @@
 
 #include "basis/seadTypes.h"
 
-namespace sead
-{
+namespace sead {
 // from Wii U-decomp, not adjusted to switch
-class ControllerDefine
-{
+class ControllerDefine {
 public:
-    enum ControllerId
-    {
+    enum ControllerId {
         cController_Null = 0,
         cController_Win = 1,
         cController_Ctr = 2,
@@ -26,8 +23,7 @@ public:
         _16 = 16
     };
 
-    enum DeviceId
-    {
+    enum DeviceId {
         cDevice_Null = 0,
         cDevice_KeyboardMouse = 1,
         cDevice_CtrHid = 2,
@@ -40,8 +36,7 @@ public:
         cDevice_UserDefine = 9
     };
 
-    enum AddonId
-    {
+    enum AddonId {
         cAddon_Null = 0,
         cAddon_Accelerometer = 1,
         cAddon_PatternRumble = 2,

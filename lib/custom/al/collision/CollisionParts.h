@@ -1,9 +1,10 @@
 #pragma once
 
-#include "al/collision/KCollisionServer.h"
-#include "al/sensor/HitSensor.h"
 #include <sead/container/seadTList.h>
 #include <sead/math/seadMatrix.h>
+
+#include "al/collision/KCollisionServer.h"
+#include "al/sensor/HitSensor.h"
 
 namespace al {
 class CollisionParts {
@@ -38,4 +39,4 @@ public:
     bool mIsMoving;
     bool bVar6;
 };
-}
+}  // namespace al

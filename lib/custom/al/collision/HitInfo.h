@@ -1,7 +1,8 @@
 #pragma once
 
-#include "al/collision/Triangle.h"
 #include <sead/math/seadVector.h>
+
+#include "al/collision/Triangle.h"
 
 namespace al {
 class HitInfo {
@@ -14,11 +15,7 @@ public:
     bool bVar1;
 };
 
-class SphereHitInfo : public al::HitInfo {
+class SphereHitInfo : public al::HitInfo {};
 
-};
-
-class DiskHitInfo : public al::HitInfo {
-
-};
-}
+class DiskHitInfo : public al::HitInfo {};
+}  // namespace al

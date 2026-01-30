@@ -3,6 +3,5 @@
 class HakoniwaSequence;
 
 class HakoniwaStateDeleteScene {
-    public:
-
+public:
 };

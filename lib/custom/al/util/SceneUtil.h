@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gfx/seadFrameBuffer.h"
+
 namespace al {
 
 class ISceneObj;
@@ -11,8 +12,8 @@ class PlayerHolder;
 ISceneObj* getSceneObj(const IUseSceneObjHolder*, int);
 PlayerHolder* getScenePlayerHolder(const Scene*);
 
-sead::LogicalFrameBuffer* getSceneFrameBufferMain(al::Scene const*);
-float getSceneFrameBufferMainAspect(al::Scene const*);
+sead::LogicalFrameBuffer* getSceneFrameBufferMain(const al::Scene*);
+float getSceneFrameBufferMainAspect(const al::Scene*);
 
 void updateKit(al::Scene*);
 void updateGraphicsPrev(al::Scene*);

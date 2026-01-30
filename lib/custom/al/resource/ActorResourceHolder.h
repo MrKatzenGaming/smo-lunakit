@@ -4,17 +4,15 @@
 #include "types.h"
 
 namespace al {
-    class ActorResourceHolder {
+class ActorResourceHolder {
+    ActorResourceHolder(int);
+    ~ActorResourceHolder();
 
-        ActorResourceHolder(int);
-        ~ActorResourceHolder();
-
-        void tryFindActorResource(sead::SafeString const&);
-        void findActorResourceImpl(sead::SafeString const&);
-        void createActorResource(sead::SafeString const&, al::Resource*, al::Resource*);
-        void removeAll();
-        void eraseResourceUser(al::Resource*);
-        void freeErasedActorResource();
-
-    };
-}
+    void tryFindActorResource(const sead::SafeString&);
+    void findActorResourceImpl(const sead::SafeString&);
+    void createActorResource(const sead::SafeString&, al::Resource*, al::Resource*);
+    void removeAll();
+    void eraseResourceUser(al::Resource*);
+    void freeErasedActorResource();
+};
+}  // namespace al

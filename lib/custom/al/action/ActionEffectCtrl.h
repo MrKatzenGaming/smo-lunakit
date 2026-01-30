@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Library/Effect/EffectKeeper.h"
+#include "al/Library/Effect/IUseEffectKeeper.h"
 
 namespace al {
-    class ActionEffectCtrl {
-        public:
-            void startAction(char const *);
-            IUseEffectKeeper *mEffectKeeper;
-    };
-}
+class ActionEffectCtrl {
+public:
+    void startAction(const char*);
+    IUseEffectKeeper* mEffectKeeper;
+};
+}  // namespace al

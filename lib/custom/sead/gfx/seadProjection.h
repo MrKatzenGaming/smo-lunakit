@@ -1,16 +1,15 @@
 #ifndef SEAD_PROJECTION_H_
 #define SEAD_PROJECTION_H_
 
-#include <basis/seadTypes.h>
-#include <gfx/seadGraphics.h>
-#include <math/seadMatrix.h>
-#include <math/seadVector.h>
-#include <prim/seadRuntimeTypeInfo.h>
+#include <sead/basis/seadTypes.h>
+#include <sead/math/seadMatrix.h>
+#include <sead/math/seadVector.h>
+#include <sead/prim/seadRuntimeTypeInfo.h>
 
-namespace sead
-{
-class Projection
-{
+#include "custom/sead/gfx/seadGraphics.h"
+
+namespace sead {
+class Projection {
     SEAD_RTTI_BASE(Projection)
 
 public:
@@ -41,8 +40,7 @@ private:
     f32 mDeviceZOffset;
 };
 
-class PerspectiveProjection : public Projection
-{
+class PerspectiveProjection : public Projection {
     SEAD_RTTI_OVERRIDE(PerspectiveProjection, Projection)
 public:
     PerspectiveProjection();

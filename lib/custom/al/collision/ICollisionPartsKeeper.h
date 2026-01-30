@@ -1,7 +1,7 @@
 #pragma once
 
-#include <sead/prim/seadDelegate.h>
 #include <sead/math/seadVector.h>
+#include <sead/prim/seadDelegate.h>
 
 namespace al {
 class CollisionParts;
@@ -22,11 +22,11 @@ public:
     virtual void disconnectToCollisionPartsList(al::CollisionParts*) = 0;
     virtual void resetToCollisionPartsList(al::CollisionParts*) = 0;
     virtual bool checkStrikePoint(al::HitInfo*, al::CollisionCheckInfoBase*) const = 0;
-    virtual bool checkStrikeSphere(al::SphereHitResultBuffer*, al::SphereCheckInfo const&, bool, sead::Vector3f const&) const = 0;
-    virtual bool checkStrikeArrow(al::ArrowHitResultBuffer*, al::ArrowCheckInfo const&) const = 0;
-    virtual bool checkStrikeSphereForPlayer(al::SphereHitResultBuffer*, al::SphereCheckInfo const&) const = 0;
-    virtual bool checkStrikeDisk(al::DiskHitResultBuffer*, al::DiskCheckInfo const&) const = 0;
-    virtual void searchWithSphere(al::SphereCheckInfo const&, sead::IDelegate1<al::CollisionParts*>&) const = 0;
+    virtual bool checkStrikeSphere(al::SphereHitResultBuffer*, const al::SphereCheckInfo&, bool, const sead::Vector3f&) const = 0;
+    virtual bool checkStrikeArrow(al::ArrowHitResultBuffer*, const al::ArrowCheckInfo&) const = 0;
+    virtual bool checkStrikeSphereForPlayer(al::SphereHitResultBuffer*, const al::SphereCheckInfo&) const = 0;
+    virtual bool checkStrikeDisk(al::DiskHitResultBuffer*, const al::DiskCheckInfo&) const = 0;
+    virtual void searchWithSphere(const al::SphereCheckInfo&, sead::IDelegate1<al::CollisionParts*>&) const = 0;
     virtual void movement() = 0;
 };
-}
+}  // namespace al

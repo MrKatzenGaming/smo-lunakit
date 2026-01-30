@@ -4,9 +4,9 @@
 
 class SimpleLayoutMenu : public al::LayoutActor {
 public:
-    SimpleLayoutMenu(al::LayoutActor *,char const*,char const*,al::LayoutInitInfo const&,char const*);
-    SimpleLayoutMenu(char const*,char const*,al::LayoutInitInfo const&,char const*,bool);
-    
+    SimpleLayoutMenu(al::LayoutActor*, const char*, const char*, const al::LayoutInitInfo&, const char*);
+    SimpleLayoutMenu(const char*, const char*, const al::LayoutInitInfo&, const char*, bool);
+
     void exeAppear(void);
     void exeEnd(void);
     void exeEndWait(void);
@@ -14,7 +14,6 @@ public:
     void isAppearOrWait(void);
     void isEndWait(void);
     void isWait(void);
-    void startAppear(char const*);
-    void startEnd(char const*);
-
+    void startAppear(const char*);
+    void startEnd(const char*);
 };

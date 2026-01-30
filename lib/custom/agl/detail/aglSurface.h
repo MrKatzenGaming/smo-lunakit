@@ -1,7 +1,9 @@
 #pragma once
 
 #include <nvn/nvn.h>
+
 #include <basis/seadTypes.h>
+
 #include "common/aglTextureEnum.h"
 
 namespace agl::detail {
@@ -21,6 +23,7 @@ public:
 
     u16 mWidth;
     u16 mHeight;
+
 private:
     u16 _4;
     u16 _6;

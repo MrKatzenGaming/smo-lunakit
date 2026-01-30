@@ -4,6 +4,7 @@
 #include <heap/seadDisposer.h>
 #include <hostio/seadHostIONode.h>
 #include <prim/seadSafeString.h>
+
 #include "common/aglGPUMemBlock.h"
 
 namespace agl::detail {
@@ -16,6 +17,7 @@ class PrivateResource : public sead::hostio::Node {
 
 public:
     sead::Heap* getWorkHeap() const { return mWorkHeap; }
+
     sead::Heap* getDebugHeap() const { return mDebugHeap; }
 
 private:
@@ -35,21 +37,21 @@ private:
     void (*mDebugPrintFn)(const sead::SafeString& str) = debugPrintFn;
     u8 _d0[0x100 - 0xd0];
 
-/*
-    sead::Heap* mHeap;
-    void* unk2[7];
-    sead::ArchiveFileDevice* mFileDevice;
-    sead::ArchiveRes* mNvnArchive;
-    void* unk3;
-    TextureSampler* mCursorSampler1;
-    TextureSampler* mCursorSampler2;
-    GPUMemBlockBase mCursorMemory;
-    void* unk4[7];
-public:
-    void createArchive(sead::ArchiveRes*);
+    /*
+        sead::Heap* mHeap;
+        void* unk2[7];
+        sead::ArchiveFileDevice* mFileDevice;
+        sead::ArchiveRes* mNvnArchive;
+        void* unk3;
+        TextureSampler* mCursorSampler1;
+        TextureSampler* mCursorSampler2;
+        GPUMemBlockBase mCursorMemory;
+        void* unk4[7];
+    public:
+        void createArchive(sead::ArchiveRes*);
 
-    TextureSampler* getCursorTextureSampler() { return mCursorSampler2; }
-*/
+        TextureSampler* getCursorTextureSampler() { return mCursorSampler2; }
+    */
 };
 
 }  // namespace agl::detail

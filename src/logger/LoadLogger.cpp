@@ -1,8 +1,4 @@
-#include "LoadLogger.hpp"
-#include "devgui/DevGuiManager.h"
-#include "lib.hpp"
-#include "nn/nifm.h"
-#include "nn/util.h"
+#include "logger/LoadLogger.hpp"
 
 #include "sead/time/seadDateTime.h"
 
@@ -13,24 +9,23 @@ SEAD_SINGLETON_DISPOSER_IMPL(ResourceLoadLogger)
 ResourceLoadLogger::ResourceLoadLogger() = default;
 ResourceLoadLogger::~ResourceLoadLogger() = default;
 
-void ResourceLoadLogger::init(sead::Heap* heap)
-{
+void ResourceLoadLogger::init(sead::Heap* heap) {
     mHeap = heap;
     mTextLines.tryAllocBuffer(mMaxListSize, heap);
 }
 
-void ResourceLoadLogger::pushTextToVector(const char* text)
-{
+void ResourceLoadLogger::pushTextToVector(const char* text) {
     if (mTextLines.size() >= mMaxListSize)
-        delete(mTextLines.popBack());
-    
+        delete (mTextLines.popBack());
+
     sead::DateTime currentTime = sead::DateTime(0);
     sead::CalendarTime calendarTime;
 
     currentTime.setNow();
     currentTime.getCalendarTime(&calendarTime);
 
-    sead::SafeString* entry = new (mHeap) sead::FormatFixedSafeString<0x80>("%02d:%02d:%02d: %s", calendarTime.getHour(), calendarTime.getMinute(), calendarTime.getSecond(), text);
-    
+    sead::SafeString* entry = new (mHeap)
+        sead::FormatFixedSafeString<0x80>("%02d:%02d:%02d: %s", calendarTime.getHour(), calendarTime.getMinute(), calendarTime.getSecond(), text);
+
     mTextLines.pushFront(entry);
 }

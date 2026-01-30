@@ -2,11 +2,10 @@
 
 #include "al/actor/ActorCameraTarget.h"
 
-class PlayerCameraTarget : public al::ActorCameraTarget 
-{
-    public:
-        PlayerCameraTarget(al::LiveActor const *player);
+class PlayerCameraTarget : public al::ActorCameraTarget {
+public:
+    PlayerCameraTarget(const al::LiveActor* player);
 
-        float unk1;
-        float unk2;
+    float unk1;
+    float unk2;
 };

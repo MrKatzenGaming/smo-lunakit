@@ -1,70 +1,69 @@
 #pragma once
 
-#include "ActorFactory.h"
-
 #include "game/Actors/Shine.h"
 
-namespace al
-{
-    class AllDeadWatcher;
-    class BgmPlayObj;
-    class CameraRailHolder;
-    class CameraWatchPoint;
-    class RippleFixMapParts;
-    class EffectObj;
-    class EffectObj;
-    class EffectObjCameraEmit;
-    class EffectObjFollowCamera;
-    class EffectObjFollowCameraLimit;
-    class EffectObjInterval;
-    class EntranceCameraStartObj;
-    class FogRequester;
-    class GraphicsObjShadowMaskSphere;
-    class KeyMoveCameraObj;
-    class LightningController;
-    class OccludedEffectRequester;
-    class OneMeshFixMapParts;
-    class PrePassLineLight;
-    class PrePassPointLight;
-    class PrePassProjLight;
-    class PrePassProjOrthoLight;
-    class PrePassSpotLight;
-    class RippleGeneratePoint;
-    class RippleGeneratePoint;
-    class SeBarrierObj;
-    class SePlayObj;
-    class SePlayRail;
-    class Sky;
-    class SwitchKeyMoveMapParts;
-    class ThunderRenderRequester;
-    class WaterAreaMoveModel;
-    class AtmosScatterRequester;
-    class BackHideParts;
-    class ClockMapParts;
-    class ConveyerMapParts;
-    class FallMapParts;
-    class FixMapParts;
-    class FloaterMapParts;
-    class FlowMapParts;
-    class GateMapParts;
-    class KeyMoveMapParts;
-    class KeyMoveMapPartsGenerator;
-    class RailMoveMapParts;
-    class RollingCubeMapParts;
-    class RippleFixMapParts;
-    class RotateMapParts;
-    class SeesawMapParts;
-    class SlideMapParts;
-    class SubActorLodMapParts;
-    class SurfMapParts;
-    class SwingMapParts;
-    class SwitchDitherMapParts;
-    class SwitchKeepOnWatcher;
-    class SwitchOpenMapParts;
-    class VisibleSwitchMapParts;
-    class WheelMapParts;
-    class WobbleMapParts;
-} // namespace al
+#include "ActorFactory.h"
+
+namespace al {
+class AllDeadWatcher;
+class BgmPlayObj;
+class CameraRailHolder;
+class CameraWatchPoint;
+class RippleFixMapParts;
+class EffectObj;
+class EffectObj;
+class EffectObjCameraEmit;
+class EffectObjFollowCamera;
+class EffectObjFollowCameraLimit;
+class EffectObjInterval;
+class EntranceCameraStartObj;
+class FogRequester;
+class GraphicsObjShadowMaskSphere;
+class KeyMoveCameraObj;
+class LightningController;
+class OccludedEffectRequester;
+class OneMeshFixMapParts;
+class PrePassLineLight;
+class PrePassPointLight;
+class PrePassProjLight;
+class PrePassProjOrthoLight;
+class PrePassSpotLight;
+class RippleGeneratePoint;
+class RippleGeneratePoint;
+class SeBarrierObj;
+class SePlayObj;
+class SePlayRail;
+class Sky;
+class SwitchKeyMoveMapParts;
+class ThunderRenderRequester;
+class WaterAreaMoveModel;
+class AtmosScatterRequester;
+class BackHideParts;
+class ClockMapParts;
+class ConveyerMapParts;
+class FallMapParts;
+class FixMapParts;
+class FloaterMapParts;
+class FlowMapParts;
+class GateMapParts;
+class KeyMoveMapParts;
+class KeyMoveMapPartsGenerator;
+class RailMoveMapParts;
+class RollingCubeMapParts;
+class RippleFixMapParts;
+class RotateMapParts;
+class SeesawMapParts;
+class SlideMapParts;
+class SubActorLodMapParts;
+class SurfMapParts;
+class SwingMapParts;
+class SwitchDitherMapParts;
+class SwitchKeepOnWatcher;
+class SwitchOpenMapParts;
+class VisibleSwitchMapParts;
+class WheelMapParts;
+class WobbleMapParts;
+}  // namespace al
 
 static al::NameToCreator<al::createActor> actorEntries[] = {
     // CUSTOM ACTOR ENTRIES HERE

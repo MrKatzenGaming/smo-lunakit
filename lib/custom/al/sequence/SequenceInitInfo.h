@@ -3,9 +3,10 @@
 #include "Library/System/GameSystemInfo.h"
 
 namespace al {
-    class SequenceInitInfo {
-        public:
-            SequenceInitInfo(al::GameSystemInfo const *sysInf) : mSystemInfo(sysInf) {}
-            const GameSystemInfo *mSystemInfo;
-    };
-}
+class SequenceInitInfo {
+public:
+    SequenceInitInfo(const al::GameSystemInfo* sysInf) : mSystemInfo(sysInf) {}
+
+    const GameSystemInfo* mSystemInfo;
+};
+}  // namespace al

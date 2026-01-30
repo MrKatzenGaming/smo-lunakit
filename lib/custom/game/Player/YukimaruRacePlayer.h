@@ -1,20 +1,21 @@
 #pragma once
 
-#include "game/Util/IUseDimension.h"
 #include "game/Player/PlayerActorBase.h"
-#include "PlayerPuppet.h"
-#include "PlayerInput.h"
-#include "PlayerAnimator.h"
+#include "game/Util/IUseDimension.h"
+
 #include "HackCap.h"
-#include "PlayerModelKeeper.h"
+#include "PlayerAnimator.h"
 #include "PlayerColliderHakoniwa.h"
 #include "PlayerConst.h"
 #include "PlayerHackKeeper.h"
 #include "PlayerInfo.h"
 #include "PlayerInitInfo.h"
+#include "PlayerInput.h"
+#include "PlayerModelKeeper.h"
+#include "PlayerPuppet.h"
 
-class YukimaruRacePlayer : public PlayerActorBase , public IUseDimension {
-    public:
-        void initPlayer(al::ActorInitInfo const &, PlayerInitInfo const &);
-        undefined size[0x1A8];
+class YukimaruRacePlayer : public PlayerActorBase, public IUseDimension {
+public:
+    void initPlayer(const al::ActorInitInfo&, const PlayerInitInfo&);
+    undefined size[0x1A8];
 };

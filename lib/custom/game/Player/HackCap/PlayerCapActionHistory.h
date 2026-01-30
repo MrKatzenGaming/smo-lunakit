@@ -1,13 +1,15 @@
 #pragma once
 
 #include "Library/LiveActor/LiveActor.h"
+
 #include "game/Player/IUsePlayerCollision.h"
 #include "game/Player/PlayerConst.h"
+
 #include "math/seadVector.h"
 
 class PlayerCapActionHistory {
 public:
-    PlayerCapActionHistory(al::LiveActor const*,PlayerConst const*,struct PlayerTrigger const*,IUsePlayerCollision const*);
+    PlayerCapActionHistory(const al::LiveActor*, const PlayerConst*, struct PlayerTrigger const*, const IUsePlayerCollision*);
     void update(void);
     void clearLandLimit(void);
     void clearLimitHeight(void);
@@ -17,10 +19,10 @@ public:
     void recordLimitHeight(void);
     bool isOverLimitHeight(void) const;
 
-    al::LiveActor* mHostActor;       // 0x0
-    PlayerConst* mPlayerConst;       // 0x8
-    PlayerTrigger* mPlayerTrigger;   // 0x10
-    IUsePlayerCollision* mCollider;  // 0x18
+    al::LiveActor* mHostActor;                            // 0x0
+    PlayerConst* mPlayerConst;                            // 0x8
+    PlayerTrigger* mPlayerTrigger;                        // 0x10
+    IUsePlayerCollision* mCollider;                       // 0x18
     struct PlayerCounterAfterCapCatch* mCapCatchCounter;  // 0x20
     bool mIsCapBounced = false;                           // 0x28
     sead::Vector3f mUnkVec = sead::Vector3f::zero;        // 0x2C

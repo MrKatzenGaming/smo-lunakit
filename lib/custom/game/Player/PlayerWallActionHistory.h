@@ -1,16 +1,16 @@
 #pragma once
 
-#include "game/Player/IUsePlayerCollision.h"
-
 #include "sead/math/seadVector.h"
+
+#include "game/Player/IUsePlayerCollision.h"
 
 class PlayerWallActionHistory {
 public:
-    void recordWallJump(IUsePlayerCollision const*, sead::Vector3<float> const&);
-    void recordWallJump(sead::Vector3<float> const&, sead::Vector3<float> const&);
-    void recordWallLeave(sead::Vector3<float> const&, sead::Vector3<float> const&);
+    void recordWallJump(const IUsePlayerCollision*, const sead::Vector3<float>&);
+    void recordWallJump(const sead::Vector3<float>&, const sead::Vector3<float>&);
+    void recordWallLeave(const sead::Vector3<float>&, const sead::Vector3<float>&);
     void reset();
-    void update(IUsePlayerCollision const*);
+    void update(const IUsePlayerCollision*);
 
     const char unk1[4];
     sead::Vector3f mJumpPosition;

@@ -18,10 +18,10 @@ class PlayerCeilingCheck;
 class DisregardReceiver;
 
 namespace al {
-    class WaterSurfaceFinder;
-    class JointSpringControllerHolder;
+class WaterSurfaceFinder;
+class JointSpringControllerHolder;
 
-} // namespace al
+}  // namespace al
 
 class KuriboHack : public al::LiveActor {
 public:
@@ -33,20 +33,20 @@ public:
     KuriboStateHack* mStateHack;
     EnemyStateBlowDown* mStateBlowDown;
     al::JointSpringControllerHolder* mJointSpringControllerHolder;
-    bool mIsKuriboActive; // really abstract name... only false when kuribo is swooning, chase end, and right after damage taken
+    bool mIsKuriboActive;  // really abstract name... only false when kuribo is swooning, chase end, and right after damage taken
     EnemyCap* mEnemyCap;
     bool mEyebrowOff;
     KuriboHack* mKuriboTowerBottom;
     bool mIsGold;
-    s32 mChaseEndTimer; // name unsure
+    s32 mChaseEndTimer;  // name unsure
     CollisionPartsFilterBase* mCollisionPartsFilterBase;
-    sead::Vector3f mNextKuriboTrans; // position of the goomba directly above in a tower
+    sead::Vector3f mNextKuriboTrans;  // position of the goomba directly above in a tower
     f32 mClippingRadius;
     PlayerPushReceiver* mPlayerPushReceiver;
     CollisionMultiShape* mCollisionMultiShape;
     CollisionShapeKeeper* mCollisionShapeKeeper;
     f32 mSandSinkJumpHeight;
-    s32 mKuriboTowerIdx; // name unsure
+    s32 mKuriboTowerIdx;  // name unsure
     s32 mStartRideTimer;
     s32 mDetachTimer;
     u32 mHackEndTimer;
@@ -67,11 +67,11 @@ public:
     al::WaterSurfaceFinder* mWaterSurfaceFinder;
     sead::Matrix34f mWaterSurfaceEffectMtx;
     sead::Matrix34f mSandSurfaceEffectMtx;
-    bool unused_2e0; // set true in ctor, only ever checked if false
+    bool unused_2e0;  // set true in ctor, only ever checked if false
     sead::OffsetList<KuriboHack> mKuriboTowerOffsetList;
     sead::ListNode mKuriboTowerList;
     DisregardReceiver* mDisregardReceiver;
-    u32 mColliderTimer; // really really unsure
+    u32 mColliderTimer;  // really really unsure
 
     KuriboHack(const char*);
     void init(const al::ActorInitInfo&) override;

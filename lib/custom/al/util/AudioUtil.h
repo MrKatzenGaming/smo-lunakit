@@ -1,18 +1,19 @@
 #pragma once
 
-#include "Library/Audio/AudioKeeper.h"
 #include "sead/prim/seadSafeString.h"
+
+#include "al/Library/Audio/IUseAudioKeeper.h"
 
 namespace al {
 
-bool checkIsPlayingSe(al::IUseAudioKeeper const*, const sead::SafeString&, const char*);
+bool checkIsPlayingSe(const al::IUseAudioKeeper*, const sead::SafeString&, const char*);
 
-bool isPlayingBgm(al::IUseAudioKeeper const*);
+bool isPlayingBgm(const al::IUseAudioKeeper*);
 
-bool isPlayingBgm(al::IUseAudioKeeper const*,char const*);
+bool isPlayingBgm(const al::IUseAudioKeeper*, const char*);
 
-void stopAllBgm(al::IUseAudioKeeper const*, int);
+void stopAllBgm(const al::IUseAudioKeeper*, int);
 
-bool tryStopAllBgm(al::IUseAudioKeeper const *, int);
+bool tryStopAllBgm(const al::IUseAudioKeeper*, int);
 
-}
+}  // namespace al

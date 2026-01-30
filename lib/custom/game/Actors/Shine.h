@@ -1,38 +1,39 @@
 #pragma once
 
+#include "Library/LiveActor/LiveActor.h"
 #include "al/actor/ActorDimensionKeeper.h"
-#include "game/Info/QuestInfo.h"
-#include "types.h"
 
+#include "game/Info/QuestInfo.h"
 #include "game/Info/ShineInfo.h"
 #include "game/Util/IUseDimension.h"
-#include "Library/LiveActor/LiveActor.h"
 
-class Shine : public al::LiveActor , public IUseDimension {
-    public:
-        Shine(const char* actorName);
+#include "types.h"
 
-        ActorDimensionKeeper *getActorDimensionKeeper() const override;
+class Shine : public al::LiveActor, public IUseDimension {
+public:
+    Shine(const char* actorName);
 
-        void offAppear();
-        void onAppear();
-        
-        void getDirectWithDemo(void);
-        void getDirect();
-        void get();
+    ActorDimensionKeeper* getActorDimensionKeeper() const override;
 
-        void onSwitchGet(void);
-        
-        bool isGot() const;
+    void offAppear();
+    void onAppear();
 
-        void setGrandShine(void);
+    void getDirectWithDemo(void);
+    void getDirect();
+    void get();
 
-        undefined padding[0x10];
-        // 0x11C mIsEmptyShine
-        ShineInfo *curShineInfo; // 0x120
-        undefined padding_290[0x278 - 0x128];
-        QuestInfo *shineQuestInfo; // 0x278
-        void *unkPtr1; // 0x280
-        ActorDimensionKeeper *mDimensionKeeper; // 0x288
-        int shineId; // 0x290
+    void onSwitchGet(void);
+
+    bool isGot() const;
+
+    void setGrandShine(void);
+
+    undefined padding[0x10];
+    // 0x11C mIsEmptyShine
+    ShineInfo* curShineInfo;  // 0x120
+    undefined padding_290[0x278 - 0x128];
+    QuestInfo* shineQuestInfo;               // 0x278
+    void* unkPtr1;                           // 0x280
+    ActorDimensionKeeper* mDimensionKeeper;  // 0x288
+    int shineId;                             // 0x290
 };

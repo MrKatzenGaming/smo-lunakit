@@ -7,8 +7,8 @@ namespace al {
 class TalkMessageVoicePlayer {
 public:
     TalkMessageVoicePlayer();
-    
-    void start(al::IUseMessageSystem const*, al::IUseAudioKeeper const*, char16_t const*, int);
+
+    void start(const al::IUseMessageSystem*, const al::IUseAudioKeeper*, const char16_t*, int);
     void stop(void);
     void update(void);
     void calcVoicePitch(int);
@@ -16,4 +16,4 @@ public:
 
     char size[0x440];
 };
-}
+}  // namespace al

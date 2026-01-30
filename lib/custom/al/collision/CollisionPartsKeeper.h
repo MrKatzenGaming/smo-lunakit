@@ -1,10 +1,11 @@
 #pragma once
 
-#include "al/collision/ICollisionPartsKeeper.h"
 #include <sead/container/seadListImpl.h>
 #include <sead/container/seadPtrArray.h>
 #include <sead/container/seadTList.h>
 #include <sead/math/seadBoundBox.h>
+
+#include "al/collision/ICollisionPartsKeeper.h"
 
 namespace al {
 class CollisionPartsKeeperOctree : public al::ICollisionPartsKeeper {
@@ -33,4 +34,4 @@ class CollisionPartsKeeperPtrArray : public al::ICollisionPartsKeeper {
 public:
     sead::PtrArray<al::CollisionParts>* mCollisionParts;
 };
-}
+}  // namespace al

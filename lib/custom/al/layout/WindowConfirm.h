@@ -5,9 +5,8 @@
 namespace al {
 class WindowConfirm : public al::LayoutActor {
 public:
-    
-    WindowConfirm(al::LayoutInitInfo const&, char const*, char const*);
-    
+    WindowConfirm(const al::LayoutInitInfo&, const char*, const char*);
+
     void appear(void);
     void appearWithChoicingCancel(void);
     void exeAppear(void);
@@ -21,8 +20,8 @@ public:
     void setCancelIdx(int);
     void setCursorToPane(void);
     void setListNum(int);
-    void setTxtList(int,char16_t const*);
-    void setTxtMessage(char16_t const*);
+    void setTxtList(int, const char16_t*);
+    void setTxtMessage(const char16_t*);
     void tryCancel(void);
     void tryCancelWithoutEnd(void);
     void tryDecide(void);
@@ -32,7 +31,5 @@ public:
     void tryUp(void);
 
     char size[0x38];
-
-
 };
-}
+}  // namespace al

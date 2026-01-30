@@ -5,28 +5,27 @@
 
 namespace al {
 
-    class CameraTicketId {
-    public:
-        CameraTicketId(al::PlacementId const*,char const*);
-        void isEqual(al::CameraTicketId const&);
-        void isEqual(al::CameraTicketId const&,al::CameraTicketId const&);
-        void isEqual(al::ByamlIter const&);
-        void tryGetObjId(void);
-        void getObjId(void);
+class CameraTicketId {
+public:
+    CameraTicketId(const al::PlacementId*, const char*);
+    void isEqual(const al::CameraTicketId&);
+    void isEqual(const al::CameraTicketId&, const al::CameraTicketId&);
+    void isEqual(const al::ByamlIter&);
+    void tryGetObjId(void);
+    void getObjId(void);
 
-        al::PlacementId *mPlacement;
-        const char *mTicketName;
+    al::PlacementId* mPlacement;
+    const char* mTicketName;
+};
 
-    };
+class CameraTicket {
+public:
+    CameraTicket(CameraPoser*, const CameraTicketId*, int);
+    void setPriority(int);
 
-    class CameraTicket {
-    public:
-        CameraTicket(CameraPoser *,CameraTicketId const*,int);
-        void setPriority(int);
-
-        CameraPoser *mPoser;
-        CameraTicketId *mTicketID;
-        int mPriority;
-        bool unkBool;
-    };
-}
+    CameraPoser* mPoser;
+    CameraTicketId* mTicketID;
+    int mPriority;
+    bool unkBool;
+};
+}  // namespace al
