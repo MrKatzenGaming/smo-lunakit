@@ -2,8 +2,6 @@
 
 #include "hk/hook/InstrUtil.h"
 #include "hk/hook/Trampoline.h"
-#include "hk/ro/RoUtil.h"
-#include "hk/sail/detail.h"
 #include "hk/svc/api.h"
 
 #include "al/Library/LiveActor/ActorInitUtil.h"

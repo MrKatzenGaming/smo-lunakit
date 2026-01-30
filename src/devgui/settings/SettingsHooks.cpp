@@ -15,11 +15,11 @@
 #include "game/Layout/StageSceneLayout.h"
 #include "game/Player/HackCap.h"
 #include "game/Player/PlayerActorHakoniwa.h"
+#include "game/Player/PlayerCapActionHistory.h"
 #include "game/Player/PlayerWallActionHistory.h"
+#include "game/System/PlayerHitPointData.h"
 
-#include "custom/game/GameData/PlayerHitPointData.h"
 #include "custom/game/Layout/MapMini.h"
-#include "custom/game/Player/HackCap/PlayerCapActionHistory.h"
 #include "custom/game/Scene/StageScene.h"
 
 #include <cstring>

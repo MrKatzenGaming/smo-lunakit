@@ -1,16 +1,6 @@
 #pragma once
 
-#include "Library/LiveActor/ActorPoseKeeper.h"
-#include "Library/Nerve/Nerve.h"
-#include "Library/Nerve/NerveKeeper.h"
-
-#include "custom/game/Player/HackCap.h"
-
-#include "Player/PlayerActorHakoniwa.h"
-#include "Player/PlayerAnimator.h"
 #include "devgui/windows/WindowBase.h"
-#include "math/seadQuat.h"
-#include "math/seadVectorFwd.h"
 
 __attribute__((used)) static const char* tasToolsWindowName = "TAS Tools";
 void setupTasHooks();
@@ -65,28 +55,6 @@ private:
         Star = 22
     };
 
-    static const int MAX_SAVED_STATES = 5;
-
-    struct SaveState {
-        const al::Nerve* PlayerNerve;
-        const al::Nerve* CappyNerve;
-        // al::NerveStateCtrl::State* CappyState;
-        sead::Vector3f PlayerPosition;
-        sead::Vector3f CappyPosition;
-        sead::Vector3f PlayerVelocity;
-        sead::Vector3f CappyVelocity;
-        sead::Quatf PlayerRotation;
-        sead::Quatf CappyRotation;
-        int CappyNerveStep = 0;
-        int PlayerNerveStep = 0;
-        char mAnimName[0xff] = {0};
-        char mSubAnimName[0xff] = {0};
-        int mAnimFrame = 0;
-        int mSubAnimFrame = 0;
-        bool isCapVisible = false;
-        bool mIsSaved = false;
-    };
-
     const char* patterns[23] = {"Random", "Ghost", "Nose",     "C", "W",      "J",   "Medal", "Plane", "5", "Hangman", "Spanish", "Siblings",
                                 "Snake",  "8",     "Mushroom", "Z", "Tetris", "Ear", "Bomb",  "Bird",  "L", "O",       "Star"};
 
@@ -95,18 +63,4 @@ private:
     void drawDropdown(const char* header, const char* options[], const int totalOptions, const char** output);
 
     void updateCurrentPattern();
-
-    void saveState(SaveState& state);
-    void loadState(SaveState& state);
-    SaveState states[MAX_SAVED_STATES];
-    int mSelectedSaveSlot = 0;
-    int timer = -1;
-
-    al::NerveKeeper mNerveKeeper = al::NerveKeeper(nullptr, nullptr, 0);
-    // PlayerAnimator mAnimator;
-    al::ActorPoseKeeperTQGMSV mPoseKeeper;
-    HackCap mHackCap =
-        HackCap(nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
-    al::NerveKeeper mNerveKeeperHackCap = al::NerveKeeper(nullptr, nullptr, 0);
-    al::ActorPoseKeeperTQGMSV mPoseKeeperHackCap;
 };

@@ -4,6 +4,7 @@
 #include "al/Library/Player/PlayerUtil.h"
 #include "al/Library/Scene/SceneUtil.h"
 
+#include "game/Player/PlayerActorBase.h"
 #include "game/Sequence/ChangeStageInfo.h"
 #include "game/System/GameDataFunction.h"
 #include "game/System/GameSystem.h"
@@ -11,8 +12,6 @@
 #include "custom/game/Scene/StageScene.h"
 
 #include <typeinfo>
-
-#include "Player/PlayerActorBase.h"
 
 bool isInScene() {
     al::Sequence* mSequence = GameSystemFunction::getGameSystem()->mSequence;

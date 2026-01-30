@@ -1,6 +1,5 @@
 #include "logger/Logger.hpp"
 
-#include "hk/Result.h"
 #include "hk/diag/diag.h"
 #include "hk/svc/api.h"
 

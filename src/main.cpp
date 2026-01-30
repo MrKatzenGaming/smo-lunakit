@@ -14,8 +14,11 @@
 #include "nn/fs/fs_mount.h"
 #include "nn/nifm.h"
 
+#include "sead/basis/seadNew.h"
+#include "sead/filedevice/nin/seadNinFileDeviceBaseNin.h"
 #include "sead/filedevice/seadFileDeviceMgr.h"
 #include "sead/filedevice/seadPath.h"
+#include "sead/framework/nx/seadGameFrameworkNx.h"
 #include "sead/gfx/seadPrimitiveRenderer.h"
 #include "sead/heap/seadExpHeap.h"
 #include "sead/prim/seadSafeString.h"
@@ -47,13 +50,10 @@
 #include <cstring>
 
 #include "Imgui.hpp"
-#include "basis/seadNew.h"
 #include "devgui/DevGuiHooks.h"
 #include "devgui/DevGuiManager.h"
 #include "devgui/windows/TASTools/WindowTASTools.h"
 #include "devgui/windows/input/WindowInput.h"
-#include "filedevice/nin/seadNinFileDeviceBaseNin.h"
-#include "framework/nx/seadGameFrameworkNx.h"
 #include "ghost/GhostManager.h"
 #include "helpers/InputHelper.h"
 #include "imgui.h"

@@ -145,7 +145,7 @@ void DevGuiSaveData::read() {
 
 bool DevGuiSaveData::trySave() {
     if (mIsQueueSave) {
-        mSaveTimer += -0.017f;  // FIXME: THIS, THIS SHOULD BE DElTA TIME SO IT IGNORES LAG!!
+        mSaveTimer += -0.017f;  // FIX THIS, THIS SHOULD BE DElTA TIME SO IT IGNORES LAG!!
         if (mSaveTimer < 0.f) {
             mIsQueueSave = false;
             return write().IsSuccess();

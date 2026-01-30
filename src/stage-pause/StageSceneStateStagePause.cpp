@@ -1,8 +1,8 @@
 #include "stage-pause/StageSceneStateStagePause.h"
 
-#include "Library/Nerve/NerveUtil.h"
 #include "al/Library/LiveActor/LiveActorKit.h"
 #include "al/Library/Nerve/NerveSetupUtil.h"
+#include "al/Library/Nerve/NerveUtil.h"
 #include "al/Library/Scene/Scene.h"
 #include "al/Library/Scene/SceneUtil.h"
 
@@ -57,8 +57,8 @@ void StageSceneStateStagePause::exeWait() {
 
     mParent->mLiveActorKit->getEffectSystem()->setIsUpdateKit(true);
     al::updateKitListPrev(mParent);
-    // if (*TAS::instance()->isUseAbsoluteJoystick())
-    //     al::updateKitList(mParent, "カメラ");            // camera
+    if (*TAS::instance()->isUseAbsoluteJoystick())
+        al::updateKitList(mParent, "カメラ");            // camera
     al::updateKitList(mParent, "クリッピング");          // clipping
     al::updateKitTable(mParent, "スナップショット");     // snap shot
     al::updateKitList(mParent, "シャドウマスク");        // shadow mask

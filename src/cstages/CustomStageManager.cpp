@@ -1,11 +1,7 @@
 #include "cstages/CustomStageManager.h"
 
-#include "nn/fs/fs_files.h"
-#include "vapours/results.hpp"
+#include "sead/heap/seadHeapMgr.h"
 
-#include "sead/filedevice/seadFileDeviceMgr.h"
-
-#include "heap/seadHeapMgr.h"
 #include "logger/Logger.hpp"
 
 void CustomStageManager::init(sead::Heap* heap) {

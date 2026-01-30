@@ -6,11 +6,11 @@
 
 #include "sead/heap/seadHeapMgr.h"
 
-#include "Library/LiveActor/ActorActionFunction.h"
-#include "Library/LiveActor/ActorPoseUtil.h"
-#include "Library/LiveActor/LiveActorFlag.h"
-#include "Library/Nerve/NerveUtil.h"
+#include "al/Library/LiveActor/ActorActionFunction.h"
+#include "al/Library/LiveActor/ActorPoseUtil.h"
+#include "al/Library/LiveActor/LiveActorFlag.h"
 #include "al/Library/Nerve/NerveSetupUtil.h"
+#include "al/Library/Nerve/NerveUtil.h"
 
 #include "game/Player/PlayerAnimator.h"
 #include "game/Util/PlayerUtil.h"

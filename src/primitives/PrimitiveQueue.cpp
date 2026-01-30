@@ -3,6 +3,7 @@
 #include "sead/gfx/seadCamera.h"
 #include "sead/gfx/seadPrimitiveRenderer.h"
 #include "sead/heap/seadDisposer.h"
+#include "sead/heap/seadHeapMgr.h"
 
 #include "Library/Camera/CameraUtil.h"
 #include "Library/Nerve/Nerve.h"
@@ -13,7 +14,6 @@
 
 #include <typeinfo>
 
-#include "heap/seadHeapMgr.h"
 #include "helpers/GetHelper.h"
 
 PrimitiveQueue::PrimitiveQueue(sead::Heap* heap) {
