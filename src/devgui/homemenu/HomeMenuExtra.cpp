@@ -7,7 +7,6 @@
 #include "helpers/InputHelper.h"
 #include "imgui.h"
 #include "logger/Logger.hpp"
-#include "update/UpdateHandler.h"
 
 HomeMenuExtra::HomeMenuExtra(DevGuiManager* parent, const char* menuName, bool isDisplayInListByDefault)
     : HomeMenuBase(parent, menuName, isDisplayInListByDefault) {}
@@ -37,17 +36,6 @@ void HomeMenuExtra::updateMenuDisplay() {
     ImGui::PushItemFlag(ImGuiItemFlags_AutoClosePopups, false);
 
     ImGui::Text("Current Version: %s", GIT_VER);
-    // if (UpdateHandler::instance()->isUpdateSilenced() && UpdateHandler::instance()->isUpdateAvailable()) {
-    //     ImGui::Text("Update: %s", UpdateHandler::instance()->getUpdateTag());
-    //     ImGui::SameLine();
-    //     if (ImGui::SmallButton("Unsilence")) {
-    //         UpdateHandler::instance()->setSilenceState(false);
-    //         mParent->getSaveData()->queueSaveWrite();
-    //     }
-    // }
-
-    // if (ImGui::MenuItem("Check for Updates (SWITCH ONLY)", NULL, false, false))
-    //     UpdateHandler::instance()->checkForUpdates();
 
     if (!mIsLoggerDisabled && ImGui::MenuItem("Disable Logger")) {
         Logger::instance().writeLoggerSave(mHeap, true, "0", 0);

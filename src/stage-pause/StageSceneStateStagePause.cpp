@@ -11,6 +11,8 @@
 #include "custom/al/effect/EffectSystem.h"
 #include "custom/al/graphics/GraphicsFunction.h"
 
+#include "smo-tas/TAS.h"
+
 namespace ScenePlayerFunction {
 void startSnapShotMode(const al::Scene*);
 void endSnapShotMode(const al::Scene*);
@@ -55,7 +57,8 @@ void StageSceneStateStagePause::exeWait() {
 
     mParent->mLiveActorKit->getEffectSystem()->setIsUpdateKit(true);
     al::updateKitListPrev(mParent);
-    //    al::updateKitList(mParent, "カメラ");                // camera
+    // if (*TAS::instance()->isUseAbsoluteJoystick())
+    //     al::updateKitList(mParent, "カメラ");            // camera
     al::updateKitList(mParent, "クリッピング");          // clipping
     al::updateKitTable(mParent, "スナップショット");     // snap shot
     al::updateKitList(mParent, "シャドウマスク");        // shadow mask

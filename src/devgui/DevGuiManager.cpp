@@ -48,7 +48,6 @@
 #include "devgui/homemenu/HomeMenuFile.h"
 #include "devgui/homemenu/HomeMenuPrims.h"
 #include "devgui/homemenu/HomeMenuSettings.h"
-#include "devgui/homemenu/HomeMenuUpdater.h"
 #include "devgui/homemenu/HomeMenuWindows.h"
 #include "devgui/homemenu/HomeMenuWorlds.h"
 #include "imgui.h"
@@ -93,7 +92,6 @@ void DevGuiManager::createElements() {
     createHomeMenuItem<HomeMenuWorlds>("Kingdom", true);
     // createHomeMenuItem<HomeMenuCStages>("Stages", true);
     createHomeMenuItem<HomeMenuExtra>("Extras", true);
-    createHomeMenuItem<HomeMenuUpdater>("Update!", false);
 
     // Create each popup window
     mPopupKeyboard = new PopupKeyboard();

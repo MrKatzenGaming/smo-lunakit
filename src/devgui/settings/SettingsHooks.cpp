@@ -7,12 +7,10 @@
 
 #include "al/Library/Bgm/BgmLineFunction.h"
 #include "al/Library/Camera/CameraUtil.h"
-#include "al/Library/Controller/InputFunction.h"
 #include "al/Library/LiveActor/ActorFlagFunction.h"
 #include "al/Library/LiveActor/ActorMovementFunction.h"
 #include "al/Library/LiveActor/ActorPoseUtil.h"
 #include "al/Library/Math/MathUtil.h"
-#include "al/Library/Nerve/NerveUtil.h"
 
 #include "game/Layout/StageSceneLayout.h"
 #include "game/Player/HackCap.h"
@@ -33,8 +31,6 @@
 #include "devgui/windows/MoonRefresh/WindowMoonRefresh.h"
 #include "helpers/GetHelper.h"
 #include "helpers/InputHelper.h"
-#include "helpers/NrvFind/NrvFindHelper.h"
-#include "helpers/NrvFind/player/NrvPlayerActorHakoniwa.h"
 
 HkTrampoline<void, StageScene*> ControlHook = hk::hook::trampoline([](StageScene* scene) -> void {
     PlayerActorHakoniwa* player = tryGetPlayerActorHakoniwa(scene);
@@ -67,8 +63,10 @@ HkTrampoline<void, PlayerActorHakoniwa*> NoclipMovementHook = hk::hook::trampoli
     static bool wasNoclipOn = false;
     bool isNoclip = DevGuiManager::instance()->getSettings()->getStateByName("Noclip");
 
-    if (!isNoclip && wasNoclipOn)
+    if (!isNoclip && wasNoclipOn) {
         al::onCollide(player);
+        player->endDemoPuppetable();
+    }
     wasNoclipOn = isNoclip;
 
     if (!isNoclip) {
@@ -86,16 +84,10 @@ HkTrampoline<void, PlayerActorHakoniwa*> NoclipMovementHook = hk::hook::trampoli
         const sead::Vector3f* cameraPos = &al::getCameraPos(player, 0);
         const sead::Vector2 leftStick = {InputHelper::getLeftStickX(), InputHelper::getLeftStickY()};
 
-        // const al::Nerve* hipDropNrv = NrvFindHelper::getNerveAt(nrvPlayerActorHakoniwaHipDrop);
-        // if (al::isNerve(player, hipDropNrv))
-        //     NrvFindHelper::setNerveAt(player, nrvPlayerActorHakoniwaWait);
-
-        player->exeJump();
+        player->startDemoPuppetable();
         al::offCollide(player);
         al::setVelocityZero(player);
-
-        // Mario slightly goes down even when velocity is 0. This is a hacky fix for that.
-        playerPos->y += 1.5f;
+        player->exeJump();
 
         float d = sqrt(al::powerIn(playerPos->x - cameraPos->x, 2) + (al::powerIn(playerPos->z - cameraPos->z, 2)));
         float vx = ((speed + speedGain) / d) * (playerPos->x - cameraPos->x);

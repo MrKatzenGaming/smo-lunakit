@@ -47,52 +47,52 @@ void WindowInput::drawInputDisplay() {
                                                 makeColor(getInputDisplayColor(InputDisplayColor::White)), "Player 1");
 
     ImGui::GetForegroundDrawList()->AddCircle(pos, 25, makeColor(getInputDisplayColor(InputDisplayColor::Gray)), 0, 2);
-    ImVec2 leftPos = {pos.x + mLStick.x * 30, pos.y - mLStick.y * 30};  // stickl
+    ImVec2 leftPos = {pos.x + mLStick.x * 30, pos.y - mLStick.y * 30};
     drawButton(leftPos, padHold.isOnBit(controller->cPadIdx_1), 16, makeColor(getInputDisplayColor(InputDisplayColor::White)));
 
     pos.x += 40;
     pos.y += 30;
-    drawButton(pos, padHold.isOnBit(controller->cPadIdx_Up));  // up
+    drawButton(pos, padHold.isOnBit(controller->cPadIdx_Up));
     pos.y += 30;
-    drawButton(pos, padHold.isOnBit(controller->cPadIdx_Down));  // down
+    drawButton(pos, padHold.isOnBit(controller->cPadIdx_Down));
     pos.x -= 15;
     pos.y -= 15;
-    drawButton(pos, padHold.isOnBit(controller->cPadIdx_Left));  // left
+    drawButton(pos, padHold.isOnBit(controller->cPadIdx_Left));
     pos.x += 30;
-    drawButton(pos, padHold.isOnBit(controller->cPadIdx_Right));  // right
+    drawButton(pos, padHold.isOnBit(controller->cPadIdx_Right));
 
     pos.x += 60;
     ImGui::GetForegroundDrawList()->AddCircle(pos, 25, makeColor(getInputDisplayColor(InputDisplayColor::Gray)), 0, 2);
-    ImVec2 rightPos = {pos.x + mRStick.x * 30, pos.y - mRStick.y * 30};  // stickr
+    ImVec2 rightPos = {pos.x + mRStick.x * 30, pos.y - mRStick.y * 30};
     drawButton(rightPos, padHold.isOnBit(controller->cPadIdx_2), 16, makeColor(getInputDisplayColor(InputDisplayColor::White)));
 
     pos.x += 40;
     pos.y -= 60;
-    drawButton(pos, padHold.isOnBit(controller->cPadIdx_X));  // x
+    drawButton(pos, padHold.isOnBit(controller->cPadIdx_X));
     pos.y += 30;
-    drawButton(pos, padHold.isOnBit(controller->cPadIdx_B));  // b
+    drawButton(pos, padHold.isOnBit(controller->cPadIdx_B));
     pos.x -= 15;
     pos.y -= 15;
-    drawButton(pos, padHold.isOnBit(controller->cPadIdx_Y));  // y
+    drawButton(pos, padHold.isOnBit(controller->cPadIdx_Y));
     pos.x += 30;
-    drawButton(pos, padHold.isOnBit(controller->cPadIdx_A));  // a
+    drawButton(pos, padHold.isOnBit(controller->cPadIdx_A));
 
     pos.y -= 10;
     pos.x -= 75;
-    drawButton(pos, padHold.isOnBit(controller->cPadIdx_Plus), 5);  // plus
+    drawButton(pos, padHold.isOnBit(controller->cPadIdx_Plus), 5);
     pos.x -= 40;
-    drawButton(pos, padHold.isOnBit(controller->cPadIdx_Minus), 5);  // minus
+    drawButton(pos, padHold.isOnBit(controller->cPadIdx_Minus), 5);
 
     pos = mPos;
     pos.x -= 200;
     pos.y -= 160;
-    drawButtonRect(pos, padHold.isOnBit(controller->cPadIdx_L));  // l
+    drawButtonRect(pos, padHold.isOnBit(controller->cPadIdx_L));
     pos.y -= 16;
-    drawButtonRect(pos, padHold.isOnBit(controller->cPadIdx_ZL));  // zl
+    drawButtonRect(pos, padHold.isOnBit(controller->cPadIdx_ZL));
     pos.x += 155;
-    drawButtonRect(pos, padHold.isOnBit(controller->cPadIdx_ZR));  // zr
+    drawButtonRect(pos, padHold.isOnBit(controller->cPadIdx_ZR));
     pos.y += 16;
-    drawButtonRect(pos, padHold.isOnBit(controller->cPadIdx_R));  // r
+    drawButtonRect(pos, padHold.isOnBit(controller->cPadIdx_R));
 }
 
 void WindowInput::drawInputDisplayP2() {
@@ -112,52 +112,52 @@ void WindowInput::drawInputDisplayP2() {
                                             makeColor(getInputDisplayColor(InputDisplayColor::White)), "Player 2");
 
     ImGui::GetForegroundDrawList()->AddCircle(pos, 25, makeColor(getInputDisplayColor(InputDisplayColor::Gray)), 0, 2);
-    ImVec2 leftPos = {pos.x + mLStick2.x * 30, pos.y - mLStick2.y * 30};  // stickl
+    ImVec2 leftPos = {pos.x + mLStick2.x * 30, pos.y - mLStick2.y * 30};
     drawButton(leftPos, padHold2.isOnBit(controller->cPadIdx_1), 16, makeColor(getInputDisplayColor(InputDisplayColor::White)));
 
     pos.x += 40;
     pos.y += 30;
-    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_Up));  // up
+    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_Up));
     pos.y += 30;
-    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_Down));  // down
+    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_Down));
     pos.x -= 15;
     pos.y -= 15;
-    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_Left));  // left
+    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_Left));
     pos.x += 30;
-    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_Right));  // right
+    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_Right));
 
     pos.x += 60;
     ImGui::GetForegroundDrawList()->AddCircle(pos, 25, makeColor(getInputDisplayColor(InputDisplayColor::Gray)), 0, 2);
-    ImVec2 rightPos = {pos.x + mRStick2.x * 30, pos.y - mRStick2.y * 30};  // stickr
+    ImVec2 rightPos = {pos.x + mRStick2.x * 30, pos.y - mRStick2.y * 30};
     drawButton(rightPos, padHold2.isOnBit(controller->cPadIdx_2), 16, makeColor(getInputDisplayColor(InputDisplayColor::White)));
 
     pos.x += 40;
     pos.y -= 60;
-    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_X));  // x
+    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_X));
     pos.y += 30;
-    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_B));  // b
+    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_B));
     pos.x -= 15;
     pos.y -= 15;
-    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_Y));  // y
+    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_Y));
     pos.x += 30;
-    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_A));  // a
+    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_A));
 
     pos.y -= 10;
     pos.x -= 75;
-    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_Plus), 5);  // plus
+    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_Plus), 5);
     pos.x -= 40;
-    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_Minus), 5);  // minus
+    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_Minus), 5);
 
     pos = mPos2;
     pos.x -= 200;
     pos.y -= 160;
-    drawButtonRect(pos, padHold2.isOnBit(controller2->cPadIdx_L));  // l
+    drawButtonRect(pos, padHold2.isOnBit(controller2->cPadIdx_L));
     pos.y -= 16;
-    drawButtonRect(pos, padHold2.isOnBit(controller2->cPadIdx_ZL));  // zl
+    drawButtonRect(pos, padHold2.isOnBit(controller2->cPadIdx_ZL));
     pos.x += 155;
-    drawButtonRect(pos, padHold2.isOnBit(controller2->cPadIdx_ZR));  // zr
+    drawButtonRect(pos, padHold2.isOnBit(controller2->cPadIdx_ZR));
     pos.y += 16;
-    drawButtonRect(pos, padHold2.isOnBit(controller2->cPadIdx_R));  // r
+    drawButtonRect(pos, padHold2.isOnBit(controller2->cPadIdx_R));
 }
 
 void WindowInput::updateWin() {

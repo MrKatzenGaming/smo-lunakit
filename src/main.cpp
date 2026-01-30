@@ -61,7 +61,6 @@
 #include "logger/Logger.hpp"
 #include "smo-tas/TAS.h"
 #include "stage-pause/StageSceneStateStagePause.h"
-#include "update/UpdateHandler.h"
 
 void getSymbolName(char* buffer, uintptr_t address) {
     nn::diag::GetSymbolName(buffer, 0x100, address);
@@ -245,12 +244,9 @@ HkTrampoline<void, GameSystem*> GameSystemInit = hk::hook::trampoline([](GameSys
 
     // creates heap for LunaKit at 9MB directly off the Stationed heap
     lkHeap = sead::ExpHeap::create(6_MB, "LunaKitHeap", al::getStationedHeap(), 8, sead::Heap::HeapDirection::cHeapDirection_Forward, false);
-    // lkHeap->enableLock(true);
+    lkHeap->enableLock(true);
 
     imgui::setup(lkHeap);
-
-    // sead::Heap* updaterHeap = sead::ExpHeap::create(2500000, "UpdateHeap", lkHeap, 8,
-    // sead::Heap::HeapDirection::cHeapDirection_Forward, false);
 
     Logger::instance().init(lkHeap);
     DisableSocketInit.installAtSym<"_ZN2nn6socket10InitializeEPvmmi">();
@@ -266,9 +262,6 @@ HkTrampoline<void, GameSystem*> GameSystemInit = hk::hook::trampoline([](GameSys
 
     // create GhostManager instance on LunaKit heap
     GhostManager::createInstance(lkHeap);
-
-    // UpdateHandler::createInstance(updaterHeap);
-    // UpdateHandler::instance()->init(updaterHeap);
 
     ImGuiDrawer::createInstance(imgui::sImGuiHeap);
 
@@ -301,11 +294,11 @@ extern "C" void hkMain() {
     DevGuiHooks::exlInstallDevGuiHooks();  // Located in devgui/DevGuiHooks.cpp
 
     // SD File Redirection
-    // RedirectFileDevice.installAtSym<"_ZNK4sead13FileDeviceMgr18findDeviceFromPathERKNS_14SafeStringBaseIcEEPNS_22BufferedSafeStringBaseIcEE">();
-    // FileLoaderLoadArc.installAtSym<"_ZN2al10FileLoader16loadArchiveLocalERKN4sead14SafeStringBaseIcEEPKcPNS1_10FileDeviceE">();
+    RedirectFileDevice.installAtSym<"_ZNK4sead13FileDeviceMgr18findDeviceFromPathERKNS_14SafeStringBaseIcEEPNS_22BufferedSafeStringBaseIcEE">();
+    FileLoaderLoadArc.installAtSym<"_ZN2al10FileLoader16loadArchiveLocalERKN4sead14SafeStringBaseIcEEPKcPNS1_10FileDeviceE">();
     CreateFileDeviceMgr.installAtSym<"_ZN4sead13FileDeviceMgrC2Ev">();
-    // FileLoaderIsExistFile.installAtSym<"_ZNK2al10FileLoader11isExistFileERKN4sead14SafeStringBaseIcEEPNS1_10FileDeviceE">();
-    // FileLoaderIsExistArchive.installAtSym<"_ZNK2al10FileLoader14isExistArchiveERKN4sead14SafeStringBaseIcEEPNS1_10FileDeviceE">();
+    FileLoaderIsExistFile.installAtSym<"_ZNK2al10FileLoader11isExistFileERKN4sead14SafeStringBaseIcEEPNS1_10FileDeviceE">();
+    FileLoaderIsExistArchive.installAtSym<"_ZNK2al10FileLoader14isExistArchiveERKN4sead14SafeStringBaseIcEEPNS1_10FileDeviceE">();
 
     // TAS
     SceneMovementHook.installAtSym<"_ZN2al5Scene8movementEv">();

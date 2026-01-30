@@ -4,7 +4,7 @@
 
 // This class is a singleton! It does not have a typical constructor
 // This is class is created in GameSystemInit in main.cpp
-// Access this class from anywhere using DevGuiManager::instance()->...
+// Access this class from anywhere using ResourceLoadLogger::instance()->...
 SEAD_SINGLETON_DISPOSER_IMPL(ResourceLoadLogger)
 ResourceLoadLogger::ResourceLoadLogger() = default;
 ResourceLoadLogger::~ResourceLoadLogger() = default;

@@ -83,7 +83,7 @@ void CategoryInfCappy::updateCatDisplay() {
         free(nerveName);
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////
+    //------------------------------------------------------------------------------
 
     al::ActorPoseKeeperBase* pose = cappy->mPoseKeeper;
     StageScene* stageScene = tryGetStageScene();

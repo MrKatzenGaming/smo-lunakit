@@ -16,7 +16,6 @@
 #include "ghost/GhostManager.h"
 #include "helpers/fsHelper.h"
 #include "imgui.h"
-#include "update/UpdateHandler.h"
 
 void DevGuiSaveData::init(DevGuiManager* parent) {
     mParent = parent;
@@ -37,11 +36,6 @@ void DevGuiSaveData::read() {
 
     FsHelper::loadFileFromPath(loadData);
     al::ByamlIter root = al::ByamlIter((u8*)loadData.buffer);
-
-    // Before checking if the save needs to be reset, check for if the user has updates silenced
-    bool isUpdatesSilenced;
-    // if (root.tryGetBoolByKey(&isUpdatesSilenced, "UpdateShh"))
-    // UpdateHandler::instance()->setSilenceState(isUpdatesSilenced);
 
     // Check if the program version matches the save file version, if so wipe the save and write a new one
     const char* saveVer;
@@ -151,7 +145,7 @@ void DevGuiSaveData::read() {
 
 bool DevGuiSaveData::trySave() {
     if (mIsQueueSave) {
-        mSaveTimer += -0.017f;  // FIX THIS, THIS SHOULD BE DElTA TIME SO IT IGNORES LAG!!
+        mSaveTimer += -0.017f;  // FIXME: THIS, THIS SHOULD BE DElTA TIME SO IT IGNORES LAG!!
         if (mSaveTimer < 0.f) {
             mIsQueueSave = false;
             return write().IsSuccess();
@@ -176,7 +170,6 @@ nn::Result DevGuiSaveData::write() {
     file->addFloat("Opacity", ImGui::GetStyle().Alpha);
     file->addFloat("DockSize", *mParent->getScreenSizeMultiDocked());
     file->addFloat("HandSize", *mParent->getScreenSizeMultiHandheld());
-    // file->addBool("UpdateShh", UpdateHandler::instance()->isUpdateSilenced());
     file->addInt("MaxGhosts", *GhostManager::instance()->getMaxGhosts());
 
     // Open/close state of all windows

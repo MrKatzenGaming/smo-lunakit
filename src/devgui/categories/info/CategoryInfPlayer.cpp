@@ -120,7 +120,7 @@ void CategoryInfPlayer::updateCatDisplay() {
     ImGui::Text("Anim: %s (%.00f/%.00f)", anim->mCurAnim.cstr(), anim->getAnimFrame(), anim->getAnimFrameMax());
     ImGui::Text("Sub Anim: %s (%.00f/%.00f)", anim->mCurSubAnim.cstr(), anim->getSubAnimFrame(), anim->getSubAnimFrameMax());
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////
+    //-----------------------------------------------------------------------------------------
     if (!playerHak)
         return;
 
