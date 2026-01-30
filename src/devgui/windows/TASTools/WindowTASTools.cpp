@@ -55,28 +55,29 @@ bool WindowTASTools::tryUpdateWinDisplay() {
     drawDropdown("Wiggler Pattern", patterns, 23, &mSelectedPattern);
     ImGui::Text("Current Pattern: %s", mSelectedPattern);
     ImGui::Text("Current Pattern ID: %d", mCurrPattern);
-    if (ImGui::Button("Save State"))
-        saveState(states[mSelectedSaveSlot]);
-    ImGui::SameLine();
-    if (ImGui::Button("Load State"))
-        loadState(states[mSelectedSaveSlot]);
+    // if (ImGui::Button("Save State"))
+    //     saveState(states[mSelectedSaveSlot]);
+    // ImGui::SameLine();
+    // if (ImGui::Button("Load State"))
+    //     loadState(states[mSelectedSaveSlot]);
 
-    ImGui::SliderInt("Save Slot", &mSelectedSaveSlot, 0, MAX_SAVED_STATES - 1);
-    SaveState currentState = states[mSelectedSaveSlot];
-    if (currentState.mIsSaved) {
-        ImGui::Text("State %d: %s", mSelectedSaveSlot, currentState.mIsSaved ? "Saved" : "Not Saved");
-        ImGui::Text("Cappy Pos: %.3f, %.3f, %.3f", currentState.CappyPosition.x, currentState.CappyPosition.y, currentState.CappyPosition.z);
-        ImGui::Text("Cappy Vel: %.3f, %.3f, %.3f", currentState.CappyVelocity.x, currentState.CappyVelocity.y, currentState.CappyVelocity.z);
-        ImGui::Text("Cappy Rot: %.3f, %.3f, %.3f, %.3f", currentState.CappyRotation.x, currentState.CappyRotation.y, currentState.CappyRotation.z,
-                    currentState.CappyRotation.w);
-        ImGui::Text("Cappy Nerve Step: %d", currentState.CappyNerveStep);
-        ImGui::Separator();
-        ImGui::Text("Player Pos: %.3f, %.3f, %.3f", currentState.PlayerPosition.x, currentState.PlayerPosition.y, currentState.PlayerPosition.z);
-        ImGui::Text("Player Vel: %.3f, %.3f, %.3f", currentState.PlayerVelocity.x, currentState.PlayerVelocity.y, currentState.PlayerVelocity.z);
-        ImGui::Text("Player Rot: %.3f, %.3f, %.3f, %.3f", currentState.PlayerRotation.x, currentState.PlayerRotation.y, currentState.PlayerRotation.z,
-                    currentState.PlayerRotation.w);
-        ImGui::Text("Player Nerve Step: %d", currentState.PlayerNerveStep);
-    }
+    // ImGui::SliderInt("Save Slot", &mSelectedSaveSlot, 0, MAX_SAVED_STATES - 1);
+    // SaveState currentState = states[mSelectedSaveSlot];
+    // if (currentState.mIsSaved) {
+    //     ImGui::Text("State %d: %s", mSelectedSaveSlot, currentState.mIsSaved ? "Saved" : "Not Saved");
+    //     ImGui::Text("Cappy Pos: %.3f, %.3f, %.3f", currentState.CappyPosition.x, currentState.CappyPosition.y, currentState.CappyPosition.z);
+    //     ImGui::Text("Cappy Vel: %.3f, %.3f, %.3f", currentState.CappyVelocity.x, currentState.CappyVelocity.y, currentState.CappyVelocity.z);
+    //     ImGui::Text("Cappy Rot: %.3f, %.3f, %.3f, %.3f", currentState.CappyRotation.x, currentState.CappyRotation.y, currentState.CappyRotation.z,
+    //                 currentState.CappyRotation.w);
+    //     ImGui::Text("Cappy Nerve Step: %d", currentState.CappyNerveStep);
+    //     ImGui::Separator();
+    //     ImGui::Text("Player Pos: %.3f, %.3f, %.3f", currentState.PlayerPosition.x, currentState.PlayerPosition.y, currentState.PlayerPosition.z);
+    //     ImGui::Text("Player Vel: %.3f, %.3f, %.3f", currentState.PlayerVelocity.x, currentState.PlayerVelocity.y, currentState.PlayerVelocity.z);
+    //     ImGui::Text("Player Rot: %.3f, %.3f, %.3f, %.3f", currentState.PlayerRotation.x, currentState.PlayerRotation.y,
+    //     currentState.PlayerRotation.z,
+    //                 currentState.PlayerRotation.w);
+    //     ImGui::Text("Player Nerve Step: %d", currentState.PlayerNerveStep);
+    // }
 
     return true;
 }

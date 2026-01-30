@@ -26,7 +26,6 @@
 
 #include <typeinfo>
 
-#include "controller/seadControllerBase.h"
 #include "devgui/DevGuiManager.h"
 #include "ghost/GhostManager.h"
 #include "logger/Logger.hpp"
@@ -182,7 +181,7 @@ void TAS::applyFrame(InputFrame& frame) {
     controller->mPadRelease = frame.mButtons & mPrevButtons[frame.mSecondPlayer];
     controller->mPadHold = frame.mButtons;
 
-    if (controller->mPadTrig.isOn(sead::Controller::PadIdx::cPadIdx_1))
+    if (controller->isTrig(1 << 7 /*Left Stick*/))
         TAS::instance()->setIsUseAbsoluteJoystick(!TAS::instance()->isUseAbsoluteJoystick());
 }
 
