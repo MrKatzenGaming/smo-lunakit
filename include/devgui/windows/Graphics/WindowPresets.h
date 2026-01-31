@@ -10,10 +10,6 @@
 
 #pragma once
 
-#include "devgui/categories/CategoryBase.h"
-#include "devgui/categories/info/CategoryInfPlayer.h"
-#include "devgui/categories/info/CategoryInfScene.h"
-#include "devgui/categories/info/CategoryInfSequence.h"
 #include "devgui/windows/WindowBase.h"
 #include "imgui.h"
 

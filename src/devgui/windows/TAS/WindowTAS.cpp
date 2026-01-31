@@ -34,7 +34,7 @@ bool WindowTAS::tryUpdateWinDisplay() {
             ghostManager->tryStartReplay();
     }
     ImGui::SameLine();
-    ImGui::Checkbox("Absolute Joystick", TAS::instance()->isUseAbsoluteJoystick());
+    ImGui::Checkbox("Absolute Joystick", tas->isUseAbsoluteJoystickPtr());
     if (ImGui::IsItemHovered())
         ImGui::SetTooltip("Can be toggled using L-Stick while a TAS is running");
     if (ImGui::Button("End All")) {

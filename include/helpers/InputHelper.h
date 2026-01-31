@@ -1,7 +1,6 @@
 #pragma once
 #include "OdysseyHeaders/NintendoSDK/nn/hid.h"
 #include "helpers/ImGuiHelper.h"
-#include "math/seadVectorFwd.h"
 
 class InputHelper {
 public:
@@ -145,13 +144,13 @@ public:
 
     static bool isReleaseStickR() { return isButtonRelease(nn::hid::NpadButton::StickR); }
 
-    static s32 getLeftStickX() { return curControllerState.mAnalogStickL.mX; };
+    static sead::Vector2f getLeftStick() {
+        return {((float)curControllerState.mAnalogStickL.mX) / 32768.f, ((float)curControllerState.mAnalogStickL.mY) / 32768.f};
+    };
 
-    static s32 getLeftStickY() { return curControllerState.mAnalogStickL.mY; };
-
-    static s32 getRightStickX() { return curControllerState.mAnalogStickL.mX; };
-
-    static s32 getRightStickY() { return curControllerState.mAnalogStickL.mY; };
+    static sead::Vector2f getRightStick() {
+        return {((float)curControllerState.mAnalogStickR.mX) / 32768.f, ((float)curControllerState.mAnalogStickR.mY) / 32768.f};
+    };
 
 private:
     static bool tryGetContState(nn::hid::NpadBaseState* state, ulong port);

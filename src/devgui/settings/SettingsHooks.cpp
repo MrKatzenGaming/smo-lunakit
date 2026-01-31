@@ -5,10 +5,9 @@
 #include "hk/hook/a64/Assembler.h"
 #include "hk/ro/RoUtil.h"
 
+#include "sead/math/seadMatrix.h"
+
 #include "al/Library/Bgm/BgmLineFunction.h"
-#include "al/Library/Camera/CameraUtil.h"
-#include "al/Library/LiveActor/ActorFlagFunction.h"
-#include "al/Library/LiveActor/ActorMovementFunction.h"
 #include "al/Library/LiveActor/ActorPoseUtil.h"
 #include "al/Library/Math/MathUtil.h"
 
@@ -16,7 +15,10 @@
 #include "game/Player/HackCap.h"
 #include "game/Player/PlayerActorHakoniwa.h"
 #include "game/Player/PlayerCapActionHistory.h"
+#include "game/Player/PlayerFunction.h"
 #include "game/Player/PlayerWallActionHistory.h"
+#include "game/System/GameDataHolder.h"
+#include "game/System/GameDataHolderWriter.h"
 #include "game/System/PlayerHitPointData.h"
 
 #include "custom/game/Layout/MapMini.h"
@@ -24,8 +26,6 @@
 
 #include <cstring>
 
-#include "System/GameDataHolder.h"
-#include "System/GameDataHolderWriter.h"
 #include "devgui/DevGuiManager.h"
 #include "devgui/settings/DevGuiSettings.h"
 #include "devgui/windows/MoonRefresh/WindowMoonRefresh.h"
@@ -63,10 +63,8 @@ HkTrampoline<void, PlayerActorHakoniwa*> NoclipMovementHook = hk::hook::trampoli
     static bool wasNoclipOn = false;
     bool isNoclip = DevGuiManager::instance()->getSettings()->getStateByName("Noclip");
 
-    if (!isNoclip && wasNoclipOn) {
-        al::onCollide(player);
+    if (!isNoclip && wasNoclipOn)
         player->endDemoPuppetable();
-    }
     wasNoclipOn = isNoclip;
 
     if (!isNoclip) {
@@ -81,32 +79,27 @@ HkTrampoline<void, PlayerActorHakoniwa*> NoclipMovementHook = hk::hook::trampoli
         static float speedGain = 0.0f;
 
         sead::Vector3f* playerPos = al::getTransPtr(player);
-        const sead::Vector3f* cameraPos = &al::getCameraPos(player, 0);
-        const sead::Vector2 leftStick = {InputHelper::getLeftStickX(), InputHelper::getLeftStickY()};
+        const sead::Vector2f leftStick = InputHelper::getLeftStick();
+        sead::Matrix34f viewMtx = PlayerFunction::getPlayerViewMtx(player);
 
         player->startDemoPuppetable();
-        al::offCollide(player);
-        al::setVelocityZero(player);
-        player->exeJump();
 
-        float d = sqrt(al::powerIn(playerPos->x - cameraPos->x, 2) + (al::powerIn(playerPos->z - cameraPos->z, 2)));
-        float vx = ((speed + speedGain) / d) * (playerPos->x - cameraPos->x);
-        float vz = ((speed + speedGain) / d) * (playerPos->z - cameraPos->z);
+        sead::Vector3f forward(-viewMtx.m[0][1], 0.0f, -viewMtx.m[2][1]);
+        sead::Vector3f right(viewMtx.m[0][0], 0.0f, viewMtx.m[2][0]);
 
-        playerPos->x -= leftStick.x * vz;
-        playerPos->z += leftStick.x * vx;
+        forward.normalize();
+        right.normalize();
 
-        playerPos->x += leftStick.y * vx;
-        playerPos->z += leftStick.y * vz;
+        float moveSpeed = speed + speedGain;
+
+        playerPos->x += (forward.x * leftStick.y + right.x * leftStick.x) * moveSpeed;
+        playerPos->z += (forward.z * leftStick.y + right.z * leftStick.x) * moveSpeed;
 
         if (InputHelper::isHoldX() || InputHelper::isHoldY())
-            speedGain += 0.5f;
+            speedGain = al::clamp(speedGain + 0.5f, 0.f, speedMax);
+
         if (InputHelper::isHoldA() || InputHelper::isHoldB())
-            speedGain -= 0.5f;
-        if (speedGain <= 0.0f)
-            speedGain = 0.0f;
-        if (speedGain >= speedMax)
-            speedGain = speedMax;
+            speedGain = al::clamp(speedGain - 0.5f, 0.f, speedMax);
 
         if (InputHelper::isHoldZL())
             playerPos->y -= (vspeed + speedGain / 3);
@@ -130,18 +123,16 @@ HkTrampoline<bool, void*> CheckpointWarpHook = hk::hook::trampoline([](void* thi
     return CheckpointWarpHook.orig(thisPtr);
 });
 
-class ShineInfo;
-
-HkTrampoline<bool, GameDataHolderWriter, const ShineInfo*> GreyShineRefreshHook =
-    hk::hook::trampoline([](GameDataHolderWriter writer, const ShineInfo* shineInfo) -> bool {
+HkTrampoline<bool, GameDataHolderWriter, const void* /*ShineInfo*/> GreyShineRefreshHook =
+    hk::hook::trampoline([](GameDataHolderWriter writer, const void* shineInfo) -> bool {
         if (WindowMoonRefresh::getIsGrayRefreshEnabled())
             return false;
         else
             return GreyShineRefreshHook.orig(writer, shineInfo);
     });
 
-HkTrampoline<void, GameDataHolderWriter, const ShineInfo*> ShineRefreshHook =
-    hk::hook::trampoline([](GameDataHolderWriter writer, const ShineInfo* shineInfo) -> void {
+HkTrampoline<void, GameDataHolderWriter, const void* /*ShineInfo*/> ShineRefreshHook =
+    hk::hook::trampoline([](GameDataHolderWriter writer, const void* shineInfo) -> void {
         ptr addr = hk::sail::lookupSymbolFromDb<>("$MoonRefreshText");
         ptr offset = addr - hk::ro::getMainModule()->range().start();
         const char* text = WindowMoonRefresh::getRefreshText();

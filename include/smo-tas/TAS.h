@@ -51,7 +51,9 @@ public:
     void updateDir();
     bool tryStartScript();
 
-    bool* isUseAbsoluteJoystick() { return &mIsUseAbsoluteJoystick; };
+    bool isUseAbsoluteJoystick() { return mIsUseAbsoluteJoystick; };
+
+    bool* isUseAbsoluteJoystickPtr() { return &mIsUseAbsoluteJoystick; };
 
     void setIsUseAbsoluteJoystick(bool use) { mIsUseAbsoluteJoystick = use; };
 

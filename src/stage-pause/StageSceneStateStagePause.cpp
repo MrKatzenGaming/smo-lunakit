@@ -57,7 +57,7 @@ void StageSceneStateStagePause::exeWait() {
 
     mParent->mLiveActorKit->getEffectSystem()->setIsUpdateKit(true);
     al::updateKitListPrev(mParent);
-    if (*TAS::instance()->isUseAbsoluteJoystick())
+    if (TAS::instance()->isUseAbsoluteJoystick())
         al::updateKitList(mParent, "カメラ");            // camera
     al::updateKitList(mParent, "クリッピング");          // clipping
     al::updateKitTable(mParent, "スナップショット");     // snap shot

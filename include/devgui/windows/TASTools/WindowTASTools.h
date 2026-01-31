@@ -14,7 +14,7 @@ public:
 
     void update();
 
-    int mCurrPattern = Random;
+    int mCurPattern = Random;
 
     struct MofumofuPatternEntry {
         const char* typeStr;
@@ -59,8 +59,6 @@ private:
                                 "Snake",  "8",     "Mushroom", "Z", "Tetris", "Ear", "Bomb",  "Bird",  "L", "O",       "Star"};
 
     const char* mSelectedPattern = "Random";
-
-    void drawDropdown(const char* header, const char* options[], const int totalOptions, const char** output);
 
     void updateCurrentPattern();
 };
