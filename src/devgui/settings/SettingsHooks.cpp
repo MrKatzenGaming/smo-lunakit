@@ -5,9 +5,10 @@
 #include "hk/hook/a64/Assembler.h"
 #include "hk/ro/RoUtil.h"
 
-#include "sead/math/seadMatrix.h"
-
+#include "Library/LiveActor/ActorFlagFunction.h"
+#include "Library/LiveActor/ActorMovementFunction.h"
 #include "al/Library/Bgm/BgmLineFunction.h"
+#include "al/Library/Camera/CameraUtil.h"
 #include "al/Library/LiveActor/ActorPoseUtil.h"
 #include "al/Library/Math/MathUtil.h"
 
@@ -15,7 +16,6 @@
 #include "game/Player/HackCap.h"
 #include "game/Player/PlayerActorHakoniwa.h"
 #include "game/Player/PlayerCapActionHistory.h"
-#include "game/Player/PlayerFunction.h"
 #include "game/Player/PlayerWallActionHistory.h"
 #include "game/System/GameDataHolder.h"
 #include "game/System/GameDataHolderWriter.h"
@@ -79,21 +79,20 @@ HkTrampoline<void, PlayerActorHakoniwa*> NoclipMovementHook = hk::hook::trampoli
         static float speedGain = 0.0f;
 
         sead::Vector3f* playerPos = al::getTransPtr(player);
-        const sead::Vector2f leftStick = InputHelper::getLeftStick();
-        sead::Matrix34f viewMtx = PlayerFunction::getPlayerViewMtx(player);
+        const sead::Vector3f* cameraPos = &al::getCameraPos(player, 0);
+        const sead::Vector2 leftStick = InputHelper::getLeftStick();
 
         player->startDemoPuppetable();
 
-        sead::Vector3f forward(-viewMtx.m[0][1], 0.0f, -viewMtx.m[2][1]);
-        sead::Vector3f right(viewMtx.m[0][0], 0.0f, viewMtx.m[2][0]);
+        float d = sqrt(al::powerIn(playerPos->x - cameraPos->x, 2) + (al::powerIn(playerPos->z - cameraPos->z, 2)));
+        float vx = ((speed + speedGain) / d) * (playerPos->x - cameraPos->x);
+        float vz = ((speed + speedGain) / d) * (playerPos->z - cameraPos->z);
 
-        forward.normalize();
-        right.normalize();
+        playerPos->x -= leftStick.x * vz;
+        playerPos->z += leftStick.x * vx;
 
-        float moveSpeed = speed + speedGain;
-
-        playerPos->x += (forward.x * leftStick.y + right.x * leftStick.x) * moveSpeed;
-        playerPos->z += (forward.z * leftStick.y + right.z * leftStick.x) * moveSpeed;
+        playerPos->x += leftStick.y * vx;
+        playerPos->z += leftStick.y * vz;
 
         if (InputHelper::isHoldX() || InputHelper::isHoldY())
             speedGain = al::clamp(speedGain + 0.5f, 0.f, speedMax);
