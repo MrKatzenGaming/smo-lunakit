@@ -13,10 +13,8 @@ bool WindowStagePause::tryUpdateWinDisplay() {
     if (!WindowBase::tryUpdateWinDisplay())
         return false;
 
-    if (ImGui::Button("Toggle Scene Pause")) {
-        mIsStagePaused ? tryUnpauseScene() : tryPauseScene();
-        mIsStagePaused = !mIsStagePaused;
-    }
+    if (ImGui::Button("Toggle Scene Pause"))
+        tryTogglePause();
     if (ImGui::Button("Advance Frame") && mIsStagePaused)
         mIsAdvanceFrame = true;
     ImGui::Checkbox("Pause Music?", &mIsPauseAudio);
@@ -26,6 +24,12 @@ bool WindowStagePause::tryUpdateWinDisplay() {
 void WindowStagePause::updateWin() {
     WindowBase::updateWin();
     tryAdvanceFrame();
+}
+
+void WindowStagePause::tryTogglePause() {
+    mIsStagePaused ? tryUnpauseScene() : tryPauseScene();
+    mIsStagePaused = !mIsStagePaused;
+    mIsPausing = !mIsPausing;
 }
 
 bool WindowStagePause::tryPauseScene() {

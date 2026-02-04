@@ -12,6 +12,7 @@
 #include "devgui/savedata/DevGuiSaveData.h"
 #include "helpers/GetHelper.h"
 #include "imgui.h"
+#include "math/seadVectorFwd.h"
 
 HomeMenuPrims::HomeMenuPrims(DevGuiManager* parent, const char* menuName, bool isDisplayInListByDefault)
     : HomeMenuBase(parent, menuName, isDisplayInListByDefault) {
@@ -70,6 +71,22 @@ void HomeMenuPrims::renderPlayerCategory(al::Scene* scene, PrimitiveQueue* queue
         frontTarget += *playerPos;
         queue->pushLine(*playerPos, frontTarget, {1.f, 1.f, 1.f, 1.f});
     }
+    if (mSettings->getSettingEntryByName("Player Velocity (XZ)")->isTrue()) {
+        sead::Vector3f vel = al::getVelocity(player);
+        vel.normalize();
+        vel *= 225.f;
+        vel.y = 0;
+        vel += *playerPos;
+
+        queue->pushLine(*playerPos, vel, {0, 0, 1, 1});
+    }
+    if (mSettings->getSettingEntryByName("Player Velocity (XYZ)")->isTrue()) {
+        sead::Vector3f vel = al::getVelocity(player);
+        vel.normalize();
+        vel *= 225.f;
+        vel += *playerPos;
+        queue->pushLine(*playerPos, vel, {0, 1, 0, 1});
+    }
 
     // Drawing cappy's current position and velocity angle
     if (mSettings->getSettingEntryByName("Cappy Info")->isTrue()) {
@@ -89,7 +106,7 @@ void HomeMenuPrims::renderPlayerCategory(al::Scene* scene, PrimitiveQueue* queue
     if (mSettings->getSettingEntryByName("Assist Bubble")->isTrue()) {
         PlayerActorHakoniwa* playerHak = tryGetPlayerActorHakoniwa();
         if (playerHak)
-            queue->pushPoint(*playerHak->mRecoverySafetyPoint->getSafetyPoint(), 15.f, sead::Color4f::cGreen);
+            queue->pushPoint(playerHak->mRecoverySafetyPoint->getSafetyPoint(), 15.f, sead::Color4f::cGreen);
     }
 }
 

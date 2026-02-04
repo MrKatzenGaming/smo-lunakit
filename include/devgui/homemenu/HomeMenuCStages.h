@@ -3,7 +3,6 @@
 #include "game/System/GameDataHolderAccessor.h"
 
 #include "cstages/CustomStage.h"
-#include "cstages/CustomStageManager.h"
 #include "devgui/homemenu/HomeMenuBase.h"
 
 class HomeMenuCStages : public HomeMenuBase {

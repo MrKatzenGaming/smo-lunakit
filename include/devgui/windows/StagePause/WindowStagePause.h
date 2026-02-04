@@ -14,6 +14,7 @@ private:
     bool mIsAdvanceFrame = false;
     al::NerveKeeper mPreviousNerveKeeper = {nullptr, nullptr, 0};
     al::NerveStateCtrl::State* mPreviousState = nullptr;
+    bool mIsPausing = false;
 
 public:
     WindowStagePause(DevGuiManager* parent, const char* winName, bool isActiveByDefault);
@@ -22,6 +23,9 @@ public:
     bool tryAdvanceFrame();
     bool tryPauseScene();
     bool tryUnpauseScene();
+    void tryTogglePause();
 
     bool getStagePaused() { return mIsStagePaused; }
+
+    bool isPausing() { return mIsPausing; };
 };

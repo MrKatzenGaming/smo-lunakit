@@ -1,5 +1,7 @@
 #include "devgui/windows/MemoryTools/WindowMemoryManage.h"
 
+#include "hk/types.h"
+
 #include "sead/heap/seadHeapMgr.h"
 
 #include "Library/Base/StringUtil.h"
@@ -91,8 +93,8 @@ void WindowMemoryManage::drawComplexHeapTreeItem(sead::Heap* heap) {
 
     float used = (heap->getSize() - heap->getFreeSize());
     float size = heap->getSize();
-    float mbUsed = used / 1000000.f;
-    float mbSize = size / 1000000.f;
+    float mbUsed = used / 1_MB;
+    float mbSize = size / 1_MB;
 
     float percentUsed = (heap->getSize() - heap->getFreeSize()) / (float(heap->getSize()) / 100);
 
@@ -126,8 +128,8 @@ void WindowMemoryManage::drawProgressBarPerc(sead::Heap* heap) {
     float freeSizeF = static_cast<float>(freeSize);
     float maxSizeF = static_cast<float>(maxSize);
 
-    float freeSizeMB = freeSizeF / 1000000.f;
-    float maxSizeMB = maxSizeF / 1000000.f;
+    float freeSizeMB = freeSizeF / 1_MB;
+    float maxSizeMB = maxSizeF / 1_MB;
 
     float percent = freeSizeF / maxSizeF;
 

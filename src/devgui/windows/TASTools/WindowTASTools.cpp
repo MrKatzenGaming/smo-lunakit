@@ -8,6 +8,8 @@
 
 #include "custom/game/Player/HackCap.h"
 
+#include <cstdint>
+
 #include "Player/PlayerActorHakoniwa.h"
 #include "devgui/DevGuiManager.h"
 #include "imgui.h"
@@ -26,9 +28,20 @@ bool WindowTASTools::tryUpdateWinDisplay() {
 
     ImGui::Combo("Wiggler Pattern", &mCurPattern, patterns, hk::util::arraySize(patterns));
 
-    ImGui::Text("Current Pattern: %s", patterns[mCurPattern]);
-    ImGui::Text("Current Pattern ID: %d", mCurPattern);
+    // ImGui::Text("Current Pattern: %s", patterns[mCurPattern]);
+    // ImGui::Text("Current Pattern ID: %d", mCurPattern);
 
+    ImGui::Checkbox("Absolute Joystick", TAS::instance()->isUseAbsoluteJoystickPtr());
+    if (ImGui::IsItemHovered())
+        ImGui::SetTooltip("Can be toggled using L-Stick while a TAS is running");
+
+    ImGui::PushItemWidth(100);
+    ImGui::SliderInt("TAS Speed", TAS::instance()->getSpeedPtr(), 1, 10);
+    ImGui::PopItemWidth();
+
+    ImGui::PushItemWidth(250);
+    ImGui::DragInt("Speed Until Frame", TAS::instance()->getSpeedUntilFramePtr(), 1, 0, INT32_MAX);
+    ImGui::PopItemWidth();
     return true;
 }
 

@@ -4,6 +4,7 @@
 #include "game/Sequence/ChangeStageInfo.h"
 #include "game/System/GameDataFunction.h"
 
+#include "cstages/CustomStageManager.h"
 #include "devgui/DevGuiManager.h"
 #include "helpers/GetHelper.h"
 #include "imgui.h"

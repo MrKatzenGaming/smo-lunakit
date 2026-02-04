@@ -52,10 +52,13 @@
 #include "Imgui.hpp"
 #include "devgui/DevGuiHooks.h"
 #include "devgui/DevGuiManager.h"
+#include "devgui/windows/StagePause/WindowStagePause.h"
 #include "devgui/windows/TASTools/WindowTASTools.h"
 #include "devgui/windows/input/WindowInput.h"
 #include "ghost/GhostManager.h"
 #include "helpers/InputHelper.h"
+#include "helpers/NrvFind/NrvFindHelper.h"
+#include "helpers/NrvFind/scene/NrvStageScene.h"
 #include "imgui.h"
 #include "logger/LoadLogger.hpp"
 #include "logger/Logger.hpp"
@@ -77,14 +80,14 @@ HkTrampoline<u32, sead::Random*> RandomGetU32 = hk::hook::trampoline([](sead::Ra
     register stack_frame* framePointer asm("x29");
     register uintptr_t startingLink asm("x30");
     stack_frame* fp = framePointer;
-    uintptr_t lr = startingLink - hk::ro::getMainModule()->data().start();
+    uintptr_t lr = startingLink - hk::ro::getMainModule()->range().start();
     while (fp) {
         hk::svc::MemoryInfo memInfo;
         u32 pageInfo;
         if (hk::svc::QueryMemory(&memInfo, &pageInfo, (uintptr_t)fp).failed() || (memInfo.permission & hk::svc::MemoryPermission_Read) == 0)
             break;
 
-        lr += fp->lr - hk::ro::getMainModule()->data().start();
+        lr += fp->lr - hk::ro::getMainModule()->range().start();
         fp = fp->fp;
     }
     return RandomGetU32.orig(random);
@@ -101,21 +104,42 @@ public:
 };
 SEAD_SINGLETON_DISPOSER_IMPL(ImGuiDrawer)
 
-HkTrampoline<void, al::Scene*> SceneMovementHook = hk::hook::trampoline([](al::Scene* scene) -> void {
-    if (!al::isNerve(scene, &StageSceneNrvStagePause::sInstance)) {
-        auto* tas = TAS::instance();
-        tas->setScene(scene);
-        tas->updateNerve();
-        auto* ghostManager = GhostManager::instance();
-        ghostManager->setScene(scene);
-        ghostManager->updateNerve();
-        ghostManager->updateGhostNerve();
+void runTas(al::Scene* scene) {
+    if (al::isNerve(scene, &StageSceneNrvStagePause::sInstance))
+        return;
 
-        WindowTASTools* tools = (WindowTASTools*)DevGuiManager::instance()->getWindow("TAS Tools");
-        if (tools)
-            tools->update();
+    auto* tas = TAS::instance();
+
+    if (tas->isRunning() && tas->getSpeedUntilFrame() > 0 && !tas->hasSpeedUntilFrame()) {
+        if (tas->getFrameIndex() == tas->getSpeedUntilFrame()) {
+            ((WindowStagePause*)DevGuiManager::instance()->getWindow("Stage Pauser"))->tryTogglePause();
+            tas->setHasSpeedUntilFrame(true);
+            return;
+        }
     }
 
+    tas->setScene(scene);
+    tas->updateNerve();
+    auto* ghostManager = GhostManager::instance();
+    ghostManager->setScene(scene);
+    ghostManager->updateNerve();
+    ghostManager->updateGhostNerve();
+
+    WindowTASTools* tools = (WindowTASTools*)DevGuiManager::instance()->getWindow("TAS Tools");
+    if (tools)
+        tools->update();
+}
+
+HkTrampoline<void, al::Scene*> SceneMovementHook = hk::hook::trampoline([](al::Scene* scene) -> void {
+    WindowStagePause* win = (WindowStagePause*)DevGuiManager::instance()->getWindow("Stage Pauser");
+    if (TAS::instance()->isRunning() && !win->isPausing() && NrvFindHelper::isNerveAt(scene, nrvStageScenePlay)) {
+        for (int i = 0; i < TAS::instance()->getSpeed() - 1; i++) {
+            runTas(scene);
+            SceneMovementHook.orig(scene);
+        }
+    }
+
+    runTas(scene);
     SceneMovementHook.orig(scene);
 });
 
@@ -243,7 +267,7 @@ HkTrampoline<void, GameSystem*> GameSystemInit = hk::hook::trampoline([](GameSys
     nn::nifm::Initialize();
 
     // creates heap for LunaKit at 9MB directly off the Stationed heap
-    lkHeap = sead::ExpHeap::create(6_MB, "LunaKitHeap", al::getStationedHeap(), 8, sead::Heap::HeapDirection::cHeapDirection_Forward, false);
+    lkHeap = sead::ExpHeap::create(9_MB, "LunaKitHeap", al::getStationedHeap(), 8, sead::Heap::HeapDirection::cHeapDirection_Forward, false);
     lkHeap->enableLock(true);
 
     imgui::setup(lkHeap);

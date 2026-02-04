@@ -90,7 +90,7 @@ void DevGuiManager::createElements() {
     createHomeMenuItem<HomeMenuWindows>("Windows", true);
     createHomeMenuItem<HomeMenuPrims>("Prims", true);
     createHomeMenuItem<HomeMenuWorlds>("Kingdom", true);
-    // createHomeMenuItem<HomeMenuCStages>("Stages", true);
+    createHomeMenuItem<HomeMenuCStages>("Stages", true);
     createHomeMenuItem<HomeMenuExtra>("Extras", true);
 
     // Create each popup window
@@ -117,7 +117,7 @@ void DevGuiManager::init(sead::Heap* heap) {
     mSettings = new DevGuiSettings(this);  // https://github.com/Amethyst-szs/smo-lunakit/wiki/Code-Documentation#settings
 
     mCustomList = new CustomStageManager();  // https://github.com/Amethyst-szs/smo-lunakit/wiki/Custom-Stage-Support
-    // mCustomList->init(heap);
+    mCustomList->init(heap);
 
     mPrimQueue = new PrimitiveQueue(heap);  // https://github.com/Amethyst-szs/smo-lunakit/wiki/Code-Documentation#primitives
     mPrimitiveSettings = new PrimMenuSettings(this);

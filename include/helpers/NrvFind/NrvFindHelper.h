@@ -1,11 +1,13 @@
 #pragma once
 
-#include "Library/LiveActor/LiveActor.h"
+#include "Library/Nerve/IUseNerve.h"
 #include "Library/Nerve/Nerve.h"
+
+#include <cstdint>
 
 namespace NrvFindHelper {
 
 const al::Nerve* getNerveAt(uintptr_t offset);
-bool isNerveAt(al::LiveActor* actor, uintptr_t offset);
-void setNerveAt(al::LiveActor* actor, uintptr_t offset);
+bool isNerveAt(al::IUseNerve* actor, uintptr_t offset);
+void setNerveAt(al::IUseNerve* actor, uintptr_t offset);
 }  // namespace NrvFindHelper

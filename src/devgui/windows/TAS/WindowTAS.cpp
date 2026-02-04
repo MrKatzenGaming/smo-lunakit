@@ -26,6 +26,7 @@ bool WindowTAS::tryUpdateWinDisplay() {
     ImGui::SameLine();
     ImGui::Checkbox("Replay", &isStartReplay);
     if (ImGui::Button("Start")) {
+        tas->setHasSpeedUntilFrame(false);
         if (isStartTAS)
             tas->tryStartScript();
         if (isStartRecord)
@@ -42,6 +43,10 @@ bool WindowTAS::tryUpdateWinDisplay() {
         ghostManager->endRecord();
         ghostManager->endReplay();
     }
+    ImGui::SameLine();
+    ImGui::PushItemWidth(100);
+    ImGui::SliderInt("Speed", tas->getSpeedPtr(), 1, 10);
+    ImGui::PopItemWidth();
     if (ImGui::Button("Refresh Directories")) {
         tas->updateDir();
         ghostManager->updateDir();

@@ -57,6 +57,20 @@ public:
 
     void setIsUseAbsoluteJoystick(bool use) { mIsUseAbsoluteJoystick = use; };
 
+    int* getSpeedPtr() { return &mSpeed; };
+
+    int getSpeed() { return mSpeed; };
+
+    void setSpeed(int speed) { mSpeed = speed; };
+
+    int* getSpeedUntilFramePtr() { return &mSpeedUntilFrame; };
+
+    int getSpeedUntilFrame() { return mSpeedUntilFrame; };
+
+    bool hasSpeedUntilFrame() { return mHasSpeedUntilFrame; };
+
+    void setHasSpeedUntilFrame(bool has) { mHasSpeedUntilFrame = has; };
+
 private:
     s64 mEntryCount;
     nn::fs::DirectoryEntry* mEntries = nullptr;
@@ -66,4 +80,7 @@ private:
     Script* mScript = nullptr;
     al::Scene* mScene = nullptr;
     bool mIsUseAbsoluteJoystick = false;
+    int mSpeed = 1;
+    int mSpeedUntilFrame = 0;
+    bool mHasSpeedUntilFrame = false;
 };

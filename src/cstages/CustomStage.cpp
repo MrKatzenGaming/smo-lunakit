@@ -3,6 +3,7 @@
 #include "al/Library/File/FileUtil.h"
 #include "al/Library/Yaml/ByamlUtil.h"
 
+#include "heap/seadHeapMgr.h"
 #include "helpers/fsHelper.h"
 
 CustomStageEntry::CustomStageEntry(const char* stageName) {
@@ -13,6 +14,7 @@ CustomStageEntry::CustomStageEntry(const char* stageName) {
 }
 
 CustomStageCategory::CustomStageCategory(al::ByamlIter catIter, sead::Heap* heap) {
+    sead::ScopedCurrentHeapSetter setter(heap);
     mIter = catIter;
     al::tryGetByamlString(&mCatName, catIter, "CategoryName");
     al::tryGetByamlString(&mCatDesc, catIter, "CategoryDesc");
@@ -20,18 +22,19 @@ CustomStageCategory::CustomStageCategory(al::ByamlIter catIter, sead::Heap* heap
     al::ByamlIter stageIter = catIter.getIterByKey("StageList");
     mCatSize = stageIter.getSize();
 
-    // mEntries.tryAllocBuffer(mCatSize, heap);
+    mEntries.allocBuffer(mCatSize, heap);
 
-    // for (u32 i = 0; i < mCatSize; i++) {
-    //     const char* stageName;
-    //     stageIter.tryGetStringByIndex(&stageName, i);
+    for (u32 i = 0; i < mCatSize; i++) {
+        const char* stageName;
+        stageIter.tryGetStringByIndex(&stageName, i);
 
-    //     CustomStageEntry* newEntry = new (heap) CustomStageEntry(stageName);
-    //     mEntries.pushBack(newEntry);
-    // }
+        CustomStageEntry* newEntry = new CustomStageEntry(stageName);
+        mEntries.pushBack(newEntry);
+    }
 }
 
 CustomStageResource::CustomStageResource(const char* resourcePath, const char* resourceName, sead::Heap* heap) {
+    sead::ScopedCurrentHeapSetter setter(heap);
     mResourceName = resourceName;
 
     FsHelper::LoadData loadData = {.path = resourcePath};
@@ -45,7 +48,7 @@ CustomStageResource::CustomStageResource(const char* resourcePath, const char* r
 
     for (unsigned int i = 0; i < size; i++) {
         al::ByamlIter catIter = mRootByaml.getIterByIndex(i);
-        CustomStageCategory* newCat = new (heap) CustomStageCategory(catIter, heap);
+        CustomStageCategory* newCat = new CustomStageCategory(catIter, heap);
         mCategories.pushBack(newCat);
     }
 }
