@@ -45,7 +45,7 @@ bool WindowTAS::tryUpdateWinDisplay() {
     }
     ImGui::SameLine();
     ImGui::PushItemWidth(100);
-    ImGui::SliderInt("Speed", tas->getSpeedPtr(), 1, 10);
+    ImGui::SliderInt("Speed Mult", tas->getSpeedPtr(), 1, 10);
     ImGui::PopItemWidth();
     if (ImGui::Button("Refresh Directories")) {
         tas->updateDir();

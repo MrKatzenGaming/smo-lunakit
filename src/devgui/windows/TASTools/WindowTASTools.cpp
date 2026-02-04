@@ -36,7 +36,7 @@ bool WindowTASTools::tryUpdateWinDisplay() {
         ImGui::SetTooltip("Can be toggled using L-Stick while a TAS is running");
 
     ImGui::PushItemWidth(100);
-    ImGui::SliderInt("TAS Speed", TAS::instance()->getSpeedPtr(), 1, 10);
+    ImGui::SliderInt("TAS Speed Mult", TAS::instance()->getSpeedPtr(), 1, 10);
     ImGui::PopItemWidth();
 
     ImGui::PushItemWidth(250);

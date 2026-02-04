@@ -29,6 +29,7 @@
 #include "devgui/DevGuiManager.h"
 #include "ghost/GhostManager.h"
 #include "logger/Logger.hpp"
+#include "math/seadVectorFwd.h"
 
 namespace {
 NERVE_IMPL(TAS, Update);
@@ -183,6 +184,25 @@ void TAS::applyFrame(InputFrame& frame) {
 
     if (controller->isTrig(1 << 7 /*Left Stick*/))
         TAS::instance()->setIsUseAbsoluteJoystick(!TAS::instance()->isUseAbsoluteJoystick());
+
+    // sead::Vector2f stickL = controller->mLeftStick;
+    // sead::Vector3f stickL3D = {0, 0, 0};
+    // stickL3D.x = stickL.x;
+    // stickL3D.z = stickL.y;
+    // PlayerActorBase* playerBase = static_cast<PlayerActorBase*>(rs::getPlayerActor(mScene));
+
+    // stickL3D *= *playerBase->getViewMtx();
+
+    // Logger::log("Frame %d(%d)L:  X: %d, Y:%d\n", frame.mStep, frame.mSecondPlayer, stickL3D.x, stickL3D.z);
+
+    // sead::Vector2f stickR = controller->mRightStick;
+    // sead::Vector3f stickR3D = {0, 0, 0};
+    // stickR3D.x = stickR.x;
+    // stickR3D.z = stickR.y;
+
+    // stickR3D *= *playerBase->getViewMtx();
+
+    // Logger::log("Frame %d(%d)R:  X: %d, Y:%d\n", frame.mStep, frame.mSecondPlayer, stickR3D.x, stickR3D.z);
 }
 
 void TAS::exeUpdate() {
