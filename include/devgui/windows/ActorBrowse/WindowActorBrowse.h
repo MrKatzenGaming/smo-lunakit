@@ -31,7 +31,7 @@ enum ActorBrowseNameDisplayType {
 
 __attribute__((used)) static const char* actorBrowseNameTypeTable[ActorBrowseNameDisplayType_ENUMSIZE] = {"Class", "Model", "Name "};
 
-__attribute__((used)) static const char* actorBrowseWindowName = "Actor Browser";
+__attribute__((used)) static const char* windowNameactorBrowse = "Actor Browser";
 
 class WindowActorBrowse : public WindowBase {
 public:

@@ -12,7 +12,7 @@
 
 #include "devgui/windows/WindowBase.h"
 
-__attribute__((used)) static const char* infoWindowName = "Info Viewer";
+__attribute__((used)) static const char* windowNameInfo = "Info Viewer";
 
 class WindowInfo : public WindowBase {
 public:

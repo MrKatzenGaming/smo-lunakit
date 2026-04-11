@@ -12,6 +12,7 @@
 #include "devgui/settings/PrimMenuSettings.h"
 #include "devgui/theme/DevGuiTheme.h"
 #include "devgui/windows/MoonRefresh/WindowMoonRefresh.h"
+#include "devgui/windows/WindowBase.h"
 #include "devgui/windows/input/WindowInput.h"
 #include "ghost/GhostManager.h"
 #include "helpers/fsHelper.h"
@@ -119,7 +120,7 @@ void DevGuiSaveData::read() {
             WindowMoonRefresh::setRefreshText((char*)refreshText);
     }
     if (root.isExistKey("InputDisplay")) {
-        WindowInput* inp = (WindowInput*)DevGuiManager::instance()->getWindow("Input Display");
+        WindowInput* inp = DevGuiManager::instance()->getWindow<WindowInput>(windowNameInput);
         al::ByamlIter inputDisplay = root.getIterByKey("InputDisplay");
         bool isEnabled;
         inputDisplay.tryGetBoolByKey(&isEnabled, "Enabled");
@@ -226,7 +227,7 @@ nn::Result DevGuiSaveData::write() {
     file->pop();
 
     file->pushHash("InputDisplay");
-    WindowInput* inp = (WindowInput*)mParent->getWindow("Input Display");
+    WindowInput* inp = mParent->getWindow<WindowInput>(windowNameInput);
     file->addBool("Enabled", inp->isEnabled());
     file->addBool("Is2P", inp->is2P());
     file->addFloat("Pos1X", inp->getPos().x);

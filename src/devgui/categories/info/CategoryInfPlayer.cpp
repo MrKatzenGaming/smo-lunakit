@@ -139,7 +139,7 @@ void CategoryInfPlayer::updateCatDisplay() {
     static sead::Vector3f prevPlayerVel = {0.0f, 0.0f, 0.0f};
     sead::Vector3f playerVelDelta = pose->getVelocity() - prevPlayerVel;
 
-    WindowStagePause* win = (WindowStagePause*)DevGuiManager::instance()->getWindow("Stage Pauser");
+    WindowStagePause* win = DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause);
     prevPlayerVel = win->getStagePaused() ? prevPlayerVel : pose->getVelocity();
 
     sead::Vector3f playerRot = QuatToEuler(pose->getQuatPtr());

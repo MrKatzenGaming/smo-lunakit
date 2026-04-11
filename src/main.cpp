@@ -26,7 +26,6 @@
 #include "sead/random/seadRandom.h"
 #include "sead/resource/seadArchiveRes.h"
 
-#include "Library/Thread/AsyncFunctorThread.h"
 #include "Project/Draw/GpuPerf.h"
 #include "al/Library/LiveActor/ActorInitInfo.h"
 #include "al/Library/LiveActor/LiveActor.h"
@@ -50,15 +49,15 @@
 #include <cstring>
 
 #include "Imgui.hpp"
+#include "Util/DemoUtil.h"
 #include "devgui/DevGuiHooks.h"
 #include "devgui/DevGuiManager.h"
 #include "devgui/windows/StagePause/WindowStagePause.h"
 #include "devgui/windows/TASTools/WindowTASTools.h"
 #include "devgui/windows/input/WindowInput.h"
 #include "ghost/GhostManager.h"
+#include "helpers/GetHelper.h"
 #include "helpers/InputHelper.h"
-#include "helpers/NrvFind/NrvFindHelper.h"
-#include "helpers/NrvFind/scene/NrvStageScene.h"
 #include "imgui.h"
 #include "logger/LoadLogger.hpp"
 #include "logger/Logger.hpp"
@@ -93,17 +92,6 @@ HkTrampoline<u32, sead::Random*> RandomGetU32 = hk::hook::trampoline([](sead::Ra
     return RandomGetU32.orig(random);
 });
 
-class ImGuiDrawer {
-    SEAD_SINGLETON_DISPOSER(ImGuiDrawer);
-
-public:
-    ImGuiDrawer();
-    void draw();
-    al::AsyncFunctorThread* mDrawThread;
-    bool shouldDraw = false;
-};
-SEAD_SINGLETON_DISPOSER_IMPL(ImGuiDrawer)
-
 void runTas(al::Scene* scene) {
     if (al::isNerve(scene, &StageSceneNrvStagePause::sInstance))
         return;
@@ -112,7 +100,7 @@ void runTas(al::Scene* scene) {
 
     if (tas->isRunning() && tas->getSpeedUntilFrame() > 0 && !tas->hasSpeedUntilFrame()) {
         if (tas->getFrameIndex() == tas->getSpeedUntilFrame()) {
-            ((WindowStagePause*)DevGuiManager::instance()->getWindow("Stage Pauser"))->tryTogglePause();
+            (DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause))->tryTogglePause();
             tas->setHasSpeedUntilFrame(true);
             return;
         }
@@ -125,22 +113,32 @@ void runTas(al::Scene* scene) {
     ghostManager->updateNerve();
     ghostManager->updateGhostNerve();
 
-    WindowTASTools* tools = (WindowTASTools*)DevGuiManager::instance()->getWindow("TAS Tools");
+    WindowTASTools* tools = DevGuiManager::instance()->getWindow<WindowTASTools>(windowNameTasTools);
     if (tools)
         tools->update();
 }
 
-HkTrampoline<void, al::Scene*> SceneMovementHook = hk::hook::trampoline([](al::Scene* scene) -> void {
-    WindowStagePause* win = (WindowStagePause*)DevGuiManager::instance()->getWindow("Stage Pauser");
-    if (TAS::instance()->isRunning() && !win->isPausing() && NrvFindHelper::isNerveAt(scene, nrvStageScenePlay)) {
-        for (int i = 0; i < TAS::instance()->getSpeed() - 1; i++) {
-            runTas(scene);
-            SceneMovementHook.orig(scene);
-        }
+HkTrampoline<void, HakoniwaSequence*> SceneMovementHook = hk::hook::trampoline([](HakoniwaSequence* seq) -> void {
+    al::Scene* scene = tryGetScene(seq);
+    if (!scene) {
+        SceneMovementHook.orig(seq);
+        return;
     }
 
-    runTas(scene);
-    SceneMovementHook.orig(scene);
+    WindowStagePause* win = DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause);
+    TAS* tas = TAS::instance();
+    if (tas->isRunning() && !win->isPausing() && tas->getFrameIndex() != 0) {
+        for (int i = 1; i < tas->getSpeed(); i++) {
+            scene = tryGetScene(seq);
+            if (scene)
+                runTas(scene);
+
+            SceneMovementHook.orig(seq);
+        }
+    }
+    if (scene)
+        runTas(scene);
+    SceneMovementHook.orig(seq);
 });
 
 HkTrampoline<void, al::Scene*, const al::ActorInitInfo&> SceneEndInitHook =
@@ -230,20 +228,11 @@ HkTrampoline<bool, al::FileLoader*, sead::SafeString&, sead::FileDevice*> FileLo
 HkTrampoline<void> DisableSocketInit = hk::hook::trampoline([]() -> void {});
 static sead::Heap* lkHeap;
 
-ImGuiDrawer::ImGuiDrawer() {
-    // mDrawThread =
-    //     new al::AsyncFunctorThread("DrawThread", al::FunctorV0M<ImGuiDrawer*, void (ImGuiDrawer::*)(void)>(this, &ImGuiDrawer::draw), 0, 0x1000,
-    //     {0});
-}
-
 void draw() {
     agl::DrawContext* drawContext = Application::instance()->mDrawSystemInfo->drawContext;
-    // while (true) {
-    // nn::os::YieldThread();
-    // if (shouldDraw) {
-    static int prevsize = 0;
+
     ImGui::NewFrame();
-    WindowInput* inp = (WindowInput*)DevGuiManager::instance()->getWindow("Input Display");
+    WindowInput* inp = DevGuiManager::instance()->getWindow<WindowInput>(windowNameInput);
     if (inp) {
         inp->drawInputDisplay();
         inp->drawInputDisplayP2();
@@ -251,16 +240,8 @@ void draw() {
 
     DevGuiManager::instance()->updateDisplay();
 
-    // ImGui::Begin("a");
-    // ImGui::Text("Prev Size: %d", prevsize);
-    // ImGui::End();
-
     ImGui::Render();
-    prevsize = ImGui::GetDrawData()->TotalVtxCount;
     hk::gfx::ImGuiBackendNvn::instance()->draw(ImGui::GetDrawData(), drawContext->getCommandBuffer()->ToData()->pNvnCommandBuffer);
-    //     shouldDraw = false;
-    // }
-    // }
 };
 
 HkTrampoline<void, GameSystem*> GameSystemInit = hk::hook::trampoline([](GameSystem* thisPtr) -> void {
@@ -286,8 +267,6 @@ HkTrampoline<void, GameSystem*> GameSystemInit = hk::hook::trampoline([](GameSys
 
     // create GhostManager instance on LunaKit heap
     GhostManager::createInstance(lkHeap);
-
-    ImGuiDrawer::createInstance(imgui::sImGuiHeap);
 
     GameSystemInit.orig(thisPtr);
 
@@ -325,7 +304,7 @@ extern "C" void hkMain() {
     FileLoaderIsExistArchive.installAtSym<"_ZNK2al10FileLoader14isExistArchiveERKN4sead14SafeStringBaseIcEEPNS1_10FileDeviceE">();
 
     // TAS
-    SceneMovementHook.installAtSym<"_ZN2al5Scene8movementEv">();
+    SceneMovementHook.installAtSym<"_ZN16HakoniwaSequence6updateEv">();
     SceneEndInitHook.installAtSym<"_ZN2al5Scene7endInitERKNS_13ActorInitInfoE">();
 
     // Debug Text Writer Drawing

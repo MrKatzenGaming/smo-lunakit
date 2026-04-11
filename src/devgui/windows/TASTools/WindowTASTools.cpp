@@ -37,10 +37,14 @@ bool WindowTASTools::tryUpdateWinDisplay() {
 
     ImGui::PushItemWidth(100);
     ImGui::SliderInt("TAS Speed Mult", TAS::instance()->getSpeedPtr(), 1, 10);
+    if (ImGui::IsItemHovered())
+        ImGui::SetTooltip("Breaks some cutscenes if multiple of 5");
     ImGui::PopItemWidth();
 
     ImGui::PushItemWidth(250);
     ImGui::DragInt("Speed Until Frame", TAS::instance()->getSpeedUntilFramePtr(), 1, 0, INT32_MAX);
+    if (ImGui::IsItemHovered())
+        ImGui::SetTooltip("Stops the speedup at the given frame");
     ImGui::PopItemWidth();
     return true;
 }
@@ -57,7 +61,7 @@ void WindowTASTools::updateCurrentPattern() {
 }
 
 bool isPatternReverse() {
-    WindowTASTools* tools = (WindowTASTools*)DevGuiManager::instance()->getWindow("TAS Tools");
+    WindowTASTools* tools = DevGuiManager::instance()->getWindow<WindowTASTools>("TAS Tools");
     bool b = al::isHalfProbability();
     if (tools->mCurPattern != 0)
         b = tools->mPatternEntries[tools->mCurPattern - 1].reverse;
@@ -65,7 +69,7 @@ bool isPatternReverse() {
 }
 
 int getMofumofuTarget(int a) {
-    WindowTASTools* tools = (WindowTASTools*)DevGuiManager::instance()->getWindow("TAS Tools");
+    WindowTASTools* tools = DevGuiManager::instance()->getWindow<WindowTASTools>("TAS Tools");
     int r = al::getRandom(a);
     if (tools->mCurPattern != 0)
         r = tools->mPatternEntries[tools->mCurPattern - 1].target;

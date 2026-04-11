@@ -64,24 +64,24 @@ void DevGuiManager::createElements() {
 
     // Create all display windows
     Logger::log("Constructing all windows\n");
-    createWindow<WindowEditor>(paramEditorWindowName, true);
-    createWindow<WindowInfo>(infoWindowName, true);
-    createWindow<WindowActorBrowse>(actorBrowseWindowName, false);
-    createWindow<WindowFPS>(fpsWindowName, true);
-    createWindow<WindowTAS>(tasWindowName, false);
-    createWindow<WindowDupHotkeys>(dupHotkeysWindowName, false);
-    createWindow<WindowMoonRefresh>(moonRefreshWindowName, false);
-    createWindow<WindowTASTools>(tasToolsWindowName, false);
-    createWindow<WindowInput>(inputWindowName, false);
-    createWindow<WindowStagePause>(stagePauseWindowName, false);
+    createWindow<WindowEditor>(windowNameParamEditor, true);
+    createWindow<WindowInfo>(windowNameInfo, true);
+    createWindow<WindowActorBrowse>(windowNameactorBrowse, false);
+    createWindow<WindowFPS>(windowNameFps, true);
+    createWindow<WindowTAS>(windowNameTas, false);
+    createWindow<WindowDupHotkeys>(windowNameDupHotkeys, false);
+    createWindow<WindowMoonRefresh>(windowNameMoonRefresh, false);
+    createWindow<WindowTASTools>(windowNameTasTools, false);
+    createWindow<WindowInput>(windowNameInput, false);
+    createWindow<WindowStagePause>(windowNameStagePause, false);
 
     WindowGroup* memoryGroup = createWindowGroup("Memory Tools", 2);
-    createWindow<WindowLoadLog>(loadLogWindowName, false, memoryGroup);
-    createWindow<WindowMemoryManage>(memoryManageWindowName, true, memoryGroup);
+    createWindow<WindowLoadLog>(windowNameLoadLog, false, memoryGroup);
+    createWindow<WindowMemoryManage>(windowNameMemoryManage, true, memoryGroup);
 
     WindowGroup* graphicsGroup = createWindowGroup("Graphics", 2);
-    createWindow<WindowPresets>(presetsWindowName, false, graphicsGroup);
-    createWindow<WindowGBuffer>(gbufferWindowName, false, graphicsGroup);
+    createWindow<WindowPresets>(windowNamePresets, false, graphicsGroup);
+    createWindow<WindowGBuffer>(windowNameGbuffer, false, graphicsGroup);
 
     // Create all home menu tabs
     Logger::log("Constructing all home menu items\n");
@@ -278,6 +278,15 @@ WindowBase* DevGuiManager::getWindow(const char* sName) {
     for (WindowBase& win : mWindows)
         if (al::isEqualString(win.getWindowName(), sName))
             return &win;
+
+    return nullptr;
+}
+
+template <class T>
+T* DevGuiManager::getWindow(const char* sName) {
+    for (WindowBase& win : mWindows)
+        if (al::isEqualString(win.getWindowName(), sName))
+            return static_cast<T>(&win);
 
     return nullptr;
 }

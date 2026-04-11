@@ -10,7 +10,7 @@
 
 #include "devgui/windows/WindowBase.h"
 
-__attribute__((used)) static const char* fpsWindowName = "FPS Window";
+__attribute__((used)) static const char* windowNameFps = "FPS Window";
 
 class WindowFPS : public WindowBase {
 public:

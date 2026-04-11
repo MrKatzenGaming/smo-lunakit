@@ -89,15 +89,15 @@ void DevGuiDocking::update() {
 
     if (!mParent->getSaveData()->isExistImGuiLayoutFile()) {
         // Create the default interface layout if no saved layout exists
-        ImGui::DockBuilderDockWindow(memoryManageWindowName, dockLU);
-        ImGui::DockBuilderDockWindow(loadLogWindowName, dockLU);
-        ImGui::DockBuilderDockWindow(paramEditorWindowName, dockLM);
-        ImGui::DockBuilderDockWindow(infoWindowName, dockLD);
-        ImGui::DockBuilderDockWindow(presetsWindowName, dockLM);
-        ImGui::DockBuilderDockWindow(gbufferWindowName, dockLD);
-        ImGui::DockBuilderDockWindow(actorBrowseWindowName, mDockRight);
-        ImGui::DockBuilderDockWindow(tasWindowName, dockLM);
-        ImGui::DockBuilderDockWindow(stagePauseWindowName, dockLM);
+        ImGui::DockBuilderDockWindow(windowNameMemoryManage, dockLU);
+        ImGui::DockBuilderDockWindow(windowNameLoadLog, dockLU);
+        ImGui::DockBuilderDockWindow(windowNameParamEditor, dockLM);
+        ImGui::DockBuilderDockWindow(windowNameInfo, dockLD);
+        ImGui::DockBuilderDockWindow(windowNamePresets, dockLM);
+        ImGui::DockBuilderDockWindow(windowNameGbuffer, dockLD);
+        ImGui::DockBuilderDockWindow(windowNameactorBrowse, mDockRight);
+        ImGui::DockBuilderDockWindow(windowNameTas, dockLM);
+        ImGui::DockBuilderDockWindow(windowNameStagePause, dockLM);
     }
 
     ImGui::DockBuilderFinish(mDockSpace);

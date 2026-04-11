@@ -3,7 +3,7 @@
 #include "devgui/categories/CategoryBase.h"
 #include "devgui/windows/WindowBase.h"
 
-__attribute__((used)) static const char* tasWindowName = "TAS";
+__attribute__((used)) static const char* windowNameTas = "TAS";
 
 class WindowTAS : public WindowBase {
 public:

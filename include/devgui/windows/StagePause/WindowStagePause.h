@@ -5,7 +5,7 @@
 
 #include "devgui/windows/WindowBase.h"
 
-__attribute__((used)) static const char* stagePauseWindowName = "Stage Pauser";
+__attribute__((used)) static const char* windowNameStagePause = "Stage Pauser";
 
 class WindowStagePause : public WindowBase {
 private:
@@ -16,6 +16,7 @@ private:
     al::NerveStateCtrl::State* mPreviousState = nullptr;
     bool mIsPausing = false;
     bool mIsUseBuffer = false;
+    bool mCamDuringPause = false;
     void runFrame();
 
 public:
@@ -30,4 +31,6 @@ public:
     bool getStagePaused() { return mIsStagePaused; }
 
     bool isPausing() { return mIsPausing; };
+
+    bool isCamDuringPause() { return mCamDuringPause; };
 };

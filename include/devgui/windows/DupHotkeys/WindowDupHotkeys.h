@@ -2,7 +2,7 @@
 
 #include "devgui/windows/WindowBase.h"
 
-__attribute__((used)) static const char* dupHotkeysWindowName = "Dup Hotkeys";
+__attribute__((used)) static const char* windowNameDupHotkeys = "Dup Hotkeys";
 
 class WindowDupHotkeys : public WindowBase {
 public:

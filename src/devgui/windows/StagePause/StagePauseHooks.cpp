@@ -22,7 +22,7 @@ HkTrampoline<void, StageScene*, al::SceneInitInfo*> StageSceneInitHook =
         }
     });
 HkTrampoline<void, al::ShadowKeeper*> ShadowUpdateHook = hk::hook::trampoline([](al::ShadowKeeper* thisPtr) -> void {
-    WindowStagePause* win = (WindowStagePause*)DevGuiManager::instance()->getWindow("Stage Pauser");
+    WindowStagePause* win = DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause);
     if (win->getStagePaused())
         return;
 

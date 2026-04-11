@@ -164,7 +164,7 @@ void WindowInput::updateWin() {
     if (!mIsEnabled)
         return;
     controllerMgr = sead::ControllerMgr::instance();
-    WindowStagePause* win = (WindowStagePause*)DevGuiManager::instance()->getWindow("Stage Pauser");
+    WindowStagePause* win = DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause);
     TAS* tas = TAS::instance();
 
     controller = (al::NpadController*)controllerMgr->getController(al::getPlayerControllerPort(0));

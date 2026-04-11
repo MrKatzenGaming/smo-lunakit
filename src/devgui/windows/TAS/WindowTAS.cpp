@@ -46,6 +46,8 @@ bool WindowTAS::tryUpdateWinDisplay() {
     ImGui::SameLine();
     ImGui::PushItemWidth(100);
     ImGui::SliderInt("Speed Mult", tas->getSpeedPtr(), 1, 10);
+    if (ImGui::IsItemHovered())
+        ImGui::SetTooltip("Breaks some cutscenes if multiple of 5");
     ImGui::PopItemWidth();
     if (ImGui::Button("Refresh Directories")) {
         tas->updateDir();

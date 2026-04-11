@@ -13,7 +13,7 @@
 #include "devgui/windows/WindowBase.h"
 #include "imgui.h"
 
-__attribute__((used)) static const char* presetsWindowName = "GPresets";
+__attribute__((used)) static const char* windowNamePresets = "GPresets";
 
 namespace al {
 class SkyParam;

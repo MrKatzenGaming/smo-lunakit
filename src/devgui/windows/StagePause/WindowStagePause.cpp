@@ -30,6 +30,8 @@ bool WindowStagePause::tryUpdateWinDisplay() {
     ImGui::Checkbox("Enable Buffering Inputs", &mIsUseBuffer);
     if (ImGui::IsItemHovered())
         ImGui::SetTooltip("Breaks inputs if not paused");
+
+    ImGui::Checkbox("Camera during Stage pause", &mCamDuringPause);
     return true;
 }
 

@@ -8,7 +8,7 @@
 #include "devgui/windows/WindowBase.h"
 #include "imgui.h"
 
-__attribute__((used)) static const char* inputWindowName = "Input Display";
+__attribute__((used)) static const char* windowNameInput = "Input Display";
 
 class WindowInput : public WindowBase {
 public:

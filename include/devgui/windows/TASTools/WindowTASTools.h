@@ -2,7 +2,7 @@
 
 #include "devgui/windows/WindowBase.h"
 
-__attribute__((used)) static const char* tasToolsWindowName = "TAS Tools";
+__attribute__((used)) static const char* windowNameTasTools = "TAS Tools";
 void setupTasHooks();
 
 class WindowTASTools : public WindowBase {

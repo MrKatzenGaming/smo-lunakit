@@ -106,7 +106,7 @@ void CategoryInfCappy::updateCatDisplay() {
     ImGui::DragFloat3("Vel Delta", &cappyVelDelta.x, 1.f, 0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
 
     ImGui::DragFloat("Vel Angle", &hSpeedAngleDeg, 1.f, 0.f, 360.f, format, ImGuiSliderFlags_NoInput);
-    WindowStagePause* win = (WindowStagePause*)DevGuiManager::instance()->getWindow("Stage Pauser");
+    WindowStagePause* win = DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause);
     prevCappyVel = win->getStagePaused() ? prevCappyVel : pose->getVelocity();
     ImGuiHelper::Quat("Player Quaternion", pose->getQuatPtr());
 

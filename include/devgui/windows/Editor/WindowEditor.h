@@ -12,7 +12,7 @@
 
 #include "devgui/windows/WindowBase.h"
 
-__attribute__((used)) static const char* paramEditorWindowName = "Param Editor";
+__attribute__((used)) static const char* windowNameParamEditor = "Param Editor";
 
 class WindowEditor : public WindowBase {
 public:

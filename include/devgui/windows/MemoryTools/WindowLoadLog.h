@@ -15,7 +15,7 @@
 
 #include "devgui/windows/WindowBase.h"
 
-__attribute__((used)) static const char* loadLogWindowName = "Load Log";
+__attribute__((used)) static const char* windowNameLoadLog = "Load Log";
 
 class WindowLoadLog : public WindowBase {
 public:

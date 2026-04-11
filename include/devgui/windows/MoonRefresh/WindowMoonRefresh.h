@@ -2,7 +2,7 @@
 
 #include "devgui/windows/WindowBase.h"
 
-__attribute__((used)) static const char* moonRefreshWindowName = "Moon Refresh";
+__attribute__((used)) static const char* windowNameMoonRefresh = "Moon Refresh";
 
 class WindowMoonRefresh : public WindowBase {
 public:

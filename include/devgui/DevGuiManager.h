@@ -90,6 +90,13 @@ public:
 
     WindowBase* getWindow(const char* sName);
 
+    template <class T>
+    T* getWindow(int windowIdx) {
+        return mWindows.at(windowIdx);
+    }
+    template <class T>
+    T* getWindow(const char* sName);
+
     int getWindowCount() { return mWindows.size(); }  // Total windows (includes closed and non-anchored windows)
 
     bool* getWindowActiveStateAtIdx(int windowIdx) { return mWindows.at(windowIdx)->getActiveState(); }  // Open/close state of a window

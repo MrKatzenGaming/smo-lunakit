@@ -426,3 +426,6 @@ _ZN4sead15GameFrameworkNx9procDraw_Ev
 _ZN2al27updateKitListPostOnNerveEndEPNS_5SceneE
 _ZN2al16updateNerveStateEPNS_9IUseNerveE
 _ZN14PlayerFunction16getPlayerViewMtxEPKN2al9LiveActorE
+
+
+_ZN16HakoniwaSequence6updateEv

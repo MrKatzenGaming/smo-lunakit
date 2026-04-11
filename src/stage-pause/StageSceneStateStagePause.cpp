@@ -11,7 +11,9 @@
 #include "custom/al/effect/EffectSystem.h"
 #include "custom/al/graphics/GraphicsFunction.h"
 
-#include "smo-tas/TAS.h"
+#include "devgui/DevGuiManager.h"
+#include "devgui/windows/StagePause/WindowStagePause.h"
+#include "devgui/windows/TASTools/WindowTASTools.h"
 
 namespace ScenePlayerFunction {
 void startSnapShotMode(const al::Scene*);
@@ -57,7 +59,7 @@ void StageSceneStateStagePause::exeWait() {
 
     mParent->mLiveActorKit->getEffectSystem()->setIsUpdateKit(true);
     al::updateKitListPrev(mParent);
-    if (TAS::instance()->isUseAbsoluteJoystick())
+    if (DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause)->isCamDuringPause())
         al::updateKitList(mParent, "カメラ");            // camera
     al::updateKitList(mParent, "クリッピング");          // clipping
     al::updateKitTable(mParent, "スナップショット");     // snap shot
