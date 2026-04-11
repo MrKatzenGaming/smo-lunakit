@@ -7,4 +7,4 @@ net.createServer((socket) => {
         .on("data", (data) => process.stdout.write(data.toString("utf-8")))
         .on("close", (error) => console.log("disconnect", error))
         .on("error", () => console.log("error"));
-}).listen(3080, () => { console.log("listening"); });
+}).listen(3000, () => { console.log("listening"); });

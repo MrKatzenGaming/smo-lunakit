@@ -2,11 +2,8 @@
 
 #include "hk/hook/InstrUtil.h"
 #include "hk/hook/Trampoline.h"
-#include "hk/hook/a64/Assembler.h"
 #include "hk/ro/RoUtil.h"
 
-#include "Library/LiveActor/ActorFlagFunction.h"
-#include "Library/LiveActor/ActorMovementFunction.h"
 #include "al/Library/Bgm/BgmLineFunction.h"
 #include "al/Library/Camera/CameraUtil.h"
 #include "al/Library/LiveActor/ActorPoseUtil.h"
@@ -26,6 +23,7 @@
 
 #include <cstring>
 
+#include "System/GameDataFile.h"
 #include "devgui/DevGuiManager.h"
 #include "devgui/settings/DevGuiSettings.h"
 #include "devgui/windows/MoonRefresh/WindowMoonRefresh.h"
@@ -163,19 +161,8 @@ HkTrampoline<void, PlayerHitPointData*> NoDamageHook = hk::hook::trampoline([](P
         return NoDamageHook.orig(hitPointData);
 });
 
-void LoadCurrentFilePatch() {
-    __asm("LDR W20, [X8, #0x3C]");
-
-    GameDataHolder* holder = tryGetGameDataHolder();
-
-    s64 fileId;
-
-    if (DevGuiManager::instance()->getSettings()->getStateByName("Allow Loading Current File")) {
-        __asm("MOV X0, 0xFF");
-    } else {
-        fileId = holder->getPlayingFileId();
-        __asm("MOV X0, %[input]" : [input] "=r"(fileId));
-    }
+int LoadCurrentFilePatch(GameDataHolder* holder) {
+    return DevGuiManager::instance()->getSettings()->getStateByName("Allow Loading Current File") ? 5 : holder->getPlayingFileId();
 }
 
 void exlSetupSettingsHooks() {
@@ -190,6 +177,5 @@ void exlSetupSettingsHooks() {
     NoDamageHook.installAtSym<"_ZN16GameDataFunction12damagePlayerE20GameDataHolderWriter">();
     exlSetupDemoHooks();
 
-    hk::hook::writeBranchLinkAtMainOffset(0x004e7f84, LoadCurrentFilePatch);
-    hk::hook::a64::assemble<"nop">().installAtMainOffset(0x004e7f84 + 0x4);
+    hk::hook::writeBranchLinkAtMainOffset(0x004e7f88, LoadCurrentFilePatch);
 }
