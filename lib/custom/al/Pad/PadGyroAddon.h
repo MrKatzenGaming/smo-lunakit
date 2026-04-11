@@ -2,6 +2,7 @@
 
 #include "sead/controller/seadControllerAddon.h"
 
+#include "math/seadMatrix.h"
 #include "math/seadVector.h"
 
 namespace al {

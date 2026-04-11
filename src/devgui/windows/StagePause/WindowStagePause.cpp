@@ -1,7 +1,15 @@
 #include "devgui/windows/StagePause/WindowStagePause.h"
 
+#include "Library/Controller/InputFunction.h"
+
+#include "custom/al/Pad/JoyPadAccelerometerAddon.h"
+#include "custom/al/Pad/NpadController.h"
+#include "custom/al/Pad/PadGyroAddon.h"
 #include "custom/game/Scene/StageScene.h"
 
+#include "controller/seadControllerMgr.h"
+#include "devgui/DevGuiManager.h"
+#include "heap/seadHeapMgr.h"
 #include "helpers/GetHelper.h"
 #include "imgui.h"
 #include "stage-pause/StageSceneStateStagePause.h"
@@ -18,12 +26,43 @@ bool WindowStagePause::tryUpdateWinDisplay() {
     if (ImGui::Button("Advance Frame") && mIsStagePaused)
         mIsAdvanceFrame = true;
     ImGui::Checkbox("Pause Music?", &mIsPauseAudio);
+
+    ImGui::Checkbox("Enable Buffering Inputs", &mIsUseBuffer);
+    if (ImGui::IsItemHovered())
+        ImGui::SetTooltip("Breaks inputs if not paused");
     return true;
+}
+
+void WindowStagePause::runFrame() {
+    if (!mIsUseBuffer)
+        return;
+    sead::ScopedCurrentHeapSetter heapSetter(DevGuiManager::instance()->getHeap());
+    sead::ControllerMgr* controllerMgr = sead::ControllerMgr::instance();
+    auto* controller = (al::NpadController*)controllerMgr->getController(al::getPlayerControllerPort(0));
+    controller->mPadAccelerationDeviceNum = 2;  // number of accelerometers for joycons
+    auto* accelLeft = (al::JoyPadAccelerometerAddon*)controller->getAddonByOrder(sead::ControllerDefine::cAddon_Accelerometer, 0);
+    auto* accelRight = (al::JoyPadAccelerometerAddon*)controller->getAddonByOrder(sead::ControllerDefine::cAddon_Accelerometer, 1);
+    auto* gyroLeft = (al::PadGyroAddon*)controller->getAddonByOrder(sead::ControllerDefine::cAddon_Gyro, 0);
+    auto* gyroRight = (al::PadGyroAddon*)controller->getAddonByOrder(sead::ControllerDefine::cAddon_Gyro, 1);
+    // do all the controller shit with frame
+    controller->mLeftStick = {0, 0};
+    controller->mRightStick = {0, 0};
+    // accelLeft->mAcceleration = frame.mLeftAccel;
+    // accelRight->mAcceleration = frame.mRightAccel;
+    // gyroLeft->mDirection = frame.mLeftGyro.mDirection;
+    // gyroRight->mDirection = frame.mRightGyro.mDirection;
+    // gyroLeft->mAngularVel = frame.mLeftGyro.mAngularV;
+    // gyroRight->mAngularVel = frame.mRightGyro.mAngularV;
+
+    controller->mPadTrig = 0;
+    controller->mPadRelease = 0;
+    controller->mPadHold = 0;
 }
 
 void WindowStagePause::updateWin() {
     WindowBase::updateWin();
     tryAdvanceFrame();
+    runFrame();
 }
 
 void WindowStagePause::tryTogglePause() {

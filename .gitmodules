@@ -1,10 +1,3 @@
-[submodule "imgui"]
-	path = imgui
-	url = https://github.com/ocornut/imgui.git
-	branch = docking
-[submodule "lib/game"]
-	path = lib/smo
-	url = https://github.com/MonsterDruide1/OdysseyHeaders
 [submodule "sys"]
 	path = sys
 	url = https://github.com/fruityloops1/LibHakkun
@@ -14,3 +7,4 @@
 [submodule "lib/imgui"]
 	path = lib/imgui
 	url = https://github.com/ocornut/imgui
+	branch = docking

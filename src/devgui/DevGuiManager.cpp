@@ -69,11 +69,11 @@ void DevGuiManager::createElements() {
     createWindow<WindowActorBrowse>(actorBrowseWindowName, false);
     createWindow<WindowFPS>(fpsWindowName, true);
     createWindow<WindowTAS>(tasWindowName, false);
-    createWindow<WindowStagePause>(stagePauseWindowName, false);
     createWindow<WindowDupHotkeys>(dupHotkeysWindowName, false);
     createWindow<WindowMoonRefresh>(moonRefreshWindowName, false);
     createWindow<WindowTASTools>(tasToolsWindowName, false);
     createWindow<WindowInput>(inputWindowName, false);
+    createWindow<WindowStagePause>(stagePauseWindowName, false);
 
     WindowGroup* memoryGroup = createWindowGroup("Memory Tools", 2);
     createWindow<WindowLoadLog>(loadLogWindowName, false, memoryGroup);

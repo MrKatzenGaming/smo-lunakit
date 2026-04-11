@@ -15,6 +15,8 @@ private:
     al::NerveKeeper mPreviousNerveKeeper = {nullptr, nullptr, 0};
     al::NerveStateCtrl::State* mPreviousState = nullptr;
     bool mIsPausing = false;
+    bool mIsUseBuffer = false;
+    void runFrame();
 
 public:
     WindowStagePause(DevGuiManager* parent, const char* winName, bool isActiveByDefault);

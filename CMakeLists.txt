@@ -14,10 +14,12 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 
 # add_subdirectory(lib/custom)
 # target_link_libraries(${PROJECT_NAME} PUBLIC CustomHeaders)
+include_directories(lib/OdysseyHeaders)
 add_subdirectory(lib/OdysseyHeaders)
 target_link_libraries(${PROJECT_NAME} PUBLIC OdysseyHeaders)
 
-include_directories(/src)
+include_directories(src)
+
 
 include(sys/cmake/module.cmake)
 include(sys/cmake/deploy.cmake)
