@@ -12,15 +12,12 @@
 
 #include "Player/PlayerActorHakoniwa.h"
 #include "devgui/DevGuiManager.h"
+#include "devgui/windows/WindowBase.h"
 #include "imgui.h"
 #include "logger/Logger.hpp"
 #include "smo-tas/TAS.h"
 
 WindowTASTools::WindowTASTools(DevGuiManager* parent, const char* winName, bool isActiveByDefault) : WindowBase(parent, winName, isActiveByDefault) {}
-
-void WindowTASTools::updateWin() {}
-
-void WindowTASTools::update() {}
 
 bool WindowTASTools::tryUpdateWinDisplay() {
     if (!WindowBase::tryUpdateWinDisplay())
@@ -86,7 +83,7 @@ HkTrampoline<const sead::Matrix34f&, PlayerActorHakoniwa*> getPlayerViewMtxHook 
 
 void setupTasHooks() {
     Logger::log("Setting up TAS Tools hooks\n");
-    hk::hook::writeBranchLinkAtMainOffset(0x0b07a8, isPatternReverse);
-    hk::hook::writeBranchLinkAtMainOffset(0x0b07f8, getMofumofuTarget);
+    hk::hook::writeBranchLinkAtSym<"$isPatternReverseHook">(isPatternReverse);
+    hk::hook::writeBranchLinkAtSym<"$getMofumofuTargetHook">(getMofumofuTarget);
     getPlayerViewMtxHook.installAtSym<"_ZN14PlayerFunction16getPlayerViewMtxEPKN2al9LiveActorE">();
 }

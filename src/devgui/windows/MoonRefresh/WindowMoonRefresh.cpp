@@ -12,8 +12,6 @@ bool WindowMoonRefresh::mIsGrayRefreshEnabled = false;
 bool WindowMoonRefresh::mIsRefreshEnabled = false;
 char* WindowMoonRefresh::mRefreshText = const_cast<char*>("///////////////////////");
 
-void WindowMoonRefresh::updateWin() {}
-
 bool WindowMoonRefresh::tryUpdateWinDisplay() {
     if (!WindowBase::tryUpdateWinDisplay())
         return false;

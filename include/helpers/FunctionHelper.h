@@ -1,15 +1,14 @@
 #pragma once
 
-#include "nn/ro.h"
+#include "hk/ro/RoUtil.h"
 
 #include <cstdint>
 
 namespace FunctionHelper {
-static uintptr_t getAddressFromSymbol(const char* symbol) {
-    uintptr_t result;
-    nn::ro::LookupSymbol(&result, symbol);
-    return result;
+static ptr getAddressFromSymbol(const char* symbol) {
+    return hk::ro::lookupSymbol(symbol);
 }
 
 uintptr_t findEndOfFunc(const char* symbol);
+uintptr_t readLdrOffset(const char* symbol);
 };  // namespace FunctionHelper

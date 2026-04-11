@@ -1,5 +1,7 @@
 #include "devgui/homemenu/HomeMenuWorlds.h"
 
+#include "hk/ro/RoUtil.h"
+
 #include "al/Library/Base/StringUtil.h"
 
 #include "game/Player/PlayerFunction.h"
@@ -7,18 +9,26 @@
 #include "game/System/GameDataFunction.h"
 
 #include "devgui/DevGuiManager.h"
+#include "helpers/FunctionHelper.h"
 #include "helpers/GetHelper.h"
 #include "imgui.h"
 
 static WorldList* getWorldList(GameDataHolderAccessor accessor) {
     //    Logger::log("Offset: %x\n", FunctionHelper::readLdrOffset("_ZN16GameDataFunction19getWorldScenarioNumE22GameDataHolderAccessori"));
     return accessor.mData->getWorldList();
+    // return *(WorldList**)((uintptr_t)accessor.mData +
+    //                       FunctionHelper::readLdrOffset("_ZN16GameDataFunction19getWorldScenarioNumE22GameDataHolderAccessori"));
 }
 
 HomeMenuWorlds::HomeMenuWorlds(DevGuiManager* parent, const char* menuName, bool isDisplayInListByDefault)
     : HomeMenuBase(parent, menuName, isDisplayInListByDefault) {}
 
 void HomeMenuWorlds::updateMenuDisplay() {
+    if (hk::ro::getMainModule()->isVersion("120")) {
+        mScenarioPicker = -1;
+        ImGui::MenuItem("Not available on 1.2!", nullptr, false, false);
+        return;
+    }
     StageScene* scene = tryGetStageScene();
     if (!scene) {
         mScenarioPicker = -1;

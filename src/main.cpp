@@ -53,7 +53,6 @@
 #include "devgui/DevGuiHooks.h"
 #include "devgui/DevGuiManager.h"
 #include "devgui/windows/StagePause/WindowStagePause.h"
-#include "devgui/windows/TASTools/WindowTASTools.h"
 #include "devgui/windows/input/WindowInput.h"
 #include "ghost/GhostManager.h"
 #include "helpers/GetHelper.h"
@@ -112,16 +111,12 @@ void runTas(al::Scene* scene) {
     ghostManager->setScene(scene);
     ghostManager->updateNerve();
     ghostManager->updateGhostNerve();
-
-    WindowTASTools* tools = DevGuiManager::instance()->getWindow<WindowTASTools>(windowNameTasTools);
-    if (tools)
-        tools->update();
 }
 
-HkTrampoline<void, HakoniwaSequence*> SceneMovementHook = hk::hook::trampoline([](HakoniwaSequence* seq) -> void {
+HkTrampoline<void, HakoniwaSequence*> RunTasHook = hk::hook::trampoline([](HakoniwaSequence* seq) -> void {
     al::Scene* scene = tryGetScene(seq);
     if (!scene) {
-        SceneMovementHook.orig(seq);
+        RunTasHook.orig(seq);
         return;
     }
 
@@ -133,12 +128,12 @@ HkTrampoline<void, HakoniwaSequence*> SceneMovementHook = hk::hook::trampoline([
             if (scene)
                 runTas(scene);
 
-            SceneMovementHook.orig(seq);
+            RunTasHook.orig(seq);
         }
     }
     if (scene)
         runTas(scene);
-    SceneMovementHook.orig(seq);
+    RunTasHook.orig(seq);
 });
 
 HkTrampoline<void, al::Scene*, const al::ActorInitInfo&> SceneEndInitHook =
@@ -304,7 +299,7 @@ extern "C" void hkMain() {
     FileLoaderIsExistArchive.installAtSym<"_ZNK2al10FileLoader14isExistArchiveERKN4sead14SafeStringBaseIcEEPNS1_10FileDeviceE">();
 
     // TAS
-    SceneMovementHook.installAtSym<"_ZN16HakoniwaSequence6updateEv">();
+    RunTasHook.installAtSym<"_ZN16HakoniwaSequence6updateEv">();
     SceneEndInitHook.installAtSym<"_ZN2al5Scene7endInitERKNS_13ActorInitInfoE">();
 
     // Debug Text Writer Drawing

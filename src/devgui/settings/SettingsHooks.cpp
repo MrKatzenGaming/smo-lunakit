@@ -177,5 +177,5 @@ void exlSetupSettingsHooks() {
     NoDamageHook.installAtSym<"_ZN16GameDataFunction12damagePlayerE20GameDataHolderWriter">();
     exlSetupDemoHooks();
 
-    hk::hook::writeBranchLinkAtMainOffset(0x004e7f88, LoadCurrentFilePatch);
+    hk::hook::writeBranchLinkAtSym<"$loadCurrentFileHook">(LoadCurrentFilePatch);
 }

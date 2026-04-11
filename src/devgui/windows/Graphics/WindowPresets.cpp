@@ -12,7 +12,6 @@ WindowPresets::WindowPresets(DevGuiManager* parent, const char* winName, bool is
 
 void WindowPresets::updateWin() {
     WindowBase::updateWin();
-
     if (!mIsReloadScene)
         return;
 

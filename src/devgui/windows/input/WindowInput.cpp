@@ -161,6 +161,7 @@ void WindowInput::drawInputDisplayP2() {
 }
 
 void WindowInput::updateWin() {
+    WindowBase::updateWin();
     if (!mIsEnabled)
         return;
     controllerMgr = sead::ControllerMgr::instance();

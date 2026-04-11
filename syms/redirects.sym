@@ -5,3 +5,39 @@ $ViewportApplyHook = _ZNK2al12ViewRenderer8drawViewERKNS_8ViewInfoEPNS_14DrawSys
 $StagePauseHook1 = _ZN16HakoniwaSequence12exeLoadStageEv + 0x1f4
 $StagePauseHook2 = _ZN16HakoniwaSequence7exeMissEv + 0x13c
 $MoonRefreshText = 0x01832301
+$isPatternReverseHook = 0x0b07a8    
+$getMofumofuTargetHook = 0x0b07f8
+$loadCurrentFileHook = _ZN21StageSceneStateOption20exeLoadDataSelectingEv + 0x13c
+
+@smo:101
+
+$SkyInitHook = _ZN2al3Sky14initFromPresetERKNS_13ActorInitInfoE + 0x50
+$ViewportApplyHook = _ZNK2al12ViewRenderer8drawViewERKNS_8ViewInfoEPNS_14DrawSystemInfoERKNS_10ProjectionERKN4sead6CameraEPKN3agl12RenderBufferERKNS9_8ViewportEbbb + 0x199C
+$StagePauseHook1 = _ZN16HakoniwaSequence12exeLoadStageEv + 0x1f4
+$StagePauseHook2 = _ZN16HakoniwaSequence7exeMissEv + 0x13c
+$MoonRefreshText = 0x01834066
+$isPatternReverseHook = 0x0b0840
+$getMofumofuTargetHook = 0x0b0890
+$loadCurrentFileHook = _ZN21StageSceneStateOption20exeLoadDataSelectingEv + 0x13c
+
+@smo:110
+
+$SkyInitHook = _ZN2al3Sky14initFromPresetERKNS_13ActorInitInfoE + 0x50
+$ViewportApplyHook = _ZNK2al12ViewRenderer8drawViewERKNS_8ViewInfoEPNS_14DrawSystemInfoERKNS_10ProjectionERKN4sead6CameraEPKN3agl12RenderBufferERKNS9_8ViewportEbbb + 0x199C
+$StagePauseHook1 = _ZN16HakoniwaSequence12exeLoadStageEv + 0x1f4
+$StagePauseHook2 = _ZN16HakoniwaSequence7exeMissEv + 0x13c
+$MoonRefreshText = 0x01835426
+$isPatternReverseHook = 0x0b0840
+$getMofumofuTargetHook = 0x0b0890
+$loadCurrentFileHook = _ZN21StageSceneStateOption20exeLoadDataSelectingEv + 0x13c
+
+@smo:120
+
+$SkyInitHook = _ZN2al3Sky14initFromPresetERKNS_13ActorInitInfoE + 0x50
+$ViewportApplyHook = _ZNK2al12ViewRenderer8drawViewERKNS_8ViewInfoEPNS_14DrawSystemInfoERKNS_10ProjectionERKN4sead6CameraEPKN3agl12RenderBufferERKNS9_8ViewportEbbb + 0x199C
+$StagePauseHook1 = _ZN16HakoniwaSequence12exeLoadStageEv + 0x1f4
+$StagePauseHook2 = _ZN16HakoniwaSequence7exeMissEv + 0x13c
+$MoonRefreshText = 0x018c0436
+$isPatternReverseHook = 0x0b05b0
+$getMofumofuTargetHook = 0x0b0600
+$loadCurrentFileHook = _ZN21StageSceneStateOption20exeLoadDataSelectingEv + 0x13c

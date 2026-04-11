@@ -9,10 +9,8 @@ class WindowTASTools : public WindowBase {
 public:
     WindowTASTools(DevGuiManager* parent, const char* winName, bool isActiveByDefault);
 
-    void updateWin() override;
+    // void updateWin() override;
     bool tryUpdateWinDisplay() override;
-
-    void update();
 
     int mCurPattern = Random;
 

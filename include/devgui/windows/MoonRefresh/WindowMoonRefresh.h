@@ -8,7 +8,6 @@ class WindowMoonRefresh : public WindowBase {
 public:
     WindowMoonRefresh(DevGuiManager* parent, const char* winName, bool isActiveByDefault);
 
-    void updateWin() override;
     bool tryUpdateWinDisplay() override;
 
     static bool getIsGrayRefreshEnabled() { return mIsGrayRefreshEnabled; };
