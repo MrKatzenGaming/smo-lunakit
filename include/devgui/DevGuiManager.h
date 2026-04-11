@@ -21,6 +21,8 @@ Code Documentation: https://github.com/Amethyst-szs/smo-lunakit/wiki/Code-Docume
 #include "sead/container/seadPtrArray.h"
 #include "sead/heap/seadHeap.h"
 
+#include "al/Library/Base/StringUtil.h"
+
 // All popups
 #include "devgui/popups/PopupKeyboard.h"
 
@@ -94,8 +96,15 @@ public:
     T* getWindow(int windowIdx) {
         return mWindows.at(windowIdx);
     }
+
     template <class T>
-    T* getWindow(const char* sName);
+    T* getWindow(const char* sName) {
+        for (WindowBase& win : mWindows)
+            if (al::isEqualString(win.getWindowName(), sName))
+                return static_cast<T*>(&win);
+
+        return nullptr;
+    }
 
     int getWindowCount() { return mWindows.size(); }  // Total windows (includes closed and non-anchored windows)
 

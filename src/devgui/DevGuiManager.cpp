@@ -281,12 +281,3 @@ WindowBase* DevGuiManager::getWindow(const char* sName) {
 
     return nullptr;
 }
-
-template <class T>
-T* DevGuiManager::getWindow(const char* sName) {
-    for (WindowBase& win : mWindows)
-        if (al::isEqualString(win.getWindowName(), sName))
-            return static_cast<T>(&win);
-
-    return nullptr;
-}
