@@ -12,9 +12,9 @@
 #include "al/Library/Nerve/NerveSetupUtil.h"
 #include "al/Library/Nerve/NerveUtil.h"
 
+#include "game/MapObj/ChangeStageInfo.h"
 #include "game/Player/PlayerActorBase.h"
 #include "game/Scene/StageScene.h"
-#include "game/Sequence/ChangeStageInfo.h"
 #include "game/System/GameDataHolder.h"
 #include "game/System/GameDataHolderAccessor.h"
 #include "game/System/GameSystem.h"

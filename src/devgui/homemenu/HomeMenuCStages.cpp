@@ -1,7 +1,7 @@
 #include "devgui/homemenu/HomeMenuCStages.h"
 
+#include "game/MapObj/ChangeStageInfo.h"
 #include "game/Player/PlayerFunction.h"
-#include "game/Sequence/ChangeStageInfo.h"
 #include "game/System/GameDataFunction.h"
 
 #include "cstages/CustomStageManager.h"

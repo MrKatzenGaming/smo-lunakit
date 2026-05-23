@@ -1,6 +1,6 @@
 #include "devgui/categories/edit/CategoryOutfit.h"
 
-#include "game/Sequence/ChangeStageInfo.h"
+#include "game/MapObj/ChangeStageInfo.h"
 #include "game/System/GameDataFile.h"
 #include "game/System/GameDataFunction.h"
 #include "game/System/GameDataHolder.h"

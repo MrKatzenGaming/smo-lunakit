@@ -3,7 +3,7 @@ set(LLDFLAGS --no-demangle --gc-sections --error-limit=0)
 
 set(OPTIMIZE_OPTIONS_DEBUG -O2 -gdwarf-4)
 set(OPTIMIZE_OPTIONS_RELEASE -O3 -ffast-math -flto)
-set(WARN_OPTIONS -Werror=return-type -Wno-invalid-offsetof -Wno-macro-redefined -Wno-deprecated-declarations)
+set(WARN_OPTIONS -Werror=return-type -Wno-invalid-offsetof -Wno-unqualified-std-cast-call -Wno-macro-redefined -Wno-deprecated-declarations)
 
 set(INCLUDES lib lib/imgui include)
 set(DEFINITIONS IMGUI_DISABLE_TTY_FUNCTIONS IMGUI_DISABLE_FILE_FUNCTIONS)
@@ -27,3 +27,4 @@ set(TRAMPOLINE_POOL_SIZE 0x30)
 set(BAKE_SYMBOLS FALSE)
 
 set(HAKKUN_ADDONS Nvn ImGui HeapSourceDynamic)
+set(HAKKUN_DEBUGRENDERER_VTXBUFFER_SIZE 0x8000)

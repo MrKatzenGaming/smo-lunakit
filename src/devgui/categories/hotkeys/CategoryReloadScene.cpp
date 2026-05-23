@@ -5,7 +5,7 @@
 #include "al/Library/LiveActor/ActorPoseUtil.h"
 #include "al/Library/Nerve/NerveStateCtrl.h"
 
-#include "game/Sequence/ChangeStageInfo.h"
+#include "game/MapObj/ChangeStageInfo.h"
 #include "game/System/GameDataFile.h"
 #include "game/System/GameDataFunction.h"
 

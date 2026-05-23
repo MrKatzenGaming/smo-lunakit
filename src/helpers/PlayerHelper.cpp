@@ -3,8 +3,8 @@
 #include "al/Library/LiveActor/ActorMovementFunction.h"
 #include "al/Library/Player/PlayerUtil.h"
 
+#include "game/MapObj/ChangeStageInfo.h"
 #include "game/Player/PlayerAnimator.h"
-#include "game/Sequence/ChangeStageInfo.h"
 #include "game/System/GameDataFunction.h"
 #include "game/System/GameDataHolderAccessor.h"
 

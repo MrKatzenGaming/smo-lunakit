@@ -4,8 +4,8 @@
 
 #include "al/Library/Base/StringUtil.h"
 
+#include "game/MapObj/ChangeStageInfo.h"
 #include "game/Player/PlayerFunction.h"
-#include "game/Sequence/ChangeStageInfo.h"
 #include "game/System/GameDataFunction.h"
 
 #include "devgui/DevGuiManager.h"
