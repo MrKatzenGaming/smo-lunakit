@@ -92,10 +92,9 @@ HkTrampoline<u32, sead::Random*> RandomGetU32 = hk::hook::trampoline([](sead::Ra
 });
 
 void runTas(al::Scene* scene) {
+    auto* tas = TAS::instance();
     if (al::isNerve(scene, &StageSceneNrvStagePause::sInstance))
         return;
-
-    auto* tas = TAS::instance();
 
     if (tas->isRunning() && tas->getSpeedUntilFrame() > 0 && !tas->hasSpeedUntilFrame()) {
         if (tas->getFrameIndex() == tas->getSpeedUntilFrame()) {
@@ -122,8 +121,10 @@ HkTrampoline<void, HakoniwaSequence*> RunTasHook = hk::hook::trampoline([](Hakon
 
     WindowStagePause* win = DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause);
     TAS* tas = TAS::instance();
-    if (tas->isRunning() && !win->isPausing() && tas->getFrameIndex() != 0) {
+    if (tas->isRunning() && !win->isPausing() && !al::isFirstStep(seq) && !tas->hasSpeedUntilFrame()) {
         for (int i = 1; i < tas->getSpeed(); i++) {
+            if (tas->hasSpeedUntilFrame())
+                break;
             scene = tryGetScene(seq);
             if (scene)
                 runTas(scene);

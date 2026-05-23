@@ -19,5 +19,6 @@ private:
     void drawActorInspectorTreePose(PlayerActorHakoniwa* player);
     sead::Vector3f QuatToEuler(sead::Quatf* quat);
     int sliderValue = 2;
-    char format[16];
+    char format[16] = {"\0"};
+    bool mUseDeg = true;
 };

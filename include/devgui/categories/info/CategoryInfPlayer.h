@@ -1,23 +1,29 @@
 #pragma once
 
-#include "sead/math/seadQuat.h"
-#include "sead/math/seadVector.h"
-
-#include "Library/LiveActor/LiveActorFlag.h"
-
-#include "game/Player/PlayerActorHakoniwa.h"
-
 #include "devgui/categories/CategoryBase.h"
+#include "math/seadVector.h"
 
 class CategoryInfPlayer : public CategoryBase {
 public:
     CategoryInfPlayer(const char* catName, const char* catDesc, sead::Heap* heap);
 
     void updateCatDisplay() override;
+    void updateCat() override;
 
 private:
-    sead::Vector3f QuatToEuler(sead::Quatf* quat);
     int sliderValue = 2;
     char format[16];
     char textBuffer[64];
+    bool mUseDeg = true;
+    sead::Vector3f mRelativeTrans = sead::Vector3f::zero;
+    float mRelativeAngle = 0;
+    bool mFixedOrigin = false;
+
+    void setRelativeAxes(sead::Vector3f trans, float angle) {
+        mRelativeTrans = trans;
+        mRelativeAngle = angle;
+    }
+
+    sead::Vector3f transformToRelativeAxes(sead::Vector3f vec, bool isTransVector);
+    sead::Vector3f transformEulerAnglesToRelativeAxes(sead::Vector3f vec);
 };

@@ -7,11 +7,10 @@
 #include "al/Library/Nerve/NerveStateCtrl.h"
 #include "al/Library/Nerve/NerveUtil.h"
 
-#include "game/Player/HackCap.h"
 #include "game/Player/PlayerActorBase.h"
 #include "game/Player/PlayerActorHakoniwa.h"
-#include "game/Player/PlayerAnimator.h"
-#include "game/Player/PlayerFunction.h"
+
+#include "custom/game/Player/HackCap.h"
 
 #include <cstdio>
 #include <cxxabi.h>
@@ -21,7 +20,9 @@
 #include "devgui/windows/StagePause/WindowStagePause.h"
 #include "helpers/GetHelper.h"
 #include "helpers/ImGuiHelper.h"
+#include "helpers/MathHelper.h"
 #include "imgui.h"
+#include "math/seadVectorFwd.h"
 
 #define DEG(X) X * 180 / M_PI
 
@@ -35,7 +36,7 @@ void CategoryInfCappy::updateCatDisplay() {
         return;
     }
     PlayerActorHakoniwa* playerHak = tryGetPlayerActorHakoniwa();
-    al::LiveActor* cappy = playerHak->mHackCap;
+    HackCap* cappy = playerHak->mHackCap;
 
     /*
         Precision Slider
@@ -43,6 +44,8 @@ void CategoryInfCappy::updateCatDisplay() {
 
     ImGui::SliderInt("Precision", &sliderValue, 0, 10);
     snprintf(format, sizeof(format), "%%.%df", static_cast<int>(sliderValue));
+
+    ImGui::Checkbox("Use Degree", &mUseDeg);
 
     /*
         // PLAYER CLASS, STATE, AND NERVES
@@ -105,36 +108,14 @@ void CategoryInfCappy::updateCatDisplay() {
     ImGui::DragFloat3("Velocity", &pose->getVelocityPtr()->x, 1.f, 0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
     ImGui::DragFloat3("Vel Delta", &cappyVelDelta.x, 1.f, 0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);
 
-    ImGui::DragFloat("Vel Angle", &hSpeedAngleDeg, 1.f, 0.f, 360.f, format, ImGuiSliderFlags_NoInput);
+    ImGui::DragFloat("Vel Angle", mUseDeg ? &hSpeedAngleDeg : &hSpeedAngle, 1.f, 0.f, 360.f, format, ImGuiSliderFlags_NoInput);
     WindowStagePause* win = DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause);
     prevCappyVel = win->getStagePaused() ? prevCappyVel : pose->getVelocity();
-    ImGuiHelper::Quat("Player Quaternion", pose->getQuatPtr());
+    ImGuiHelper::Quat("Cappy Quaternion", pose->getQuatPtr());
 
-    if (pose->getQuatPtr() != nullptr) {
-        f32 x = pose->getQuatPtr()->z;
-        f32 y = pose->getQuatPtr()->y;
-        f32 z = pose->getQuatPtr()->x;
-        f32 w = pose->getQuatPtr()->w;
-
-        // Compute Euler angles
-        f32 t0 = 2.0f * (w * x + y * z);
-        f32 t1 = 1.0f - 2.0f * (x * x + y * y);
-        f32 roll = atan2f(t0, t1);
-
-        f32 t2 = 2.0f * (w * y - z * x);
-        t2 = t2 > 1.0f ? 1.0f : t2;
-        t2 = t2 < -1.0f ? -1.0f : t2;
-        f32 pitch = asinf(t2);
-
-        f32 t3 = 2.0f * (w * z + x * y);
-        f32 t4 = 1.0f - 2.0f * (y * y + z * z);
-        f32 yaw = atan2f(t3, t4);
-
-        sead::Vector3f cappyEulerAngles = {yaw, pitch, roll};
-
-        sead::Vector3f cappyRot = sead::Vector3f(DEG(cappyEulerAngles.x), DEG(cappyEulerAngles.y), DEG(cappyEulerAngles.z));
-        ImGui::DragFloat3("Euler", &cappyRot.x, 1.f, -1.f, 1.f, format, ImGuiSliderFlags_NoRoundToFormat);
-    }
+    sead::Vector3f cappyEulerAngles = MathHelper::QuatToEuler(pose->getQuatPtr());
+    sead::Vector3f cappyRotDeg = sead::Vector3f(DEG(cappyEulerAngles.x), DEG(cappyEulerAngles.y), DEG(cappyEulerAngles.z));
+    ImGui::DragFloat3("Euler", mUseDeg ? &cappyRotDeg.x : &cappyEulerAngles.x, 1.f, -1.f, 1.f, format, ImGuiSliderFlags_NoRoundToFormat);
 
     if (stateName && stateNrvName) {
         ImGui::Text("State: %s", stateName);

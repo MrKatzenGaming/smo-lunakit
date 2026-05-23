@@ -4,6 +4,7 @@
 #include "devgui/categories/info/CategoryInfCappy.h"
 #include "devgui/categories/info/CategoryInfPlayer.h"
 #include "devgui/categories/info/CategoryInfScene.h"
+#include "devgui/categories/info/CategoryInfSensors.h"
 #include "devgui/categories/info/CategoryInfSequence.h"
 #include "devgui/categories/info/CategoryInfStats.h"
 
@@ -12,5 +13,6 @@ WindowInfo::WindowInfo(DevGuiManager* parent, const char* winName, bool isActive
     createCategory<CategoryInfScene>("Scene", "Scene Information");
     createCategory<CategoryInfPlayer>("Player", "Player Information");
     createCategory<CategoryInfCappy>("Cappy", "Cappy Information");
+    createCategory<CategoryInfSensors>("Sensors", "Hiit Sensor Information");
     createCategory<CategoryInfStats>("Stats", "Stats Information");
 }

@@ -1,6 +1,7 @@
 #include "actors/Puppet/PuppetActor.h"
 
 #include "hk/diag/diag.h"
+#include "hk/sail/detail.h"
 
 #include "al/Library/Base/StringUtil.h"
 #include "al/Library/Effect/EffectSystemInfo.h"
@@ -58,9 +59,7 @@ void PuppetActor::init(const al::ActorInitInfo& initInfo) {
 
     al::LiveActor* normalModel = new al::LiveActor("Normal");
 
-    uintptr_t address =
-        FunctionHelper::findEndOfFunc("_ZN14PlayerFunction19initMarioModelActorEPN2al9LiveActorERKNS0_13ActorInitInfoEPKcS7_PNS0_11AudioKeeperEb");
-    auto* initMario = (initMarioModelCommon*)(address + 4);
+    auto* initMario = (initMarioModelCommon*)(hk::sail::lookupSymbolFromDb("$initMarioModelCommon"));
 
     if (!initMario)
         HK_ABORT("Cannot find initMarioModelCommon!");
