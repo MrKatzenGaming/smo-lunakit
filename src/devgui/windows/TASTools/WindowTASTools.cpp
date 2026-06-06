@@ -60,7 +60,7 @@ void WindowTASTools::updateCurrentPattern() {
 bool isPatternReverse() {
     WindowTASTools* tools = DevGuiManager::instance()->getWindow<WindowTASTools>("TAS Tools");
     bool b = al::isHalfProbability();
-    if (tools->mCurPattern != 0)
+    if (tools && tools->mCurPattern != 0)
         b = tools->mPatternEntries[tools->mCurPattern - 1].reverse;
     return b;
 }
@@ -68,7 +68,7 @@ bool isPatternReverse() {
 int getMofumofuTarget(int a) {
     WindowTASTools* tools = DevGuiManager::instance()->getWindow<WindowTASTools>("TAS Tools");
     int r = al::getRandom(a);
-    if (tools->mCurPattern != 0)
+    if (tools && tools->mCurPattern != 0)
         r = tools->mPatternEntries[tools->mCurPattern - 1].target;
     return r;
 }

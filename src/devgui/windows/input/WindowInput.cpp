@@ -172,7 +172,7 @@ void WindowInput::updateWin() {
     if (mIs2P)
         controller2 = (al::NpadController*)controllerMgr->getController(al::getPlayerControllerPort(1));
 
-    if (controller && tas) {
+    if (controller && tas && win) {
         padHold = win->getStagePaused() ? (tas->isRunning() && !tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer ?
                                                (sead::BitFlag<u32>)tas->getScript()->mFrames[tas->getFrameIndex()].mButtons :
                                                padHold) :
@@ -186,7 +186,7 @@ void WindowInput::updateWin() {
                                                mRStick) :
                                           controller->mRightStick;
     }
-    if (controller2 && tas) {
+    if (controller2 && tas && win) {
         padHold2 = win->getStagePaused() ? (tas->isRunning() && tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer ?
                                                 (sead::BitFlag<u32>)tas->getScript()->mFrames[tas->getFrameIndex()].mButtons :
                                                 padHold2) :

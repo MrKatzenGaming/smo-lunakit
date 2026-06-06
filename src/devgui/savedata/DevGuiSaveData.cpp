@@ -121,24 +121,26 @@ void DevGuiSaveData::read() {
     }
     if (root.isExistKey("InputDisplay")) {
         WindowInput* inp = DevGuiManager::instance()->getWindow<WindowInput>(windowNameInput);
-        al::ByamlIter inputDisplay = root.getIterByKey("InputDisplay");
-        bool isEnabled;
-        inputDisplay.tryGetBoolByKey(&isEnabled, "Enabled");
-        inp->setEnabled(isEnabled);
+        if (inp) {
+            al::ByamlIter inputDisplay = root.getIterByKey("InputDisplay");
+            bool isEnabled;
+            inputDisplay.tryGetBoolByKey(&isEnabled, "Enabled");
+            inp->setEnabled(isEnabled);
 
-        bool is2P;
-        inputDisplay.tryGetBoolByKey(&is2P, "Is2P");
-        inp->set2P(is2P);
+            bool is2P;
+            inputDisplay.tryGetBoolByKey(&is2P, "Is2P");
+            inp->set2P(is2P);
 
-        ImVec2 pos;
-        inputDisplay.tryGetFloatByKey(&pos.x, "Pos1X");
-        inputDisplay.tryGetFloatByKey(&pos.y, "Pos1Y");
-        inp->setPos(pos);
+            ImVec2 pos;
+            inputDisplay.tryGetFloatByKey(&pos.x, "Pos1X");
+            inputDisplay.tryGetFloatByKey(&pos.y, "Pos1Y");
+            inp->setPos(pos);
 
-        ImVec2 pos2;
-        inputDisplay.tryGetFloatByKey(&pos2.x, "Pos2X");
-        inputDisplay.tryGetFloatByKey(&pos2.y, "Pos2Y");
-        inp->setPos2(pos2);
+            ImVec2 pos2;
+            inputDisplay.tryGetFloatByKey(&pos2.x, "Pos2X");
+            inputDisplay.tryGetFloatByKey(&pos2.y, "Pos2Y");
+            inp->setPos2(pos2);
+        }
     }
 
     Logger::log("Successfully read save file information\n");
@@ -171,7 +173,9 @@ nn::Result DevGuiSaveData::write() {
     file->addFloat("Opacity", ImGui::GetStyle().Alpha);
     file->addFloat("DockSize", *mParent->getScreenSizeMultiDocked());
     file->addFloat("HandSize", *mParent->getScreenSizeMultiHandheld());
-    file->addInt("MaxGhosts", *GhostManager::instance()->getMaxGhosts());
+    GhostManager* m = GhostManager::instance();
+    if (m)
+        file->addInt("MaxGhosts", *m->getMaxGhosts());
 
     // Open/close state of all windows
     file->pushHash("ActiveWins");
@@ -228,12 +232,14 @@ nn::Result DevGuiSaveData::write() {
 
     file->pushHash("InputDisplay");
     WindowInput* inp = mParent->getWindow<WindowInput>(windowNameInput);
-    file->addBool("Enabled", inp->isEnabled());
-    file->addBool("Is2P", inp->is2P());
-    file->addFloat("Pos1X", inp->getPos().x);
-    file->addFloat("Pos1Y", inp->getPos().y);
-    file->addFloat("Pos2X", inp->getPos2().x);
-    file->addFloat("Pos2Y", inp->getPos2().y);
+    if (inp) {
+        file->addBool("Enabled", inp->isEnabled());
+        file->addBool("Is2P", inp->is2P());
+        file->addFloat("Pos1X", inp->getPos().x);
+        file->addFloat("Pos1Y", inp->getPos().y);
+        file->addFloat("Pos2X", inp->getPos2().x);
+        file->addFloat("Pos2Y", inp->getPos2().y);
+    }
     file->pop();
 
     // Close inital hash and write data

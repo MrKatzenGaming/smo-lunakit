@@ -110,7 +110,8 @@ void CategoryInfCappy::updateCatDisplay() {
 
     ImGui::DragFloat("Vel Angle", mUseDeg ? &hSpeedAngleDeg : &hSpeedAngle, 1.f, 0.f, 360.f, format, ImGuiSliderFlags_NoInput);
     WindowStagePause* win = DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause);
-    prevCappyVel = win->getStagePaused() ? prevCappyVel : pose->getVelocity();
+    if (win)
+        prevCappyVel = win->getStagePaused() ? prevCappyVel : pose->getVelocity();
     ImGuiHelper::Quat("Cappy Quaternion", pose->getQuatPtr());
 
     sead::Vector3f cappyEulerAngles = MathHelper::QuatToEuler(pose->getQuatPtr());

@@ -98,7 +98,9 @@ void runTas(al::Scene* scene) {
 
     if (tas->isRunning() && tas->getSpeedUntilFrame() > 0 && !tas->hasSpeedUntilFrame()) {
         if (tas->getFrameIndex() == tas->getSpeedUntilFrame()) {
-            (DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause))->tryTogglePause();
+            WindowStagePause* win = DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause);
+            if (win)
+                win->tryTogglePause();
             tas->setHasSpeedUntilFrame(true);
             return;
         }
@@ -121,7 +123,7 @@ HkTrampoline<void, HakoniwaSequence*> RunTasHook = hk::hook::trampoline([](Hakon
 
     WindowStagePause* win = DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause);
     TAS* tas = TAS::instance();
-    if (tas->isRunning() && !win->isPausing() && !al::isFirstStep(seq) && !tas->hasSpeedUntilFrame()) {
+    if (tas && win && tas->isRunning() && !win->isPausing() && !al::isFirstStep(seq) && !tas->hasSpeedUntilFrame()) {
         for (int i = 1; i < tas->getSpeed(); i++) {
             if (tas->hasSpeedUntilFrame())
                 break;
