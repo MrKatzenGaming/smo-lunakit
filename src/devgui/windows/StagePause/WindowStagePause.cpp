@@ -59,6 +59,26 @@ void WindowStagePause::runFrame() {
     controller->mPadTrig = 0;
     controller->mPadRelease = 0;
     controller->mPadHold = 0;
+
+    auto* controller2 = (al::NpadController*)controllerMgr->getController(al::getPlayerControllerPort(1));
+    controller->mPadAccelerationDeviceNum = 2;  // number of accelerometers for joycons
+    auto* accelLeft2 = (al::JoyPadAccelerometerAddon*)controller2->getAddonByOrder(sead::ControllerDefine::cAddon_Accelerometer, 0);
+    auto* accelRight2 = (al::JoyPadAccelerometerAddon*)controller2->getAddonByOrder(sead::ControllerDefine::cAddon_Accelerometer, 1);
+    auto* gyroLeft2 = (al::PadGyroAddon*)controller2->getAddonByOrder(sead::ControllerDefine::cAddon_Gyro, 0);
+    auto* gyroRight2 = (al::PadGyroAddon*)controller2->getAddonByOrder(sead::ControllerDefine::cAddon_Gyro, 1);
+
+    controller2->mLeftStick = {0, 0};
+    controller2->mRightStick = {0, 0};
+    // accelLeft2->mAcceleration = frame.mLeftAccel;
+    // accelRight2->mAcceleration = frame.mRightAccel;
+    // gyroLeft2->mDirection = frame.mLeftGyro.mDirection;
+    // gyroRight2->mDirection = frame.mRightGyro.mDirection;
+    // gyroLeft2->mAngularVel = frame.mLeftGyro.mAngularV;
+    // gyroRight2->mAngularVel = frame.mRightGyro.mAngularV;
+
+    controller2->mPadTrig = 0;
+    controller2->mPadRelease = 0;
+    controller2->mPadHold = 0;
 }
 
 void WindowStagePause::updateWin() {
