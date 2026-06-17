@@ -22,61 +22,58 @@ namespace al {
 class GraphicsSystemInfo;
 }
 
-HkTrampoline<void, al::GraphicsSystemInfo*, const al::Resource*, const char*, const char*> CubeMapSetter =
-    hk::hook::trampoline([](al::GraphicsSystemInfo* i, const al::Resource* r, const char* a, const char* b) -> void {
-        CubeMapSetter.orig(i, r, a, b);
-        hk::svc::OutputDebugString(a, 0x50);
-    });
+HkTrampoline CubeMapSetter = [](TrampolineStatic(), al::GraphicsSystemInfo* i, const al::Resource* r, const char* a, const char* b) -> void {
+    orig(i, r, a, b);
+    hk::svc::OutputDebugString(a, 0x50);
+};
 
-HkTrampoline<void, al::Scene*, const char*, int> InitGraphicsInfoHook =
-    hk::hook::trampoline([](al::Scene* scene, const char* stage, int scenario) -> void {
-        auto presets = DevGuiManager::instance()->getHookSettings()->getGraphicsPresetSettings();
+HkTrampoline InitGraphicsInfoHook = [](TrampolineStatic(), al::Scene* scene, const char* stage, int scenario) -> void {
+    auto presets = DevGuiManager::instance()->getHookSettings()->getGraphicsPresetSettings();
 
-        if (presets->mIsOverride)
-            scenario = presets->mScenario;
+    if (presets->mIsOverride)
+        scenario = presets->mScenario;
 
-        InitGraphicsInfoHook.orig(scene, stage, scenario);
-    });
+    orig(scene, stage, scenario);
+};
 
-HkTrampoline<void, al::GraphicsPresetDirector*, const char*, const char*, const char*, bool> RegisterPresetHook = hk::hook::trampoline(
-    [](al::GraphicsPresetDirector* presetDirector, const char* preset, const char* cubemap_location, const char* file, bool d) -> void {
-        auto presets = DevGuiManager::instance()->getHookSettings()->getGraphicsPresetSettings();
+HkTrampoline RegisterPresetHook = [](TrampolineStatic(), al::GraphicsPresetDirector* presetDirector, const char* preset, const char* cubemap_location,
+                                     const char* file, bool d) -> void {
+    auto presets = DevGuiManager::instance()->getHookSettings()->getGraphicsPresetSettings();
 
-        if (presets->mIsOverride) {
-            preset = presets->mPreset;
-            file = presets->mCubemap;
-            cubemap_location = "Default";
-        }
+    if (presets->mIsOverride) {
+        preset = presets->mPreset;
+        file = presets->mCubemap;
+        cubemap_location = "Default";
+    }
 
-        RegisterPresetHook.orig(presetDirector, preset, cubemap_location, file, d);
-    });
+    orig(presetDirector, preset, cubemap_location, file, d);
+};
 
-HkTrampoline<void, al::GraphicsPresetDirector*, const char*, int, int, int, const sead::Vector3<float>&> RequestPresetHook = hk::hook::trampoline(
-    [](al::GraphicsPresetDirector* presetDirector, const char* preset, int b, int c, int d, const sead::Vector3<float>& rot) -> void {
-        auto presets = DevGuiManager::instance()->getHookSettings()->getGraphicsPresetSettings();
+HkTrampoline RequestPresetHook = [](TrampolineStatic(), al::GraphicsPresetDirector* presetDirector, const char* preset, int b, int c, int d,
+                                    const sead::Vector3<float>& rot) -> void {
+    auto presets = DevGuiManager::instance()->getHookSettings()->getGraphicsPresetSettings();
 
-        if (presets->mIsOverride) {
-            preset = presets->mPreset;
-            b = 1000;
-            c = 0;
-            d = 0;
-        }
+    if (presets->mIsOverride) {
+        preset = presets->mPreset;
+        b = 1000;
+        c = 0;
+        d = 0;
+    }
 
-        RequestPresetHook.orig(presetDirector, preset, b, c, d, rot);
-    });
+    orig(presetDirector, preset, b, c, d, rot);
+};
 
-HkTrampoline<void, void*, int, const char*, const char*> RequestCubeMapHook =
-    hk::hook::trampoline([](void* cubeMapKeeper, int a, const char* location, const char* file) -> void {
-        auto presets = DevGuiManager::instance()->getHookSettings()->getGraphicsPresetSettings();
+HkTrampoline RequestCubeMapHook = [](TrampolineStatic(), void* cubeMapKeeper, int a, const char* location, const char* file) -> void {
+    auto presets = DevGuiManager::instance()->getHookSettings()->getGraphicsPresetSettings();
 
-        if (presets->mIsOverride) {
-            a = 1000;
-            location = "Default";
-            file = presets->mCubemap;
-        }
+    if (presets->mIsOverride) {
+        a = 1000;
+        location = "Default";
+        file = presets->mCubemap;
+    }
 
-        RequestCubeMapHook.orig(cubeMapKeeper, a, location, file);
-    });
+    orig(cubeMapKeeper, a, location, file);
+};
 
 void SkyInitHook(al::LiveActor* actor, const al::ActorInitInfo& info, const sead::SafeStringBase<char>& preset, const char* unk) {
     auto presets = DevGuiManager::instance()->getHookSettings()->getGraphicsPresetSettings();
@@ -131,12 +128,12 @@ void ViewportApplyHook(sead::Viewport* viewport, agl::DrawContext* ctx, agl::Ren
     viewport->apply(ctx, (sead::LogicalFrameBuffer&)buffer);
 }
 
-HkTrampoline<void, al::GBufferArray*> GetTexBufferHook = hk::hook::trampoline([](al::GBufferArray* buf) -> void {
+HkTrampoline GetTexBufferHook = [](TrampolineStatic(), al::GBufferArray* buf) -> void {
     auto gbuffer = DevGuiManager::instance()->getHookSettings()->getGBufferSettings();
     gbuffer->mBuffer = buf;
 
-    GetTexBufferHook.orig(buf);
-});
+    orig(buf);
+};
 
 void exlSetupGraphicsHooks() {
     InitGraphicsInfoHook.installAtSym<"_ZN2al22initGraphicsSystemInfoEPNS_5SceneEPKci">();

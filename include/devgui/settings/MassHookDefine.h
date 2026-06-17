@@ -3,12 +3,12 @@
 // black magic
 
 #define HOOK_CALLBACK(NAME)                                                                                                                          \
-    HkTrampoline<bool, void*> NAME = hk::hook::trampoline([](void* thisPtr) -> bool {                                                                \
+    HkTrampoline NAME = [](TrampolineStatic(), void* thisPtr) -> bool {                                                                              \
         DevGuiSettings* set = DevGuiManager::instance()->getSettings();                                                                              \
         if (set->getStateByName("Always Manually Skip Cutscenes"))                                                                                   \
             return true;                                                                                                                             \
-        return NAME.orig(thisPtr);                                                                                                                   \
-    });
+        return orig(thisPtr);                                                                                                                        \
+    };
 
 #define EXPAND(...) EXPAND1(EXPAND1(EXPAND1(EXPAND1(__VA_ARGS__))))
 #define EXPAND1(...) EXPAND2(EXPAND2(EXPAND2(EXPAND2(__VA_ARGS__))))

@@ -13,21 +13,21 @@
 #include "devgui/windows/StagePause/WindowStagePause.h"
 #include "stage-pause/StageSceneStateStagePause.h"
 
-HkTrampoline<void, StageScene*, al::SceneInitInfo*> StageSceneInitHook =
-    hk::hook::trampoline([](StageScene* thisPtr, al::SceneInitInfo* initInfo) -> void {
-        StageSceneInitHook.orig(thisPtr, initInfo);
-        thisPtr->mStatePause = new StageSceneStateStagePause("StagePause", thisPtr, thisPtr->mAudioSystemPauseController);
-        if (thisPtr->mStatePause) {
-            al::initNerveState(thisPtr, thisPtr->mStatePause, &StageSceneNrvStagePause::sInstance, "StagePause");
-        }
-    });
-HkTrampoline<void, al::ShadowKeeper*> ShadowUpdateHook = hk::hook::trampoline([](al::ShadowKeeper* thisPtr) -> void {
+HkTrampoline StageSceneInitHook = [](TrampolineStatic(), StageScene* thisPtr, al::SceneInitInfo* initInfo) -> void {
+    orig(thisPtr, initInfo);
+    thisPtr->mStatePause = new StageSceneStateStagePause("StagePause", thisPtr, thisPtr->mAudioSystemPauseController);
+    if (thisPtr->mStatePause) {
+        al::initNerveState(thisPtr, thisPtr->mStatePause, &StageSceneNrvStagePause::sInstance, "StagePause");
+    }
+};
+
+HkTrampoline ShadowUpdateHook = [](TrampolineStatic(), al::ShadowKeeper* thisPtr) -> void {
     WindowStagePause* win = DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause);
     if (win && win->getStagePaused())
         return;
 
-    ShadowUpdateHook.orig(thisPtr);
-});
+    orig(thisPtr);
+};
 
 void exlSetupStageSceneHooks() {
     StageSceneInitHook.installAtSym<"_ZN10StageScene4initERKN2al13SceneInitInfoE">();

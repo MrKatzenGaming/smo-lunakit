@@ -80,10 +80,10 @@ void runTas(al::Scene* scene) {
     ghostManager->updateGhostNerve();
 }
 
-HkTrampoline<void, HakoniwaSequence*> RunTasHook = hk::hook::trampoline([](HakoniwaSequence* seq) -> void {
+HkTrampoline RunTasHook = [](TrampolineStatic(), HakoniwaSequence* seq) -> void {
     al::Scene* scene = tryGetScene(seq);
     if (!scene) {
-        RunTasHook.orig(seq);
+        orig(seq);
         return;
     }
 
@@ -97,90 +97,87 @@ HkTrampoline<void, HakoniwaSequence*> RunTasHook = hk::hook::trampoline([](Hakon
             if (scene)
                 runTas(scene);
 
-            RunTasHook.orig(seq);
+            orig(seq);
         }
     }
     if (scene)
         runTas(scene);
-    RunTasHook.orig(seq);
-});
+    orig(seq);
+};
 
-HkTrampoline<void, al::Scene*, const al::ActorInitInfo&> SceneEndInitHook =
-    hk::hook::trampoline([](al::Scene* scene, const al::ActorInitInfo& info) -> void {
-        GhostManager::instance()->init(info);
-        SceneEndInitHook.orig(scene, info);
-    });
+HkTrampoline SceneEndInitHook = [](TrampolineStatic(), al::Scene* scene, const al::ActorInitInfo& info) -> void {
+    GhostManager::instance()->init(info);
+    orig(scene, info);
+};
 
-HkTrampoline<void, sead::FileDeviceMgr*> CreateFileDeviceMgr = hk::hook::trampoline([](sead::FileDeviceMgr* thisPtr) -> void {
-    CreateFileDeviceMgr.orig(thisPtr);
+HkTrampoline CreateFileDeviceMgr = [](TrampolineStatic(), sead::FileDeviceMgr* thisPtr) -> void {
+    orig(thisPtr);
     thisPtr->mMountedSd = nn::fs::MountSdCardForDebug("sd");
     sead::NinFileDeviceBase* sdFileDevice = new sead::NinFileDeviceBase("sd", "sd");
     thisPtr->mount(sdFileDevice);
-});
+};
 
-HkTrampoline<sead::FileDevice*, sead::FileDeviceMgr*, sead::SafeString&, sead::BufferedSafeString*> RedirectFileDevice =
-    hk::hook::trampoline([](sead::FileDeviceMgr* thisPtr, sead::SafeString& path, sead::BufferedSafeString* pathNoDrive) -> sead::FileDevice* {
-        sead::FixedSafeString<32> driveName;
-        sead::FileDevice* device;
-        if (!sead::Path::getDriveName(&driveName, path)) {
-            device = thisPtr->findDevice("sd");
-            if (!(device && device->isExistFile(path))) {
-                device = thisPtr->getDefaultFileDevice();
-                if (!device)
-                    return nullptr;
-            } else {
-            }
-        } else
-            device = thisPtr->findDevice(driveName);
+HkTrampoline RedirectFileDevice = [](TrampolineStatic(), sead::FileDeviceMgr* thisPtr, sead::SafeString& path,
+                                     sead::BufferedSafeString* pathNoDrive) -> sead::FileDevice* {
+    sead::FixedSafeString<32> driveName;
+    sead::FileDevice* device;
+    if (!sead::Path::getDriveName(&driveName, path)) {
+        device = thisPtr->findDevice("sd");
+        if (!(device && device->isExistFile(path))) {
+            device = thisPtr->getDefaultFileDevice();
+            if (!device)
+                return nullptr;
+        } else {
+        }
+    } else
+        device = thisPtr->findDevice(driveName);
 
-        if (!device)
-            return nullptr;
+    if (!device)
+        return nullptr;
 
-        if (pathNoDrive != nullptr)
-            sead::Path::getPathExceptDrive(pathNoDrive, path);
+    if (pathNoDrive != nullptr)
+        sead::Path::getPathExceptDrive(pathNoDrive, path);
 
-        return device;
-    });
+    return device;
+};
 
-HkTrampoline<sead::ArchiveRes*, al::FileLoader*, sead::SafeString&, const char*, sead::FileDevice*> FileLoaderLoadArc =
-    hk::hook::trampoline([](al::FileLoader* thisPtr, sead::SafeString& path, const char* ext, sead::FileDevice* device) -> sead::ArchiveRes* {
-        ResourceLoadLogger* log = ResourceLoadLogger::instance();
+HkTrampoline FileLoaderLoadArc = [](TrampolineStatic(), al::FileLoader* thisPtr, sead::SafeString& path, const char* ext,
+                                    sead::FileDevice* device) -> sead::ArchiveRes* {
+    ResourceLoadLogger* log = ResourceLoadLogger::instance();
 
-        if (log)
-            log->pushTextToVector(path.cstr());
+    if (log)
+        log->pushTextToVector(path.cstr());
 
-        sead::FileDevice* sdFileDevice = sead::FileDeviceMgr::instance()->findDevice("sd");
+    sead::FileDevice* sdFileDevice = sead::FileDeviceMgr::instance()->findDevice("sd");
 
-        if (sdFileDevice && sdFileDevice->isExistFile(path))
-            device = sdFileDevice;
+    if (sdFileDevice && sdFileDevice->isExistFile(path))
+        device = sdFileDevice;
 
-        return FileLoaderLoadArc.orig(thisPtr, path, ext, device);
-    });
+    return orig(thisPtr, path, ext, device);
+};
 
-HkTrampoline<bool, al::FileLoader*, sead::SafeString&, sead::FileDevice*> FileLoaderIsExistFile =
-    hk::hook::trampoline([](al::FileLoader* thisPtr, sead::SafeString& path, sead::FileDevice* device) -> bool {
-        ResourceLoadLogger* log = ResourceLoadLogger::instance();
+HkTrampoline FileLoaderIsExistFile = [](TrampolineStatic(), al::FileLoader* thisPtr, sead::SafeString& path, sead::FileDevice* device) -> bool {
+    ResourceLoadLogger* log = ResourceLoadLogger::instance();
 
-        if (log)
-            log->pushTextToVector(path.cstr());
+    if (log)
+        log->pushTextToVector(path.cstr());
 
-        sead::FileDevice* sdFileDevice = sead::FileDeviceMgr::instance()->findDevice("sd");
+    sead::FileDevice* sdFileDevice = sead::FileDeviceMgr::instance()->findDevice("sd");
 
-        if (sdFileDevice && sdFileDevice->isExistFile(path))
-            device = sdFileDevice;
+    if (sdFileDevice && sdFileDevice->isExistFile(path))
+        device = sdFileDevice;
 
-        return FileLoaderIsExistFile.orig(thisPtr, path, device);
-    });
+    return orig(thisPtr, path, device);
+};
 
-HkTrampoline<bool, al::FileLoader*, sead::SafeString&, sead::FileDevice*> FileLoaderIsExistArchive =
-    hk::hook::trampoline([](al::FileLoader* thisPtr, sead::SafeString& path, sead::FileDevice* device) -> bool {
-        sead::FileDevice* sdFileDevice = sead::FileDeviceMgr::instance()->findDevice("sd");
+HkTrampoline FileLoaderIsExistArchive = [](TrampolineStatic(), al::FileLoader* thisPtr, sead::SafeString& path, sead::FileDevice* device) -> bool {
+    sead::FileDevice* sdFileDevice = sead::FileDeviceMgr::instance()->findDevice("sd");
 
-        if (sdFileDevice && sdFileDevice->isExistFile(path))
-            device = sdFileDevice;
+    if (sdFileDevice && sdFileDevice->isExistFile(path))
+        device = sdFileDevice;
 
-        return FileLoaderIsExistArchive.orig(thisPtr, path, device);
-    });
+    return orig(thisPtr, path, device);
+};
 
 // HkTrampolineVarArgs<void, const char*> ReplaceSeadPrint = hk::hook::trampoline([](const char* format, ...) -> void {
 //     va_list args;
@@ -189,7 +186,7 @@ HkTrampoline<bool, al::FileLoader*, sead::SafeString&, sead::FileDevice*> FileLo
 //     va_end(args);
 // });
 
-HkTrampoline<void> DisableSocketInit = hk::hook::trampoline([]() -> void {});
+HkTrampoline DisableSocketInit = [](TrampolineStatic()) -> void {};
 static sead::Heap* lkHeap;
 
 void draw() {
@@ -208,7 +205,7 @@ void draw() {
     hk::gfx::ImGuiBackendNvn::instance()->draw(ImGui::GetDrawData(), drawContext->getCommandBuffer()->ToData()->pNvnCommandBuffer);
 };
 
-HkTrampoline<void, GameSystem*> GameSystemInit = hk::hook::trampoline([](GameSystem* thisPtr) -> void {
+HkTrampoline GameSystemInit = [](TrampolineStatic(), GameSystem* thisPtr) -> void {
     nn::nifm::Initialize();
 
     // creates heap for LunaKit at 9MB directly off the Stationed heap
@@ -232,23 +229,23 @@ HkTrampoline<void, GameSystem*> GameSystemInit = hk::hook::trampoline([](GameSys
     // create GhostManager instance on LunaKit heap
     GhostManager::createInstance(lkHeap);
 
-    GameSystemInit.orig(thisPtr);
+    orig(thisPtr);
 
     InputHelper::initKBM();
-});
+};
 
-HkTrampoline<void, HakoniwaSequence*> UpdateLunaKit = hk::hook::trampoline([](HakoniwaSequence* thisPtr) -> void {
-    UpdateLunaKit.orig(thisPtr);
+HkTrampoline UpdateLunaKit = [](TrampolineStatic(), HakoniwaSequence* thisPtr) -> void {
+    orig(thisPtr);
     DevGuiManager::instance()->update();
-});
+};
 
-HkTrampoline<void, sead::GameFrameworkNx*> DrawMainHook = hk::hook::trampoline([](sead::GameFrameworkNx* system) -> void {
-    DrawMainHook.orig(system);
+HkTrampoline DrawMainHook = [](TrampolineStatic(), sead::GameFrameworkNx* system) -> void {
+    orig(system);
 
     imgui::updateImGuiInput();
     InputHelper::updatePadState();
     draw();
-});
+};
 
 extern "C" void hkMain() {
     GameSystemInit.installAtSym<"_ZN10GameSystem4initEv">();

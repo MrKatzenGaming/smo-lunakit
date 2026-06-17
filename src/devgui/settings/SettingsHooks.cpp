@@ -30,7 +30,7 @@
 #include "helpers/GetHelper.h"
 #include "helpers/InputHelper.h"
 
-HkTrampoline<void, StageScene*> ControlHook = hk::hook::trampoline([](StageScene* scene) -> void {
+HkTrampoline ControlHook = [](TrampolineStatic(), StageScene* scene) -> void {
     PlayerActorHakoniwa* player = tryGetPlayerActorHakoniwa(scene);
     DevGuiSettings* set = DevGuiManager::instance()->getSettings();
 
@@ -54,10 +54,10 @@ HkTrampoline<void, StageScene*> ControlHook = hk::hook::trampoline([](StageScene
             al::stopAllBgm(scene, 0);
     }
 
-    ControlHook.orig(scene);
-});
+    orig(scene);
+};
 
-HkTrampoline<void, PlayerActorHakoniwa*> NoclipMovementHook = hk::hook::trampoline([](PlayerActorHakoniwa* player) -> void {
+HkTrampoline NoclipMovementHook = [](TrampolineStatic(), PlayerActorHakoniwa* player) -> void {
     static bool wasNoclipOn = false;
     bool isNoclip = DevGuiManager::instance()->getSettings()->getStateByName("Noclip");
 
@@ -66,7 +66,7 @@ HkTrampoline<void, PlayerActorHakoniwa*> NoclipMovementHook = hk::hook::trampoli
     wasNoclipOn = isNoclip;
 
     if (!isNoclip) {
-        NoclipMovementHook.orig(player);
+        orig(player);
         return;
     }
 
@@ -104,62 +104,59 @@ HkTrampoline<void, PlayerActorHakoniwa*> NoclipMovementHook = hk::hook::trampoli
             playerPos->y += (vspeed + speedGain / 3);
     }
 
-    NoclipMovementHook.orig(player);
-});
+    orig(player);
+};
 
-HkTrampoline<bool, StageScene*> SaveHook = hk::hook::trampoline([](StageScene* scene) -> bool {
+HkTrampoline SaveHook = [](TrampolineStatic(), StageScene* scene) -> bool {
     if (DevGuiManager::instance()->getSettings()->getStateByName("Autosave"))
-        return SaveHook.orig(scene);
+        return orig(scene);
 
     return false;
-});
+};
 
-HkTrampoline<bool, void*> CheckpointWarpHook = hk::hook::trampoline([](void* thisPtr) -> bool {
+HkTrampoline CheckpointWarpHook = [](TrampolineStatic(), void* thisPtr) -> bool {
     if (DevGuiManager::instance()->getSettings()->getStateByName("Always Allow Checkpoints"))
         return true;
-    return CheckpointWarpHook.orig(thisPtr);
-});
+    return orig(thisPtr);
+};
 
-HkTrampoline<bool, GameDataHolderWriter, const void* /*ShineInfo*/> GreyShineRefreshHook =
-    hk::hook::trampoline([](GameDataHolderWriter writer, const void* shineInfo) -> bool {
-        if (WindowMoonRefresh::getIsGrayRefreshEnabled())
-            return false;
-        else
-            return GreyShineRefreshHook.orig(writer, shineInfo);
-    });
+HkTrampoline GreyShineRefreshHook = [](TrampolineStatic(), GameDataHolderWriter writer, const void* shineInfo) -> bool {
+    if (WindowMoonRefresh::getIsGrayRefreshEnabled())
+        return false;
+    else
+        return orig(writer, shineInfo);
+};
 
-HkTrampoline<void, GameDataHolderWriter, const void* /*ShineInfo*/> ShineRefreshHook =
-    hk::hook::trampoline([](GameDataHolderWriter writer, const void* shineInfo) -> void {
-        ptr addr = hk::sail::lookupSymbolFromDb<>("$MoonRefreshText");
-        ptr offset = addr - hk::ro::getMainModule()->range().start();
-        const char* text = WindowMoonRefresh::getRefreshText();
-        hk::ro::getMainModule()->writeRo(offset, text, strlen(text) + 1);
+HkTrampoline ShineRefreshHook = [](TrampolineStatic(), GameDataHolderWriter writer, const void* shineInfo) -> void {
+    ptr addr = hk::sail::lookupSymbolFromDb<>("$MoonRefreshText");
+    ptr offset = addr - hk::ro::getMainModule()->range().start();
+    const char* text = WindowMoonRefresh::getRefreshText();
+    hk::ro::getMainModule()->writeRo(offset, text, strlen(text) + 1);
 
-        if (!WindowMoonRefresh::getIsRefreshEnabled())
-            ShineRefreshHook.orig(writer, shineInfo);
-    });
+    if (!WindowMoonRefresh::getIsRefreshEnabled())
+        orig(writer, shineInfo);
+};
 
-HkTrampoline<int, GameDataHolder*, bool*, int> DisableMoonLockHook =
-    hk::hook::trampoline([](GameDataHolder* thisPtr, bool* isCrashList, int worldID) -> int {
-        int lockSize = DisableMoonLockHook.orig(thisPtr, isCrashList, worldID);
+HkTrampoline DisableMoonLockHook = [](TrampolineStatic(), GameDataHolder* thisPtr, bool* isCrashList, int worldID) -> int {
+    int lockSize = orig(thisPtr, isCrashList, worldID);
 
-        if (DevGuiManager::instance()->getSettings()->getStateByName("Disable Kingdom Moon Lock"))
-            return 0;
+    if (DevGuiManager::instance()->getSettings()->getStateByName("Disable Kingdom Moon Lock"))
+        return 0;
 
-        return lockSize;
-    });
+    return lockSize;
+};
 
-HkTrampoline<bool, void*> ButtonMotionRollHook = hk::hook::trampoline([](void* thisPtr) -> bool {
+HkTrampoline ButtonMotionRollHook = [](TrampolineStatic(), void* thisPtr) -> bool {
     if (DevGuiManager::instance()->getSettings()->getStateByName("Button Motion Roll"))
         return true;
 
-    return ButtonMotionRollHook.orig(thisPtr);
-});
+    return orig(thisPtr);
+};
 
-HkTrampoline<void, PlayerHitPointData*> NoDamageHook = hk::hook::trampoline([](PlayerHitPointData* hitPointData) -> void {
+HkTrampoline NoDamageHook = [](TrampolineStatic(), PlayerHitPointData* hitPointData) -> void {
     if (!DevGuiManager::instance()->getSettings()->getStateByName("No Damage"))
-        return NoDamageHook.orig(hitPointData);
-});
+        return orig(hitPointData);
+};
 
 int LoadCurrentFilePatch(GameDataHolder* holder) {
     return DevGuiManager::instance()->getSettings()->getStateByName("Allow Loading Current File") ? 5 : holder->getPlayingFileId();

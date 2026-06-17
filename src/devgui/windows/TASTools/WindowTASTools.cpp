@@ -2,7 +2,6 @@
 
 #include "hk/hook/InstrUtil.h"
 #include "hk/hook/Trampoline.h"
-#include "hk/util/Math.h"
 
 #include "al/Library/Math/MathUtil.h"
 
@@ -73,13 +72,12 @@ int getMofumofuTarget(int a) {
     return r;
 }
 
-HkTrampoline<const sead::Matrix34f&, PlayerActorHakoniwa*> getPlayerViewMtxHook =
-    hk::hook::trampoline([](PlayerActorHakoniwa* player) -> const sead::Matrix34f& {
-        if (TAS::instance()->isUseAbsoluteJoystick())
-            return sead::Matrix34f::ident;
-        else
-            return *player->getViewMtx();
-    });
+HkTrampoline getPlayerViewMtxHook = [](TrampolineStatic(), PlayerActorHakoniwa* player) -> const sead::Matrix34f& {
+    if (TAS::instance()->isUseAbsoluteJoystick())
+        return sead::Matrix34f::ident;
+    else
+        return *player->getViewMtx();
+};
 
 void setupTasHooks() {
     Logger::log("Setting up TAS Tools hooks\n");
