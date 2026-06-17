@@ -6,11 +6,7 @@
 
 #include "hk/gfx/ImGuiBackendNvn.h"
 #include "hk/hook/Trampoline.h"
-#include "hk/ro/RoUtil.h"
-#include "hk/svc/api.h"
-#include "hk/svc/types.h"
 
-#include "nn/diag.h"
 #include "nn/fs/fs_mount.h"
 #include "nn/nifm.h"
 
@@ -22,8 +18,6 @@
 #include "sead/gfx/seadPrimitiveRenderer.h"
 #include "sead/heap/seadExpHeap.h"
 #include "sead/prim/seadSafeString.h"
-#include "sead/random/seadGlobalRandom.h"
-#include "sead/random/seadRandom.h"
 #include "sead/resource/seadArchiveRes.h"
 
 #include "Project/Draw/GpuPerf.h"
@@ -62,34 +56,6 @@
 #include "logger/Logger.hpp"
 #include "smo-tas/TAS.h"
 #include "stage-pause/StageSceneStateStagePause.h"
-
-void getSymbolName(char* buffer, uintptr_t address) {
-    nn::diag::GetSymbolName(buffer, 0x100, address);
-}
-
-struct stack_frame {
-    stack_frame* fp;
-    size_t lr;
-};
-
-HkTrampoline<u32, sead::Random*> RandomGetU32 = hk::hook::trampoline([](sead::Random* random) -> u32 {
-    if (random != sead::GlobalRandom::instance())
-        return RandomGetU32.orig(random);
-    register stack_frame* framePointer asm("x29");
-    register uintptr_t startingLink asm("x30");
-    stack_frame* fp = framePointer;
-    uintptr_t lr = startingLink - hk::ro::getMainModule()->range().start();
-    while (fp) {
-        hk::svc::MemoryInfo memInfo;
-        u32 pageInfo;
-        if (hk::svc::QueryMemory(&memInfo, &pageInfo, (uintptr_t)fp).failed() || (memInfo.permission & hk::svc::MemoryPermission_Read) == 0)
-            break;
-
-        lr += fp->lr - hk::ro::getMainModule()->range().start();
-        fp = fp->fp;
-    }
-    return RandomGetU32.orig(random);
-});
 
 void runTas(al::Scene* scene) {
     auto* tas = TAS::instance();
