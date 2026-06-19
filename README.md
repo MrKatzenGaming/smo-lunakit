@@ -70,6 +70,7 @@ A base repository using exlaunch-cmake that contains code for modifying Super Ma
 
 ## Credits
 
+- [Calypso](https://github.com/tetraxile/Calypso)
 - [exlaunch](https://github.com/shadowninja108/exlaunch/)
 - [exlaunch-cmake](https://github.com/EngineLessCC/exlaunch-cmake/)
 - [BDSP](https://github.com/Martmists-GH/BDSP)
