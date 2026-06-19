@@ -2,14 +2,14 @@
 
 #include "imgui.h"
 #include "prim/seadSafeString.h"
-#include "smo-tas/TAS.h"
+#include "smo-tas/STAS.h"
 
 CategoryTASScripts::CategoryTASScripts(const char* catName, const char* catDesc, sead::Heap* heap) : CategoryBase(catName, catDesc, heap) {}
 
 void CategoryTASScripts::updateCatDisplay() {
     CategoryBase::updateCatDisplay();
     ImGui::BeginChild("Scripts", ImVec2(0, -(ImGui::GetFontSize() * 8.5)), true);
-    auto* tas = TAS::instance();
+    auto* tas = STAS::instance();
     s64 entryCount = tas->getEntryCount();
     nn::fs::DirectoryEntry* entries = tas->getScripts();
     for (int i = 0; i < entryCount; i++) {

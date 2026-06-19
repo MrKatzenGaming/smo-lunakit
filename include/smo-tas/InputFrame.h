@@ -21,7 +21,7 @@ struct InputFrame {
     Gyro mRightGyro;
 };
 
-struct Script {
+struct OScript {
     static const u32 magic = 0x424f4f42;  // BOOB
     u32 mMagic;
     u32 mFrameCount;  // how many individual lines there are, NOT just the highest step number

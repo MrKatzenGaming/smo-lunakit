@@ -21,7 +21,7 @@
 #include "helpers/GetHelper.h"
 #include "helpers/fsHelper.h"
 #include "logger/Logger.hpp"
-#include "smo-tas/TAS.h"
+#include "smo-tas/STAS.h"
 
 namespace {
 NERVE_IMPL(GhostManager, Record);
@@ -68,14 +68,14 @@ void GhostManager::updateGhostNerve() {
 
 bool GhostManager::tryStartRecord() {
     sead::ScopedCurrentHeapSetter heapSetter(DevGuiManager::instance()->getHeap());
-    auto* tas = TAS::instance();
+    auto* tas = STAS::instance();
     if (!tas->hasScript())
         return false;
     mReplayPath = sead::FormatFixedSafeString<256>(REPLAY_SAVEPATH "/%s", tas->getScriptName());
     Logger::log("%s\n", mReplayPath.cstr());
-    Script* script = tas->getScript();
-    mFrameLength = script->mFrames[script->mFrameCount - 1].mStep;
-    mFrames = new ReplayFrame[mFrameLength];
+    // OScript* script = tas->getScript();
+    // mFrameLength = script->mFrames[script->mFrameCount - 1].mStep;
+    mFrames = new ReplayFrame[tas->getScript()->getFrames()];
     //    static const uint workBufSize = sizeof(ReplayFrame)* mFrameLength;
     //    mWorkBuf = new u8[workBufSize];
     //    sead::Stream::Modes streamMode = sead::Stream::Modes::Binary;
@@ -135,7 +135,7 @@ void GhostManager::exeWait() {}
 
 void GhostManager::exeRecord() {
     Logger::log("Ghost Manager: exeRecord\n");
-    if (!TAS::instance()->isRunning())
+    if (!STAS::instance()->isRunning())
         return;
     Logger::log("    TAS is running!\n");
     mPlayer = tryGetPlayerActorHakoniwa(mScene);
@@ -143,7 +143,7 @@ void GhostManager::exeRecord() {
         return;
     Logger::log("    Player exists!\n");
     int step = al::getNerveStep(this);
-    if (TAS::instance()->getFrameIndex() >= TAS::instance()->getFrameCount()) {
+    if (STAS::instance()->getFrameIndex() >= STAS::instance()->getFrameCount()) {
         al::setNerve(this, &NrvGhostManager.RecordEnd);
         return;
     }

@@ -10,7 +10,7 @@
 #include "devgui/windows/StagePause/WindowStagePause.h"
 #include "devgui/windows/WindowBase.h"
 #include "imgui.h"
-#include "smo-tas/TAS.h"
+#include "smo-tas/STAS.h"
 
 WindowInput::WindowInput(DevGuiManager* parent, const char* winName, bool isActiveByDefault) : WindowBase(parent, winName, isActiveByDefault) {}
 
@@ -166,40 +166,49 @@ void WindowInput::updateWin() {
         return;
     controllerMgr = sead::ControllerMgr::instance();
     WindowStagePause* win = DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause);
-    TAS* tas = TAS::instance();
+    STAS* tas = STAS::instance();
 
     controller = (al::NpadController*)controllerMgr->getController(al::getPlayerControllerPort(0));
     if (mIs2P)
         controller2 = (al::NpadController*)controllerMgr->getController(al::getPlayerControllerPort(1));
 
-    if (controller && tas && win) {
-        padHold = win->getStagePaused() ? (tas->isRunning() && !tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer ?
-                                               (sead::BitFlag<u32>)tas->getScript()->mFrames[tas->getFrameIndex()].mButtons :
-                                               padHold) :
-                                          controller->mPadHold;
-        mLStick = win->getStagePaused() ? (tas->isRunning() && !tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer ?
-                                               tas->getScript()->mFrames[tas->getFrameIndex()].mLeftStick :
-                                               mLStick) :
-                                          controller->mLeftStick;
-        mRStick = win->getStagePaused() ? (tas->isRunning() && !tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer ?
-                                               tas->getScript()->mFrames[tas->getFrameIndex()].mRightStick :
-                                               mRStick) :
-                                          controller->mRightStick;
+    padHold = controller->mPadHold;
+    mLStick = controller->mLeftStick;
+    mRStick = controller->mRightStick;
+    if (mIs2P) {
+        padHold2 = controller2->mPadHold;
+        mLStick2 = controller2->mLeftStick;
+        mRStick2 = controller2->mRightStick;
     }
-    if (controller2 && tas && win) {
-        padHold2 = win->getStagePaused() ? (tas->isRunning() && tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer ?
-                                                (sead::BitFlag<u32>)tas->getScript()->mFrames[tas->getFrameIndex()].mButtons :
-                                                padHold2) :
-                                           controller2->mPadHold;
-        mLStick2 = win->getStagePaused() ? (tas->isRunning() && tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer ?
-                                                tas->getScript()->mFrames[tas->getFrameIndex()].mLeftStick :
-                                                mLStick2) :
-                                           controller2->mLeftStick;
-        mRStick2 = win->getStagePaused() ? (tas->isRunning() && tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer ?
-                                                tas->getScript()->mFrames[tas->getFrameIndex()].mRightStick :
-                                                mRStick2) :
-                                           controller2->mRightStick;
-    }
+
+    // if (controller && tas && win) {
+    //     padHold = win->getStagePaused() ? (tas->isRunning() && !tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer ?
+    //                                            (sead::BitFlag<u32>)tas->getScript()->mFrames[tas->getFrameIndex()].mButtons :
+    //                                            padHold) :
+    //                                       controller->mPadHold;
+    //     mLStick = win->getStagePaused() ? (tas->isRunning() && !tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer ?
+    //                                            tas->getScript()->mFrames[tas->getFrameIndex()].mLeftStick :
+    //                                            mLStick) :
+    //                                       controller->mLeftStick;
+    //     mRStick = win->getStagePaused() ? (tas->isRunning() && !tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer ?
+    //                                            tas->getScript()->mFrames[tas->getFrameIndex()].mRightStick :
+    //                                            mRStick) :
+    //                                       controller->mRightStick;
+    // }
+    // if (controller2 && tas && win) {
+    //     padHold2 = win->getStagePaused() ? (tas->isRunning() && tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer ?
+    //                                             (sead::BitFlag<u32>)tas->getScript()->mFrames[tas->getFrameIndex()].mButtons :
+    //                                             padHold2) :
+    //                                        controller2->mPadHold;
+    //     mLStick2 = win->getStagePaused() ? (tas->isRunning() && tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer ?
+    //                                             tas->getScript()->mFrames[tas->getFrameIndex()].mLeftStick :
+    //                                             mLStick2) :
+    //                                        controller2->mLeftStick;
+    //     mRStick2 = win->getStagePaused() ? (tas->isRunning() && tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer ?
+    //                                             tas->getScript()->mFrames[tas->getFrameIndex()].mRightStick :
+    //                                             mRStick2) :
+    //                                        controller2->mRightStick;
+    // }
 }
 
 bool WindowInput::tryUpdateWinDisplay() {

@@ -5,7 +5,9 @@
 #include "devgui/categories/tas/CategoryTASScripts.h"
 #include "ghost/GhostManager.h"
 #include "imgui.h"
-#include "smo-tas/TAS.h"
+#include "smo-tas/STAS.h"
+
+// #include "smo-tas/TAS.h"
 
 WindowTAS::WindowTAS(DevGuiManager* parent, const char* winName, bool isActiveByDefault) : WindowBase(parent, winName, isActiveByDefault) {
     createCategory<CategoryTASScripts>("Scripts", "TAS Scripts");
@@ -17,7 +19,8 @@ bool WindowTAS::tryUpdateWinDisplay() {
         return false;
     float height = ImGui::GetWindowHeight();
     ImGui::SetCursorPosY(height - ImGui::GetFontSize() * 8.5);
-    auto* tas = TAS::instance();
+    // TAS* tas = TAS::instance();
+    STAS* tas = STAS::instance();
     auto* ghostManager = GhostManager::instance();
     ImGui::Text("Loaded Script: %s", tas->hasScript() ? tas->getScriptName() : "None.");
     ImGui::Checkbox("TAS", &isStartTAS);

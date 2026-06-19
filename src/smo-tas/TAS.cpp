@@ -103,14 +103,14 @@ bool TAS::tryLoadScript() {
     nn::Result r = nn::fs::OpenFile(&handle, scriptPath.cstr(), nn::fs::OpenMode::OpenMode_Read);
     if (r.IsFailure())
         return false;
-    mScript = (Script*)new u8[mLoadedEntry.mFileSize];
+    mScript = (OScript*)new u8[mLoadedEntry.mFileSize];
     r = nn::fs::ReadFile(handle, 0, mScript, mLoadedEntry.mFileSize);
     nn::fs::CloseFile(handle);
     if (r.IsFailure()) {
         endScript();
         return false;
     }
-    if (mScript->mMagic != Script::magic) {
+    if (mScript->mMagic != OScript::magic) {
         endScript();
         return false;
     }

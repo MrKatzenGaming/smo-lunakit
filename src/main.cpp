@@ -54,11 +54,11 @@
 #include "imgui.h"
 #include "logger/LoadLogger.hpp"
 #include "logger/Logger.hpp"
-#include "smo-tas/TAS.h"
+#include "smo-tas/STAS.h"
 #include "stage-pause/StageSceneStateStagePause.h"
 
 void runTas(al::Scene* scene) {
-    auto* tas = TAS::instance();
+    auto* tas = STAS::instance();
     if (al::isNerve(scene, &StageSceneNrvStagePause::sInstance))
         return;
 
@@ -88,7 +88,7 @@ HkTrampoline RunTasHook = [](TrampolineStatic(), HakoniwaSequence* seq) -> void 
     }
 
     WindowStagePause* win = DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause);
-    TAS* tas = TAS::instance();
+    STAS* tas = STAS::instance();
     if (tas && win && tas->isRunning() && !win->isPausing() && !al::isFirstStep(seq) && !tas->hasSpeedUntilFrame()) {
         for (int i = 1; i < tas->getSpeed(); i++) {
             if (tas->hasSpeedUntilFrame())
@@ -224,7 +224,7 @@ HkTrampoline GameSystemInit = [](TrampolineStatic(), GameSystem* thisPtr) -> voi
     DevGuiManager::instance()->init(lkHeap);
 
     // create TAS instance on LunaKit heap
-    TAS::createInstance(lkHeap);
+    STAS::createInstance(lkHeap);
 
     // create GhostManager instance on LunaKit heap
     GhostManager::createInstance(lkHeap);

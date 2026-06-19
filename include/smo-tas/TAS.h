@@ -42,7 +42,7 @@ public:
 
     u32 getFrameCount() const { return mScript->mFrameCount; };
 
-    Script* getScript() { return mScript; };
+    OScript* getScript() { return mScript; };
 
     sead::Vector3f getStartPosition() const { return mScript->mStartPosition; };
 
@@ -77,7 +77,7 @@ private:
     nn::fs::DirectoryEntry mLoadedEntry;
     u32 mFrameIndex = 0;
     u32 mPrevButtons[2];
-    Script* mScript = nullptr;
+    OScript* mScript = nullptr;
     al::Scene* mScene = nullptr;
     bool mIsUseAbsoluteJoystick = false;
     int mSpeed = 1;

@@ -1,5 +1,6 @@
 #include "helpers/fsHelper.h"
 
+#include "hk/Result.h"
 #include "hk/diag/diag.h"
 
 #include "nn/fs/fs_directories.h"
@@ -51,23 +52,28 @@ nn::Result appendFileOnPath(void* buf, s64 pos, size_t size, const char* path) {
 }
 
 // make sure to free buffer after usage is done
-void loadFileFromPath(LoadData& loadData) {
+hk::Result loadFileFromPath(LoadData& loadData) {
     nn::fs::FileHandle handle;
 
-    HK_ABORT_UNLESS(FsHelper::isFileExist(loadData.path), "Failed to Find File!\nPath: %s", loadData.path);
+    if (!FsHelper::isFileExist(loadData.path))
+        return hk::ResultNotFound();
 
-    HK_ABORT_UNLESS_R(nn::fs::OpenFile(&handle, loadData.path, nn::fs::OpenMode_Read).IsFailure());
+    if (!nn::fs::OpenFile(&handle, loadData.path, nn::fs::OpenMode_Read).IsSuccess())
+        return hk::ResultFailed();
 
     long size = 0;
     nn::fs::GetFileSize(&size, handle);
-    loadData.buffer = malloc(size);
     loadData.bufSize = size;
+    loadData.buffer = malloc(size);
 
-    HK_ABORT_UNLESS(loadData.buffer, "Failed to Allocate Buffer! File Size: %ld", size);
+    if (!loadData.buffer)
+        return hk::ResultFailed();
 
-    HK_ABORT_UNLESS_R(nn::fs::ReadFile(handle, 0, loadData.buffer, size).IsFailure());
+    if (!nn::fs::ReadFile(handle, 0, loadData.buffer, size).IsSuccess())
+        return hk::ResultFailed();
 
     nn::fs::CloseFile(handle);
+    return hk::ResultSuccess();
 }
 
 long getFileSize(const char* path) {

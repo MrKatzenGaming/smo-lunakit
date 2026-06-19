@@ -235,35 +235,6 @@ static void updateImGuiInput() {
                 io.AddKeyEvent((ImGuiKey)imguiKey, false);
     }
 
-    // ----------------------------
-    // Text Input (safe + correct)
-    // ----------------------------
-
-    // for (auto&& [imguiKey, hidKey] : key_mapping) {
-    //     bool pressedNow = keyboardState.mKeys.Test(int(hidKey)) && !lastKeyboardState.mKeys.Test(int(hidKey));
-
-    //     if (!pressedNow)
-    //         continue;
-
-    //     // Letters & digits -> UTF-8
-    //     if (imguiKey >= ImGuiKey_A && imguiKey <= ImGuiKey_Z) {
-    //         char c = char('a' + (imguiKey - ImGuiKey_A));
-
-    //         // Shift → uppercase
-    //         if (io.KeyShift)
-    //             c = char(toupper(c));
-
-    //         char utf8[2] = {c, 0};
-    //         io.AddInputCharactersUTF8(utf8);
-    //     }
-
-    //     if (imguiKey >= ImGuiKey_0 && imguiKey <= ImGuiKey_9) {
-    //         char c = char('0' + (imguiKey - ImGuiKey_0));
-    //         char utf8[2] = {c, 0};
-    //         io.AddInputCharactersUTF8(utf8);
-    //     }
-    // }
-
     io.MouseDrawCursor = true;
 }
 
