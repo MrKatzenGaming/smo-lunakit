@@ -127,7 +127,8 @@ public:
     Script(sead::Heap* heap) : mHeap(heap) {};
     ~Script() = default;
 
-    hk::Result loadScript(const char* path);
+    hk::Result load(const char* path);
+    void unload();
 
     hk::ValueOrResult<Command*> tryReadCommand();
 
@@ -172,7 +173,6 @@ public:
     void applyFrame();
     void exeUpdate();
     void exeWait();
-    void exeWaitUpdate();
     void exeRecord();
     bool isRunning();
 

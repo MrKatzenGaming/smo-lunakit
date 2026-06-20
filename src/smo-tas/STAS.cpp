@@ -31,7 +31,7 @@
 #include "helpers/fsHelper.h"
 #include "logger/Logger.hpp"
 
-hk::Result Script::loadScript(const char* path) {
+hk::Result Script::load(const char* path) {
     sead::ScopedCurrentHeapSetter s(mHeap);
     FsHelper::LoadData data{.path = path};
     if (FsHelper::loadFileFromPath(data).failed())
@@ -45,10 +45,14 @@ hk::Result Script::loadScript(const char* path) {
     mCursor += sizeof(mFileHeader);
 
     if (mFileHeader.magic[0] != 'S' || mFileHeader.magic[1] != 'T' || mFileHeader.magic[2] != 'A' || mFileHeader.magic[3] != 'S') {
-        free(mData);
-        mCursor = 0;
-        mFileHeader = FileHeader();
-        mScriptHeader = ScriptHeader();
+        unload();
+        Logger::log("Wrong Header\n");
+        return hk::ResultFailed();
+    }
+
+    if (mFileHeader.title_id != 0x0100000000010000) {
+        unload();
+        Logger::log("Wrong Title ID\n");
         return hk::ResultFailed();
     }
 
@@ -65,20 +69,21 @@ hk::Result Script::loadScript(const char* path) {
         mCursor += read<u32>();
         mCursor += read<u32>();
 
-        mScriptHeader.gameHeaderSize = read<u64>();
-        mScriptHeader.gameHeader = &mData[mCursor];
-        mCursor += mScriptHeader.gameHeaderSize;
-
         mCursor = hk::alignUp(mCursor, 4);
         return hk::ResultSuccess();
     }
     default:
-        free(mData);
-        mCursor = 0;
-        mFileHeader = FileHeader();
-        mScriptHeader = ScriptHeader();
+        Logger::log("Unsupported STAS version\n");
+        unload();
         return hk::ResultNotImplemented();
     }
+}
+
+void Script::unload() {
+    free(mData);
+    mCursor = 0;
+    mFileHeader = FileHeader();
+    mScriptHeader = ScriptHeader();
 }
 
 hk::ValueOrResult<Command*> Script::tryReadCommand() {
@@ -107,10 +112,9 @@ hk::ValueOrResult<Command*> Script::tryReadCommand() {
 namespace {
 NERVE_IMPL(STAS, Update);
 NERVE_IMPL(STAS, Wait);
-NERVE_IMPL(STAS, WaitUpdate);
 NERVE_IMPL(STAS, Record);
 
-NERVES_MAKE_STRUCT(STAS, Update, Wait, WaitUpdate, Record)
+NERVES_MAKE_STRUCT(STAS, Update, Wait, Record)
 
 }  // namespace
 
@@ -141,12 +145,14 @@ void STAS::updateDir() {
     nn::Result r = nn::fs::OpenDirectory(&handle, TAS_SCRIPTPATH, nn::fs::OpenDirectoryMode_File);
     if (r.IsFailure())
         return;
+
     s64 entryCount = 0;
     r = nn::fs::GetDirectoryEntryCount(&entryCount, handle);
     if (r.IsFailure()) {
         nn::fs::CloseDirectory(handle);
         return;
     }
+
     auto* entryBuffer = new nn::fs::DirectoryEntry[entryCount];
     r = nn::fs::ReadDirectory(&entryCount, entryBuffer, handle, entryCount);
     nn::fs::CloseDirectory(handle);
@@ -154,6 +160,7 @@ void STAS::updateDir() {
         delete[] entryBuffer;
         return;
     }
+
     delete[] mEntries;
     mEntries = entryBuffer;
     mEntryCount = entryCount;
@@ -186,12 +193,13 @@ bool STAS::tryLoadScript() {
         return false;
 
     mScript = new Script(DevGuiManager::instance()->getHeap());
-    if (mScript->loadScript(scriptPath.cstr()).failed()) {
+    if (mScript->load(scriptPath.cstr()).failed()) {
         endScript();
         return false;
     };
 
     if (mScript->getPlayerCount() > 2) {
+        Logger::log("Player Count > 2\n");
         endScript();
         return false;
     }
@@ -305,8 +313,8 @@ void STAS::applyCommand(Command* cmd) {
         sead::ControllerMgr* controllerMgr = sead::ControllerMgr::instance();
         auto* controller = (al::NpadController*)controllerMgr->getController(al::getPlayerControllerPort(0));
 
-        controller->mLeftStick = {(float)c.stickL.x, (float)c.stickL.y};
-        controller->mRightStick = {(float)c.stickR.x, (float)c.stickR.y};
+        controller->mLeftStick = {(f32)c.stickL.x / 32767.f, (f32)c.stickL.y / 32767.f};
+        controller->mRightStick = {(f32)c.stickR.x / 32767.f, (f32)c.stickR.y / 32767.f};
 
         u64 buttons = 0;
         memcpy(&buttons, c.buttons, sizeof(c.buttons));
@@ -337,6 +345,7 @@ void STAS::applyCommand(Command* cmd) {
 
         switch (c.conId) {
         case 0:
+        case 2:
             accelLeft->mAcceleration = c.accel;
             gyroLeft->mAngularVel = c.gyro;
             if (c.conId != 2)
@@ -381,11 +390,6 @@ void STAS::exeUpdate() {
 }
 
 void STAS::exeWait() {}
-
-void STAS::exeWaitUpdate() {
-    Logger::log("TAS Wait Update\n");
-    al::setNerve(this, &NrvSTAS.Update);
-}
 
 void STAS::exeRecord() {}
 
