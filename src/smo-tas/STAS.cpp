@@ -394,8 +394,10 @@ void STAS::applyCommand(Command* cmd) {
         PlayerActorHakoniwa* p = tryGetPlayerActorHakoniwa();
         if (!p)
             break;
+        p->startDemoPuppetable();
         al::setTrans(p, c.pos);
         al::updatePoseQuat(p, c.rot);
+        p->endDemoPuppetable();
         break;
     }
 
@@ -407,8 +409,10 @@ void STAS::applyCommand(Command* cmd) {
         HackCap* cap = p->mHackCap;
         if (!cap)
             break;
+        cap->startPuppet();
         al::setTrans(cap, c.pos);
         al::updatePoseQuat(cap, c.rot);
+        cap->endPuppet();
         break;
     }
 

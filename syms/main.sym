@@ -436,3 +436,5 @@ _ZN2al15isEndWithStringEPKcS1_
 _ZN2al14NpadController9calcImpl_Ev
 _ZN2al24JoyPadAccelerometerAddon4calcEv
 _ZN2al12PadGyroAddon4calcEv
+_ZN7HackCap11startPuppetEv
+_ZN7HackCap9endPuppetEv
