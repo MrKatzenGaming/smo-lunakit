@@ -8,9 +8,11 @@
 #include "Library/Scene/Scene.h"
 
 #include <cstddef>
+#include <cstdint>
 
 #include "heap/seadDisposer.h"
 #include "heap/seadHeap.h"
+#include "math/seadQuat.h"
 #include "math/seadVector.h"  // IWYU pragma: keep
 #include "math/seadVectorFwd.h"
 
@@ -79,6 +81,11 @@ enum class CommandType : u16 {
     // Editor Data
     COMMENT = 0x8000,
 
+    // Game specific
+    GO = 0xc001,
+    TPMARIO = 0xc002,
+    TPCAP = 0xc003,
+
     INVALID = 0xffff
 };
 
@@ -120,6 +127,22 @@ struct CmdAmiibo {
 struct CmdTouch {
     u32 count = 0;
     TouchEntry entries[];
+};
+
+struct CmdGo {
+    int8_t scenario = 0;
+    int8_t subScenario = 0;
+    bool returnPrev = false;
+    char pad[1];
+    u16 stageLen;
+    char* stageName;
+    u16 entrLen;
+    char* entrId;
+};
+
+struct CmdTpMarCap {
+    sead::Vector3f pos = sead::Vector3f::zero;
+    sead::Quatf rot = sead::Quatf::unit;
 };
 
 class Script {
@@ -223,8 +246,8 @@ private:
     s64 mEntryCount;
     nn::fs::DirectoryEntry* mEntries = nullptr;
     nn::fs::DirectoryEntry mLoadedEntry;
-    u32 mFrameIndex = 0;
-    u32 mNextFrame = 0;
+    s64 mFrameIndex = -1;
+    s64 mNextFrame = -1;
     u64 mPrevButtons[2] = {0, 0};
 
     Script* mScript = nullptr;

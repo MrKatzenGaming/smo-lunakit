@@ -2,7 +2,6 @@
 
 #include "hk/Result.h"
 #include "hk/ValueOrResult.h"
-#include "hk/diag/diag.h"
 #include "hk/hook/Trampoline.h"
 #include "hk/prim/traits/Integer.h"
 
@@ -11,11 +10,13 @@
 #include "sead/controller/seadControllerMgr.h"
 #include "sead/heap/seadHeapMgr.h"
 
+#include "Library/LiveActor/ActorPoseUtil.h"
 #include "al/Library/Base/StringUtil.h"
 #include "al/Library/Controller/InputFunction.h"
 #include "al/Library/Nerve/NerveSetupUtil.h"
 #include "al/Library/Nerve/NerveUtil.h"
 
+#include "game/Player/HackCap.h"
 #include "game/System/GameSystem.h"
 #include "game/Util/StageInputFunction.h"
 
@@ -25,9 +26,13 @@
 
 #include <cstring>
 
+#include "MapObj/ChangeStageInfo.h"
+#include "Player/PlayerActorHakoniwa.h"
+#include "System/GameDataHolder.h"
 #include "devgui/DevGuiManager.h"
 #include "ghost/GhostManager.h"
 #include "heap/seadHeapMgr.h"
+#include "helpers/GetHelper.h"
 #include "helpers/fsHelper.h"
 #include "logger/Logger.hpp"
 
@@ -232,8 +237,8 @@ void STAS::startScript() {
 void STAS::endScript() {
     sead::ScopedCurrentHeapSetter heapSetter(DevGuiManager::instance()->getHeap());
     al::setNerve(this, &NrvSTAS.Wait);
-    mFrameIndex = 0;
-    mNextFrame = 0;
+    mFrameIndex = -1;
+    mNextFrame = -1;
     mPrevButtons[0] = 0;
     mPrevButtons[1] = 0;
     delete[] mScript;
@@ -355,6 +360,47 @@ void STAS::applyCommand(Command* cmd) {
             gyroRight->mAngularVel = c.gyro;
             break;
         }
+        break;
+    }
+
+    case CommandType::GO: {
+        CmdGo c;
+        u8* cursor = cmd->data;
+        c.scenario = cursor[0];
+        c.subScenario = cursor[1];
+        c.returnPrev = cursor[2];
+        c.stageLen = cursor[4];
+        c.stageName = (char*)&cursor[6];
+        c.entrLen = cursor[4 + 2 + c.stageLen];
+        c.entrId = (char*)&cursor[6 + c.stageLen + 2];
+
+        GameDataHolder* holder = tryGetGameDataHolder();
+        ChangeStageInfo info(holder, c.entrId, c.stageName, c.returnPrev, c.scenario, (ChangeStageInfo::SubScenarioType)c.subScenario);
+        holder->changeNextStage(&info);
+
+        break;
+    }
+
+    case CommandType::TPMARIO: {
+        CmdTpMarCap c = *(CmdTpMarCap*)cmd->data;
+        PlayerActorHakoniwa* p = tryGetPlayerActorHakoniwa();
+        if (!p)
+            break;
+        al::setTrans(p, c.pos);
+        al::updatePoseQuat(p, c.rot);
+        break;
+    }
+
+    case CommandType::TPCAP: {
+        CmdTpMarCap c = *(CmdTpMarCap*)cmd->data;
+        PlayerActorHakoniwa* p = tryGetPlayerActorHakoniwa();
+        if (!p)
+            break;
+        HackCap* cap = p->mHackCap;
+        if (!cap)
+            break;
+        al::setTrans(cap, c.pos);
+        al::updatePoseQuat(cap, c.rot);
         break;
     }
 
