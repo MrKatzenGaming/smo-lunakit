@@ -125,11 +125,17 @@ NERVES_MAKE_STRUCT(STAS, Update, Wait, Record)
 
 SEAD_SINGLETON_DISPOSER_IMPL(STAS);
 
-HkTrampoline inputHook = [](TrampolineStatic(), al::NpadController* controller) -> void {
-    // if (!STAS::instance())
-    //     orig(controller);
+HkTrampoline inputHookCont = [](TrampolineStatic(), al::NpadController* controller) -> void {
     if (!STAS::instance()->isRunning())
         orig(controller);
+};
+HkTrampoline inputHookAccel = [](TrampolineStatic(), al::JoyPadAccelerometerAddon* addon) -> void {
+    if (!STAS::instance()->isRunning())
+        orig(addon);
+};
+HkTrampoline inputHookGyro = [](TrampolineStatic(), al::PadGyroAddon* addon) -> void {
+    if (!STAS::instance()->isRunning())
+        orig(addon);
 };
 
 STAS::STAS() : al::NerveExecutor("STAS") {
@@ -139,7 +145,9 @@ STAS::STAS() : al::NerveExecutor("STAS") {
 
     updateDir();
 
-    inputHook.installAtSym<"_ZN2al14NpadController9calcImpl_Ev">();
+    inputHookCont.installAtSym<"_ZN2al14NpadController9calcImpl_Ev">();
+    inputHookAccel.installAtSym<"_ZN2al24JoyPadAccelerometerAddon4calcEv">();
+    inputHookGyro.installAtSym<"_ZN2al12PadGyroAddon4calcEv">();
 }
 
 STAS::~STAS() = default;
@@ -316,7 +324,7 @@ void STAS::applyCommand(Command* cmd) {
         CmdController c = *(CmdController*)cmd->data;
 
         sead::ControllerMgr* controllerMgr = sead::ControllerMgr::instance();
-        auto* controller = (al::NpadController*)controllerMgr->getController(al::getPlayerControllerPort(0));
+        auto* controller = (al::NpadController*)controllerMgr->getController(al::getPlayerControllerPort(c.player));
 
         controller->mLeftStick = {(f32)c.stickL.x / 32767.f, (f32)c.stickL.y / 32767.f};
         controller->mRightStick = {(f32)c.stickR.x / 32767.f, (f32)c.stickR.y / 32767.f};
@@ -339,7 +347,7 @@ void STAS::applyCommand(Command* cmd) {
         CmdMotion c = *(CmdMotion*)cmd->data;
 
         sead::ControllerMgr* controllerMgr = sead::ControllerMgr::instance();
-        auto* controller = (al::NpadController*)controllerMgr->getController(al::getPlayerControllerPort(0));
+        auto* controller = (al::NpadController*)controllerMgr->getController(al::getPlayerControllerPort(c.player));
 
         controller->mPadAccelerationDeviceNum = 2;
 
