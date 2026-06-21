@@ -202,8 +202,8 @@ bool STAS::tryLoadScript() {
         return false;
     sead::FormatFixedSafeString<256> scriptPath(TAS_SCRIPTPATH "/%s", mLoadedEntry.mName);
 
-    if (!(al::isEndWithString(mLoadedEntry.mName, ".stas") || al::isEndWithString(mLoadedEntry.mName, ".STAS")))
-        return false;
+    // if (!(al::isEndWithString(mLoadedEntry.mName, ".stas") || al::isEndWithString(mLoadedEntry.mName, ".STAS")))
+    //     return false;
 
     mScript = new Script(DevGuiManager::instance()->getHeap());
     if (mScript->load(scriptPath.cstr()).failed()) {
