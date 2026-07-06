@@ -69,7 +69,7 @@ void GhostManager::updateGhostNerve() {
 bool GhostManager::tryStartRecord() {
     sead::ScopedCurrentHeapSetter heapSetter(DevGuiManager::instance()->getHeap());
     auto* tas = STAS::instance();
-    if (!tas->hasScript())
+    if (!tas || !tas->hasScript())
         return false;
     mReplayPath = sead::FormatFixedSafeString<256>(REPLAY_SAVEPATH "/%s", tas->getScriptName());
     Logger::log("%s\n", mReplayPath.cstr());
@@ -135,7 +135,8 @@ void GhostManager::exeWait() {}
 
 void GhostManager::exeRecord() {
     Logger::log("Ghost Manager: exeRecord\n");
-    if (!STAS::instance()->isRunning())
+    auto* tas = STAS::instance();
+    if (!tas || !tas->isRunning())
         return;
     Logger::log("    TAS is running!\n");
     mPlayer = tryGetPlayerActorHakoniwa(mScene);
@@ -143,7 +144,7 @@ void GhostManager::exeRecord() {
         return;
     Logger::log("    Player exists!\n");
     int step = al::getNerveStep(this);
-    if (STAS::instance()->getFrameIndex() >= STAS::instance()->getFrameCount()) {
+    if (tas->getFrameIndex() >= tas->getFrameCount()) {
         al::setNerve(this, &NrvGhostManager.RecordEnd);
         return;
     }

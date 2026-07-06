@@ -26,19 +26,22 @@ bool WindowTASTools::tryUpdateWinDisplay() {
 
     // ImGui::Text("Current Pattern: %s", patterns[mCurPattern]);
     // ImGui::Text("Current Pattern ID: %d", mCurPattern);
+    auto* tas = STAS::instance();
+    if (!tas)
+        return false;
 
-    ImGui::Checkbox("Absolute Joystick", STAS::instance()->isUseAbsoluteJoystickPtr());
+    ImGui::Checkbox("Absolute Joystick", tas->isUseAbsoluteJoystickPtr());
     if (ImGui::IsItemHovered())
         ImGui::SetTooltip("Can be toggled using L-Stick while a TAS is running");
 
     ImGui::PushItemWidth(100);
-    ImGui::SliderInt("TAS Speed Mult", STAS::instance()->getSpeedPtr(), 1, 10);
+    ImGui::SliderInt("TAS Speed Mult", tas->getSpeedPtr(), 1, 10);
     if (ImGui::IsItemHovered())
         ImGui::SetTooltip("Breaks some cutscenes if multiple of 5");
     ImGui::PopItemWidth();
 
     ImGui::PushItemWidth(250);
-    ImGui::DragInt("Speed Until Frame", STAS::instance()->getSpeedUntilFramePtr(), 1, 0, INT32_MAX);
+    ImGui::DragInt("Speed Until Frame", tas->getSpeedUntilFramePtr(), 1, 0, INT32_MAX);
     if (ImGui::IsItemHovered())
         ImGui::SetTooltip("Stops the speedup at the given frame");
     ImGui::PopItemWidth();
@@ -73,7 +76,7 @@ int getMofumofuTarget(int a) {
 }
 
 HkTrampoline getPlayerViewMtxHook = [](TrampolineStatic(), PlayerActorHakoniwa* player) -> const sead::Matrix34f& {
-    if (STAS::instance()->isUseAbsoluteJoystick())
+    if (STAS::instance() && STAS::instance()->isUseAbsoluteJoystick())
         return sead::Matrix34f::ident;
     else
         return *player->getViewMtx();

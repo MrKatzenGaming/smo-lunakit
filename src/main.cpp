@@ -5,6 +5,7 @@
 */
 
 #include "hk/gfx/ImGuiBackendNvn.h"
+#include "hk/hook/Replace.h"
 #include "hk/hook/Trampoline.h"
 
 #include "nn/fs/fs_mount.h"
@@ -14,7 +15,6 @@
 #include "sead/filedevice/nin/seadNinFileDeviceBaseNin.h"
 #include "sead/filedevice/seadFileDeviceMgr.h"
 #include "sead/filedevice/seadPath.h"
-#include "sead/framework/nx/seadGameFrameworkNx.h"
 #include "sead/gfx/seadPrimitiveRenderer.h"
 #include "sead/heap/seadExpHeap.h"
 #include "sead/prim/seadSafeString.h"
@@ -59,7 +59,7 @@
 
 void runTas(al::Scene* scene) {
     auto* tas = STAS::instance();
-    if (al::isNerve(scene, &StageSceneNrvStagePause::sInstance))
+    if (!tas || al::isNerve(scene, &StageSceneNrvStagePause::sInstance))
         return;
 
     if (tas->isRunning() && tas->getSpeedUntilFrame() > 0 && !tas->hasSpeedUntilFrame()) {
@@ -179,12 +179,14 @@ HkTrampoline FileLoaderIsExistArchive = [](TrampolineStatic(), al::FileLoader* t
     return orig(thisPtr, path, device);
 };
 
-// HkTrampolineVarArgs<void, const char*> ReplaceSeadPrint = hk::hook::trampoline([](const char* format, ...) -> void {
-//     va_list args;
-//     va_start(args, format);
-//     Logger::log(format, args);
-//     va_end(args);
-// });
+void seadPrint(const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    Logger::log(format, args);
+    va_end(args);
+}
+
+HkReplaceVarArgs ReplaceSeadPrint = seadPrint;
 
 HkTrampoline DisableSocketInit = [](TrampolineStatic()) -> void {};
 static sead::Heap* lkHeap;
@@ -239,7 +241,7 @@ HkTrampoline UpdateLunaKit = [](TrampolineStatic(), HakoniwaSequence* thisPtr) -
     DevGuiManager::instance()->update();
 };
 
-HkTrampoline DrawMainHook = [](TrampolineStatic(), sead::GameFrameworkNx* system) -> void {
+HkTrampoline DrawMainHook = [](TrampolineStatic(), GameSystem* system) -> void {
     orig(system);
 
     imgui::updateImGuiInput();
@@ -250,7 +252,7 @@ HkTrampoline DrawMainHook = [](TrampolineStatic(), sead::GameFrameworkNx* system
 extern "C" void hkMain() {
     GameSystemInit.installAtSym<"_ZN10GameSystem4initEv">();
     DrawMainHook.installAtSym<"_ZN10GameSystem8drawMainEv">();
-    // ReplaceSeadPrint::InstallAtSymbol("_ZN4sead6system5PrintEPKcz");
+    ReplaceSeadPrint.installAtSym<"_ZN4sead6system5PrintEPKcz">();
 
     // RandomGetU32.installAtSym<"_ZN4sead6Random6getU32Ev">();
 
@@ -267,11 +269,10 @@ extern "C" void hkMain() {
     // TAS
     RunTasHook.installAtSym<"_ZN16HakoniwaSequence6updateEv">();
     SceneEndInitHook.installAtSym<"_ZN2al5Scene7endInitERKNS_13ActorInitInfoE">();
+    STAS::installHooks();
 
     // Debug Text Writer Drawing
     UpdateLunaKit.installAtSym<"_ZNK16HakoniwaSequence8drawMainEv">();
-
-    // ImGui Hooks
 
     hk::gfx::ImGuiBackendNvn::instance()->installHooks(false);
     // hk::gfx::DebugRenderer::instance()->installHooks();

@@ -21,4 +21,5 @@ hk::Result loadFileFromPath(LoadData& loadData);
 long getFileSize(const char* path);
 
 bool isFileExist(const char* path);
+bool isDirExist(const char* path);
 }  // namespace FsHelper

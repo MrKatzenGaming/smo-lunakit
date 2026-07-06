@@ -126,25 +126,32 @@ NERVES_MAKE_STRUCT(STAS, Update, Wait, Record)
 SEAD_SINGLETON_DISPOSER_IMPL(STAS);
 
 HkTrampoline inputHookCont = [](TrampolineStatic(), al::NpadController* controller) -> void {
-    if (!STAS::instance()->isRunning())
+    auto* tas = STAS::instance();
+    if (!tas || !tas->isRunning())
         orig(controller);
 };
 HkTrampoline inputHookAccel = [](TrampolineStatic(), al::JoyPadAccelerometerAddon* addon) -> void {
-    if (!STAS::instance()->isRunning())
+    auto* tas = STAS::instance();
+    if (!tas || !tas->isRunning())
         orig(addon);
 };
 HkTrampoline inputHookGyro = [](TrampolineStatic(), al::PadGyroAddon* addon) -> void {
-    if (!STAS::instance()->isRunning())
+    auto* tas = STAS::instance();
+    if (!tas || !tas->isRunning())
         orig(addon);
 };
 
 STAS::STAS() : al::NerveExecutor("STAS") {
     initNerve(&NrvSTAS.Wait, 0);
-    nn::fs::CreateDirectory("sd:/smo/tas");
-    nn::fs::CreateDirectory(TAS_SCRIPTPATH);
+    if (!FsHelper::isDirExist("sd:/smo/tas"))
+        nn::fs::CreateDirectory("sd:/smo/tas");
+    if (!FsHelper::isDirExist(TAS_SCRIPTPATH))
+        nn::fs::CreateDirectory(TAS_SCRIPTPATH);
 
     updateDir();
+}
 
+void STAS::installHooks() {
     inputHookCont.installAtSym<"_ZN2al14NpadController9calcImpl_Ev">();
     inputHookAccel.installAtSym<"_ZN2al24JoyPadAccelerometerAddon4calcEv">();
     inputHookGyro.installAtSym<"_ZN2al12PadGyroAddon4calcEv">();
@@ -339,7 +346,7 @@ void STAS::applyCommand(Command* cmd) {
         mPrevButtons[c.player] = buttons;
 
         if (controller->mPadTrig.isOnBit(sead::Controller::cPadIdx_1 /*Left Stick*/))
-            STAS::instance()->setIsUseAbsoluteJoystick(!STAS::instance()->isUseAbsoluteJoystick());
+            setIsUseAbsoluteJoystick(!isUseAbsoluteJoystick());
 
         break;
     }

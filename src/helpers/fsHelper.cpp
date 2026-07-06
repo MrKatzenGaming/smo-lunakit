@@ -96,4 +96,12 @@ bool isFileExist(const char* path) {
 
     return type == nn::fs::DirectoryEntryType_File;
 }
+
+bool isDirExist(const char* path) {
+    nn::fs::DirectoryEntryType type;
+    nn::fs::GetEntryType(&type, path);
+
+    return type == nn::fs::DirectoryEntryType_Directory;
+}
+
 }  // namespace FsHelper

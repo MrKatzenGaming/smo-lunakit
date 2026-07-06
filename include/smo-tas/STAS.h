@@ -199,6 +199,8 @@ public:
     void exeRecord();
     bool isRunning();
 
+    static void installHooks();
+
     void setScene(al::Scene* scene) { mScene = scene; };
 
     void setScript(nn::fs::DirectoryEntry entry) { mLoadedEntry = entry; };

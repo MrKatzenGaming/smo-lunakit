@@ -21,6 +21,8 @@ bool WindowTAS::tryUpdateWinDisplay() {
     ImGui::SetCursorPosY(height - ImGui::GetFontSize() * 8.5);
     // TAS* tas = TAS::instance();
     STAS* tas = STAS::instance();
+    if (!tas)
+        return false;
     auto* ghostManager = GhostManager::instance();
     ImGui::Text("Loaded Script: %s", tas->hasScript() ? tas->getScriptName() : "None.");
     ImGui::Checkbox("TAS", &isStartTAS);

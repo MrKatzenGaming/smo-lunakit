@@ -166,7 +166,7 @@ void WindowInput::updateWin() {
         return;
     controllerMgr = sead::ControllerMgr::instance();
     WindowStagePause* win = DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause);
-    STAS* tas = STAS::instance();
+    // STAS* tas = STAS::instance();
 
     controller = (al::NpadController*)controllerMgr->getController(al::getPlayerControllerPort(0));
     if (mIs2P)

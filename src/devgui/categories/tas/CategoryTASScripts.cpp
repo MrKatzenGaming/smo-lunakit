@@ -10,6 +10,8 @@ void CategoryTASScripts::updateCatDisplay() {
     CategoryBase::updateCatDisplay();
     ImGui::BeginChild("Scripts", ImVec2(0, -(ImGui::GetFontSize() * 8.5)), true);
     auto* tas = STAS::instance();
+    if (!tas)
+        return;
     s64 entryCount = tas->getEntryCount();
     nn::fs::DirectoryEntry* entries = tas->getScripts();
     for (int i = 0; i < entryCount; i++) {
