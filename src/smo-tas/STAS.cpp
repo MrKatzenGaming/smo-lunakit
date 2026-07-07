@@ -35,6 +35,7 @@
 #include "helpers/GetHelper.h"
 #include "helpers/fsHelper.h"
 #include "logger/Logger.hpp"
+#include "math/seadQuat.h"
 
 hk::Result Script::load(const char* path) {
     sead::ScopedCurrentHeapSetter s(mHeap);
@@ -403,7 +404,8 @@ void STAS::applyCommand(Command* cmd) {
             break;
         p->startDemoPuppetable();
         al::setTrans(p, c.pos);
-        al::updatePoseQuat(p, c.rot);
+        if (c.rot != sead::Quatf{0, 0, 0, 0})
+            al::updatePoseQuat(p, c.rot);
         p->endDemoPuppetable();
         break;
     }
@@ -418,7 +420,8 @@ void STAS::applyCommand(Command* cmd) {
             break;
         cap->startPuppet();
         al::setTrans(cap, c.pos);
-        al::updatePoseQuat(cap, c.rot);
+        if (c.rot != sead::Quatf{0, 0, 0, 0})
+            al::updatePoseQuat(cap, c.rot);
         cap->endPuppet();
         break;
     }
