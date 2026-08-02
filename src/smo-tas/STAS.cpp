@@ -35,6 +35,7 @@
 #include "helpers/GetHelper.h"
 #include "helpers/fsHelper.h"
 #include "logger/Logger.hpp"
+#include "math/seadMatrix.h"
 #include "math/seadQuat.h"
 
 hk::Result Script::load(const char* path) {
@@ -369,11 +370,14 @@ void STAS::applyCommand(Command* cmd) {
         case 2:
             accelLeft->mAcceleration = c.accel;
             gyroLeft->mAngularVel = c.gyro;
+            gyroLeft->mDirection = sead::Matrix33f::ident;
             if (c.conId != 2)
                 break;
         case 1:
             accelRight->mAcceleration = c.accel;
             gyroRight->mAngularVel = c.gyro;
+            gyroRight->mDirection = sead::Matrix33f::ident;
+
             break;
         }
         break;
