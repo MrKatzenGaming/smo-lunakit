@@ -443,6 +443,16 @@ void STAS::applyCommand(Command* cmd) {
 void STAS::exeUpdate() {
     sead::ScopedCurrentHeapSetter heapSetter(DevGuiManager::instance()->getHeap());
 
+    sead::ControllerMgr* controllerMgr = sead::ControllerMgr::instance();
+    for (int player = 0; player < 2; player++) {
+        auto* controller = (al::NpadController*)controllerMgr->getController(al::getPlayerControllerPort(player));
+        if (controller) {
+            mPrevButtons[player] = controller->mPadHold;
+            controller->mPadTrig.makeAllZero();
+            controller->mPadRelease.makeAllZero();
+        }
+    }
+
     while (mFrameIndex <= mScript->getFrames() && mFrameIndex >= mNextFrame) {
         hk::ValueOrResult<Command*> cmdR = mScript->tryReadCommand();
         if (!cmdR.hasValue())

@@ -193,7 +193,6 @@ public:
     void startScript();
     void endScript();
     void applyCommand(Command* cmd);
-    void applyFrame();
     void exeUpdate();
     void exeWait();
     void exeRecord();
