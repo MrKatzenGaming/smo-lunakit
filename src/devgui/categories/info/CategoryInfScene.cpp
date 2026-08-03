@@ -1,5 +1,7 @@
 #include "devgui/categories/info/CategoryInfScene.h"
 
+#include "hk/ro/RoUtil.h"
+
 #include "Library/Sequence/Sequence.h"
 #include "al/Library/Nerve/Nerve.h"
 #include "al/Library/Nerve/NerveKeeper.h"
@@ -16,14 +18,19 @@
 CategoryInfScene::CategoryInfScene(const char* catName, const char* catDesc, sead::Heap* heap) : CategoryBase(catName, catDesc, heap) {}
 
 void CategoryInfScene::updateCatDisplay() {
+    if (!hk::ro::getMainModule()->isVersion("100")) {
+        ImGui::Text("Not supported on 1.2 yet");
+        return;
+    }
+
     HakoniwaSequence* sequence = tryGetHakoniwaSequence();
     if (!sequence) {
         ImGui::Text("Hakoniwa Sequence does not exist!");
         return;
     }
 
-    // al::Scene* scene = tryGetScene(sequence);
     al::Scene* scene = ((al::Sequence*)sequence)->mCurrentScene;
+
     if (!scene) {
         ImGui::Text("Scene does not exist!");
         return;

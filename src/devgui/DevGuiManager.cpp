@@ -76,7 +76,7 @@ void DevGuiManager::createElements() {
     createWindow<WindowStagePause>(windowNameStagePause, false);
 
     WindowGroup* memoryGroup = createWindowGroup("Memory Tools", 2);
-    createWindow<WindowLoadLog>(windowNameLoadLog, false, memoryGroup);
+    // createWindow<WindowLoadLog>(windowNameLoadLog, false, memoryGroup);
     createWindow<WindowMemoryManage>(windowNameMemoryManage, true, memoryGroup);
 
     // WindowGroup* graphicsGroup = createWindowGroup("Graphics", 2);

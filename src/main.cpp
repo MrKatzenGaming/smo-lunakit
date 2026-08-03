@@ -20,6 +20,7 @@
 #include "sead/prim/seadSafeString.h"
 #include "sead/resource/seadArchiveRes.h"
 
+#include "Library/Base/StringUtil.h"
 #include "Library/Sequence/Sequence.h"
 #include "Project/Draw/GpuPerf.h"
 #include "al/Library/LiveActor/ActorInitInfo.h"
@@ -52,7 +53,6 @@
 #include "ghost/GhostManager.h"
 #include "helpers/InputHelper.h"
 #include "imgui.h"
-#include "logger/LoadLogger.hpp"
 #include "logger/Logger.hpp"
 #include "smo-tas/STAS.h"
 #include "stage-pause/StageSceneStateStagePause.h"
@@ -94,14 +94,28 @@ HkTrampoline RunTasHook = [](TrampolineStatic(), HakoniwaSequence* seq) -> void 
             if (tas->hasSpeedUntilFrame())
                 break;
             orig(seq);
-            if ((seq)->mCurrentScene)
+            if ((seq)->mCurrentScene && al::isFirstStep(seq->mCurrentScene))
                 seq->drawMain();
         }
     }
     orig(seq);
 };
+#include <cxxabi.h>
 HkTrampoline RunTasHookScene = [](TrampolineStatic(), al::Scene* scene) -> void {
-    runTas(scene);
+    int status;
+    al::NerveKeeper* sceneNerveKeeper = scene->getNerveKeeper();
+    if (!sceneNerveKeeper)
+        return;
+
+    const al::Nerve* sceneNerve = sceneNerveKeeper->getCurrentNerve();
+    char* sceneNerveName = abi::__cxa_demangle(typeid(*sceneNerve).name(), nullptr, nullptr, &status);
+    auto prefixLen = sceneNerveName[0] == '(' ? strlen("(anonymous namespace)::") : 0;
+    char* nrvName = sceneNerveName + prefixLen;
+
+    if (!al::isEqualString(nrvName, "TitleMenuSceneNrvLoadWait"))
+        runTas(scene);
+
+    free(sceneNerveName);
     orig(scene);
 };
 
@@ -143,10 +157,10 @@ HkTrampoline RedirectFileDevice = [](TrampolineStatic(), sead::FileDeviceMgr* th
 
 HkTrampoline FileLoaderLoadArc = [](TrampolineStatic(), al::FileLoader* thisPtr, sead::SafeString& path, const char* ext,
                                     sead::FileDevice* device) -> sead::ArchiveRes* {
-    ResourceLoadLogger* log = ResourceLoadLogger::instance();
+    // ResourceLoadLogger* log = ResourceLoadLogger::instance();
 
-    if (log)
-        log->pushTextToVector(path.cstr());
+    // if (log)
+    // log->pushTextToVector(path.cstr());
 
     sead::FileDevice* sdFileDevice = sead::FileDeviceMgr::instance()->findDevice("sd");
 
@@ -157,10 +171,10 @@ HkTrampoline FileLoaderLoadArc = [](TrampolineStatic(), al::FileLoader* thisPtr,
 };
 
 HkTrampoline FileLoaderIsExistFile = [](TrampolineStatic(), al::FileLoader* thisPtr, sead::SafeString& path, sead::FileDevice* device) -> bool {
-    ResourceLoadLogger* log = ResourceLoadLogger::instance();
+    // ResourceLoadLogger* log = ResourceLoadLogger::instance();
 
-    if (log)
-        log->pushTextToVector(path.cstr());
+    // if (log)
+    // log->pushTextToVector(path.cstr());
 
     sead::FileDevice* sdFileDevice = sead::FileDeviceMgr::instance()->findDevice("sd");
 
@@ -219,8 +233,8 @@ HkTrampoline GameSystemInit = [](TrampolineStatic(), GameSystem* thisPtr) -> voi
     Logger::instance().init(lkHeap);
     DisableSocketInit.installAtSym<"_ZN2nn6socket10InitializeEPvmmi">();
 
-    ResourceLoadLogger::createInstance(lkHeap);
-    ResourceLoadLogger::instance()->init(lkHeap);
+    // ResourceLoadLogger::createInstance(lkHeap);
+    // ResourceLoadLogger::instance()->init(lkHeap);
 
     DevGuiManager::createInstance(lkHeap);
     DevGuiManager::instance()->init(lkHeap);
