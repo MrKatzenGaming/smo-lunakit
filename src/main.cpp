@@ -50,7 +50,6 @@
 #include "devgui/windows/StagePause/WindowStagePause.h"
 #include "devgui/windows/input/WindowInput.h"
 #include "ghost/GhostManager.h"
-#include "helpers/GetHelper.h"
 #include "helpers/InputHelper.h"
 #include "imgui.h"
 #include "logger/LoadLogger.hpp"
@@ -90,12 +89,13 @@ HkTrampoline RunTasHook = [](TrampolineStatic(), HakoniwaSequence* seq) -> void 
 
     WindowStagePause* win = DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause);
     STAS* tas = STAS::instance();
-    if (tas && win && tas->isRunning() && !win->isPausing() && !al::isFirstStep(seq) && !al::isLessEqualStep(scene, 11) &&
-        !tas->hasSpeedUntilFrame()) {
+    if (tas && win && tas->isRunning() && !win->isPausing() && !al::isFirstStep(seq) && !tas->hasSpeedUntilFrame()) {
         for (int i = 1; i < tas->getSpeed(); i++) {
             if (tas->hasSpeedUntilFrame())
                 break;
             orig(seq);
+            if ((seq)->mCurrentScene)
+                seq->drawMain();
         }
     }
     orig(seq);
