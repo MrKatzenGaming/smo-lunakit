@@ -1,5 +1,6 @@
 #include "devgui/categories/info/CategoryInfScene.h"
 
+#include "Library/Sequence/Sequence.h"
 #include "al/Library/Nerve/Nerve.h"
 #include "al/Library/Nerve/NerveKeeper.h"
 #include "al/Library/Nerve/NerveStateCtrl.h"
@@ -21,7 +22,8 @@ void CategoryInfScene::updateCatDisplay() {
         return;
     }
 
-    al::Scene* scene = tryGetScene(sequence);
+    // al::Scene* scene = tryGetScene(sequence);
+    al::Scene* scene = ((al::Sequence*)sequence)->mCurrentScene;
     if (!scene) {
         ImGui::Text("Scene does not exist!");
         return;

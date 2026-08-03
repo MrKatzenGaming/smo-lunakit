@@ -439,3 +439,4 @@ _ZN2al12PadGyroAddon4calcEv
 _ZN7HackCap11startPuppetEv
 _ZN7HackCap9endPuppetEv
 _ZN4sead6system5PrintEPKcz
+_ZN2al15isLessEqualStepEPKNS_9IUseNerveEi

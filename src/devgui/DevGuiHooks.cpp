@@ -7,7 +7,7 @@
 
 void DevGuiHooks::exlInstallDevGuiHooks() {
     exlSetupSettingsHooks();
-    exlSetupGraphicsHooks();
+    // exlSetupGraphicsHooks();
     exlSetupStageSceneHooks();
     setupTasHooks();
 }

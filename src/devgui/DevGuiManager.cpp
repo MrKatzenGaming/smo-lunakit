@@ -79,9 +79,9 @@ void DevGuiManager::createElements() {
     createWindow<WindowLoadLog>(windowNameLoadLog, false, memoryGroup);
     createWindow<WindowMemoryManage>(windowNameMemoryManage, true, memoryGroup);
 
-    WindowGroup* graphicsGroup = createWindowGroup("Graphics", 2);
-    createWindow<WindowPresets>(windowNamePresets, false, graphicsGroup);
-    createWindow<WindowGBuffer>(windowNameGbuffer, false, graphicsGroup);
+    // WindowGroup* graphicsGroup = createWindowGroup("Graphics", 2);
+    // createWindow<WindowPresets>(windowNamePresets, false, graphicsGroup);
+    // createWindow<WindowGBuffer>(windowNameGbuffer, false, graphicsGroup);
 
     // Create all home menu tabs
     Logger::log("Constructing all home menu items\n");

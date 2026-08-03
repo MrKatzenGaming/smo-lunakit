@@ -20,6 +20,7 @@
 #include "sead/prim/seadSafeString.h"
 #include "sead/resource/seadArchiveRes.h"
 
+#include "Library/Sequence/Sequence.h"
 #include "Project/Draw/GpuPerf.h"
 #include "al/Library/LiveActor/ActorInitInfo.h"
 #include "al/Library/LiveActor/LiveActor.h"
@@ -81,7 +82,7 @@ void runTas(al::Scene* scene) {
 }
 
 HkTrampoline RunTasHook = [](TrampolineStatic(), HakoniwaSequence* seq) -> void {
-    al::Scene* scene = tryGetScene(seq);
+    al::Scene* scene = ((al::Sequence*)seq)->mCurrentScene;
     if (!scene) {
         orig(seq);
         return;
@@ -89,20 +90,19 @@ HkTrampoline RunTasHook = [](TrampolineStatic(), HakoniwaSequence* seq) -> void 
 
     WindowStagePause* win = DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause);
     STAS* tas = STAS::instance();
-    if (tas && win && tas->isRunning() && !win->isPausing() && !al::isFirstStep(seq) && !tas->hasSpeedUntilFrame()) {
+    if (tas && win && tas->isRunning() && !win->isPausing() && !al::isFirstStep(seq) && !al::isLessEqualStep(scene, 11) &&
+        !tas->hasSpeedUntilFrame()) {
         for (int i = 1; i < tas->getSpeed(); i++) {
             if (tas->hasSpeedUntilFrame())
                 break;
-            scene = tryGetScene(seq);
-            if (scene)
-                runTas(scene);
-
             orig(seq);
         }
     }
-    if (scene)
-        runTas(scene);
     orig(seq);
+};
+HkTrampoline RunTasHookScene = [](TrampolineStatic(), al::Scene* scene) -> void {
+    runTas(scene);
+    orig(scene);
 };
 
 HkTrampoline SceneEndInitHook = [](TrampolineStatic(), al::Scene* scene, const al::ActorInitInfo& info) -> void {
@@ -268,6 +268,7 @@ extern "C" void hkMain() {
 
     // TAS
     RunTasHook.installAtSym<"_ZN16HakoniwaSequence6updateEv">();
+    RunTasHookScene.installAtSym<"_ZN2al5Scene8movementEv">();
     SceneEndInitHook.installAtSym<"_ZN2al5Scene7endInitERKNS_13ActorInitInfoE">();
     STAS::installHooks();
 

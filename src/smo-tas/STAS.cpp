@@ -129,18 +129,21 @@ SEAD_SINGLETON_DISPOSER_IMPL(STAS);
 
 HkTrampoline inputHookCont = [](TrampolineStatic(), al::NpadController* controller) -> void {
     auto* tas = STAS::instance();
-    if (!tas || !tas->isRunning())
-        orig(controller);
+    if (tas && tas->isRunning())
+        return;
+    orig(controller);
 };
 HkTrampoline inputHookAccel = [](TrampolineStatic(), al::JoyPadAccelerometerAddon* addon) -> void {
     auto* tas = STAS::instance();
-    if (!tas || !tas->isRunning())
-        orig(addon);
+    if (tas && tas->isRunning())
+        return;
+    orig(addon);
 };
 HkTrampoline inputHookGyro = [](TrampolineStatic(), al::PadGyroAddon* addon) -> void {
     auto* tas = STAS::instance();
-    if (!tas || !tas->isRunning())
-        orig(addon);
+    if (tas && tas->isRunning())
+        return;
+    orig(addon);
 };
 
 STAS::STAS() : al::NerveExecutor("STAS") {
