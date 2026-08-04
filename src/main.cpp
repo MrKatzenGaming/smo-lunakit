@@ -80,26 +80,6 @@ void runTas(al::Scene* scene) {
     ghostManager->updateGhostNerve();
 }
 
-HkTrampoline RunTasHook = [](TrampolineStatic(), HakoniwaSequence* seq) -> void {
-    al::Scene* scene = tryGetSuperScene(seq);
-    if (!scene) {
-        orig(seq);
-        return;
-    }
-
-    WindowStagePause* win = DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause);
-    STAS* tas = STAS::instance();
-    if (tas && win && tas->isRunning() && !win->isPausing() && !al::isFirstStep(seq) && !tas->hasSpeedUntilFrame()) {
-        for (int i = 1; i < tas->getSpeed(); i++) {
-            if (tas->hasSpeedUntilFrame())
-                break;
-            orig(seq);
-            if (tryGetScene(seq) && al::isFirstStep(tryGetScene(seq)))
-                seq->drawMain();
-        }
-    }
-    orig(seq);
-};
 #include <cxxabi.h>
 HkTrampoline RunTasHookScene = [](TrampolineStatic(), al::Scene* scene) -> void {
     int status;
@@ -261,6 +241,29 @@ HkTrampoline DrawMainHook = [](TrampolineStatic(), GameSystem* system) -> void {
     imgui::updateImGuiInput();
     InputHelper::updatePadState();
     draw();
+};
+
+HkTrampoline RunTasHook = [](TrampolineStatic(), HakoniwaSequence* seq) -> void {
+    al::Scene* scene = tryGetSuperScene(seq);
+    if (!scene) {
+        orig(seq);
+        return;
+    }
+
+    WindowStagePause* win = DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause);
+    STAS* tas = STAS::instance();
+    if (tas && win && tas->isRunning() && !win->isPausing() && !al::isLessEqualStep(seq, 2) && !tas->hasSpeedUntilFrame()) {
+        for (int i = 1; i < tas->getSpeed(); i++) {
+            if (tas->hasSpeedUntilFrame())
+                break;
+            orig(seq);
+            if (tryGetScene(seq) && al::isFirstStep(tryGetScene(seq)))
+                // seq->drawMain();
+                DrawMainHook.orig(GameSystemFunction::getGameSystem());
+        }
+    }
+
+    orig(seq);
 };
 
 extern "C" void hkMain() {
