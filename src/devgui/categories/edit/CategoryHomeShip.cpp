@@ -1,5 +1,7 @@
 #include "devgui/categories/edit/CategoryHomeShip.h"
 
+#include "hk/ro/RoUtil.h"
+
 #include "game/System/GameDataFile.h"
 
 #include "custom/game/GameData/GameProgressData.h"
@@ -18,7 +20,11 @@ void CategoryHomeShip::updateCat() {
     if (!holder)
         return;
 
-    GameProgressData* progress = holder->getGameDataFile()->mGameProgressData;
+    GameProgressData* progress = nullptr;
+    if (hk::ro::getMainModule()->isVersion("120"))
+        progress = *(&holder->getGameDataFile()->mGameProgressData - 1);
+    else
+        progress = holder->getGameDataFile()->mGameProgressData;
 
     if (mIsUpdateWorld) {
         mIsUpdateWorld = false;
@@ -48,7 +54,12 @@ void CategoryHomeShip::updateCatDisplay() {
     if (!holder)
         return;
 
-    GameProgressData* progress = holder->getGameDataFile()->mGameProgressData;
+    GameProgressData* progress = nullptr;
+    if (hk::ro::getMainModule()->isVersion("120"))
+        progress = *(&holder->getGameDataFile()->mGameProgressData - 1);
+    else
+        progress = holder->getGameDataFile()->mGameProgressData;
+    ;
 
     if (ImGui::BeginTabBar("Sub-categories")) {
         if (ImGui::BeginTabItem("Worlds")) {

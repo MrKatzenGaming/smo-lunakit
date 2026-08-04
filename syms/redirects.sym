@@ -1,17 +1,15 @@
 @smo:100
-
 $SkyInitHook = _ZN2al3Sky14initFromPresetERKNS_13ActorInitInfoE + 0x50
 $ViewportApplyHook = _ZNK2al12ViewRenderer8drawViewERKNS_8ViewInfoEPNS_14DrawSystemInfoERKNS_10ProjectionERKN4sead6CameraEPKN3agl12RenderBufferERKNS9_8ViewportEbbb + 0x199C
 $StagePauseHook1 = _ZN16HakoniwaSequence12exeLoadStageEv + 0x1f4
 $StagePauseHook2 = _ZN16HakoniwaSequence7exeMissEv + 0x13c
 $MoonRefreshText = 0x01832301
-$isPatternReverseHook = 0x0b07a8    
+$isPatternReverseHook = 0x0b07a8
 $getMofumofuTargetHook = 0x0b07f8
 $loadCurrentFileHook = _ZN21StageSceneStateOption20exeLoadDataSelectingEv + 0x13c
 $initMarioModelCommon = 0x00444028
 
 @smo:101
-
 $SkyInitHook = _ZN2al3Sky14initFromPresetERKNS_13ActorInitInfoE + 0x50
 $ViewportApplyHook = _ZNK2al12ViewRenderer8drawViewERKNS_8ViewInfoEPNS_14DrawSystemInfoERKNS_10ProjectionERKN4sead6CameraEPKN3agl12RenderBufferERKNS9_8ViewportEbbb + 0x199C
 $StagePauseHook1 = _ZN16HakoniwaSequence12exeLoadStageEv + 0x1f4
@@ -23,7 +21,6 @@ $loadCurrentFileHook = _ZN21StageSceneStateOption20exeLoadDataSelectingEv + 0x13
 $initMarioModelCommon = 0x00444804
 
 @smo:110
-
 $SkyInitHook = _ZN2al3Sky14initFromPresetERKNS_13ActorInitInfoE + 0x50
 $ViewportApplyHook = _ZNK2al12ViewRenderer8drawViewERKNS_8ViewInfoEPNS_14DrawSystemInfoERKNS_10ProjectionERKN4sead6CameraEPKN3agl12RenderBufferERKNS9_8ViewportEbbb + 0x199C
 $StagePauseHook1 = _ZN16HakoniwaSequence12exeLoadStageEv + 0x1f4
@@ -35,7 +32,6 @@ $loadCurrentFileHook = _ZN21StageSceneStateOption20exeLoadDataSelectingEv + 0x13
 $initMarioModelCommon = 0x004448e8
 
 @smo:120
-
 $SkyInitHook = _ZN2al3Sky14initFromPresetERKNS_13ActorInitInfoE + 0x50
 $ViewportApplyHook = _ZNK2al12ViewRenderer8drawViewERKNS_8ViewInfoEPNS_14DrawSystemInfoERKNS_10ProjectionERKN4sead6CameraEPKN3agl12RenderBufferERKNS9_8ViewportEbbb + 0x199C
 $StagePauseHook1 = _ZN16HakoniwaSequence12exeLoadStageEv + 0x1f4

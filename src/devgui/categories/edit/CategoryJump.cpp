@@ -6,7 +6,6 @@
 
 #include "helpers/GetHelper.h"
 #include "imgui.h"
-#include "logger/Logger.hpp"
 
 CategoryJump::CategoryJump(const char* catName, const char* catDesc, sead::Heap* heap) : CategoryBase(catName, catDesc, heap) {}
 

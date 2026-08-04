@@ -51,11 +51,11 @@
 #include "devgui/windows/StagePause/WindowStagePause.h"
 #include "devgui/windows/input/WindowInput.h"
 #include "ghost/GhostManager.h"
+#include "helpers/GetHelper.h"
 #include "helpers/InputHelper.h"
 #include "imgui.h"
 #include "logger/Logger.hpp"
 #include "smo-tas/STAS.h"
-#include "stage-pause/StageSceneStateStagePause.h"
 
 void runTas(al::Scene* scene) {
     auto* tas = STAS::instance();
@@ -81,7 +81,7 @@ void runTas(al::Scene* scene) {
 }
 
 HkTrampoline RunTasHook = [](TrampolineStatic(), HakoniwaSequence* seq) -> void {
-    al::Scene* scene = ((al::Sequence*)seq)->mCurrentScene;
+    al::Scene* scene = tryGetSuperScene(seq);
     if (!scene) {
         orig(seq);
         return;
@@ -94,7 +94,7 @@ HkTrampoline RunTasHook = [](TrampolineStatic(), HakoniwaSequence* seq) -> void 
             if (tas->hasSpeedUntilFrame())
                 break;
             orig(seq);
-            if ((seq)->mCurrentScene && al::isFirstStep(seq->mCurrentScene))
+            if (tryGetScene(seq) && al::isFirstStep(tryGetScene(seq)))
                 seq->drawMain();
         }
     }

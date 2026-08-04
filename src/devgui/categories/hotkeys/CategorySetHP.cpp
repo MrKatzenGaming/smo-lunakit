@@ -9,14 +9,13 @@
 CategorySetHP::CategorySetHP(const char* catName, const char* catDesc, sead::Heap* heap) : CategoryHotkeyBase(catName, catDesc, heap) {}
 
 void CategorySetHP::hotkeyFunc() {
-    HakoniwaSequence* gameSeq = tryGetHakoniwaSequence();
-    PlayerActorHakoniwa* player = tryGetPlayerActorHakoniwa(gameSeq);
-    mHitData = gameSeq->mGameDataHolderAccessor.mData->getGameDataFile()->mPlayerHitPointData;
+    GameDataHolder* holder = tryGetGameDataHolder();
+    mHitData = holder ? holder->getGameDataFile()->getPlayerHitPointData() : nullptr;
 
     // check if player exists
-    if (!player || !gameSeq || !mHitData)
+    if (!mHitData)
         return;
-    // kill player if enabled keys and Dpad Up are pressed
+
     if (!mIsGetLifeUp)
         mHitData->mCurrentHealth = mTargetHealth;
     else if (mIsGetLifeUp)

@@ -1,5 +1,7 @@
 #include "devgui/categories/edit/CategoryCoins.h"
 
+#include "hk/ro/RoUtil.h"
+
 #include "game/Layout/CoinCounter.h"
 #include "game/Layout/StageSceneLayout.h"
 #include "game/System/GameDataFile.h"
@@ -11,14 +13,19 @@ CategoryCoins::CategoryCoins(const char* catName, const char* catDesc, sead::Hea
 
 void CategoryCoins::updateCat() {
     if (mIsOverrideCoins) {
-        StageScene* scene = tryGetStageScene();
-        GameDataHolder* holder = tryGetGameDataHolder(scene);
+        GameDataHolder* holder = tryGetGameDataHolder();
 
         if (!holder)
             return;
-
         holder->getGameDataFile()->mCoinNum = mTargetCoins;
-        if (scene)
+
+        StageScene* scene = tryGetStageScene();
+        if (!scene)
+            return;
+
+        if (hk::ro::getMainModule()->isVersion("120"))
+            (*(&scene->mStageSceneLayout + 2))->mCoinCounter->updateCountImmidiate();
+        else
             scene->mStageSceneLayout->mCoinCounter->updateCountImmidiate();
     }
 }

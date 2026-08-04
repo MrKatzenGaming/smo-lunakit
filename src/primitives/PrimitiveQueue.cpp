@@ -14,6 +14,7 @@
 
 #include <typeinfo>
 
+#include "Sequence/HakoniwaSequence.h"
 #include "helpers/GetHelper.h"
 
 PrimitiveQueue::PrimitiveQueue(sead::Heap* heap) {
@@ -33,7 +34,7 @@ void PrimitiveQueue::render() {
     }
 
     al::Scene* curScene = tryGetScene(seq);
-    const al::Nerve* currentNerve = al::getCurrentNerve(seq);
+    const al::Nerve* currentNerve = al::getCurrentNerve(static_cast<al::Sequence*>(seq));
     const char* sceneNrv = typeid(*currentNerve).name();
 
     // Check if the scene exists and if the current sequence nerve is save
@@ -42,7 +43,8 @@ void PrimitiveQueue::render() {
         return;
     }
 
-    agl::DrawContext* drawContext = seq->getDrawInfo()->drawContext;
+    // getDrawInfo() is at same offset in both versions
+    agl::DrawContext* drawContext = static_cast<HakoniwaSequence*>(seq)->getDrawInfo()->drawContext;
     sead::PrimitiveRenderer* renderer = sead::PrimitiveRenderer::instance();
     const sead::LookAtCamera* cam = &al::getLookAtCamera(curScene, 0);
     const sead::Projection* proj = &al::getProjectionSead(curScene, 0);

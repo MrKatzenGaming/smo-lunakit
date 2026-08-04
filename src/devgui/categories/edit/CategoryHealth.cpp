@@ -3,6 +3,7 @@
 #include "game/Player/PlayerFunction.h"
 #include "game/System/GameDataFile.h"
 
+#include "Sequence/HakoniwaSequence.h"
 #include "helpers/GetHelper.h"
 #include "helpers/PlayerHelper.h"
 #include "imgui.h"
@@ -11,12 +12,13 @@ CategoryHealth::CategoryHealth(const char* catName, const char* catDesc, sead::H
 
 void CategoryHealth::updateCat() {
     // Get the player's hit point data pointer if it doesn't exist already
-    HakoniwaSequence* gameSeq = tryGetHakoniwaSequence();
-    PlayerActorBase* player = tryGetPlayerActor(gameSeq);
+    PlayerActorBase* player = tryGetPlayerActor();
     if (!player)
         return;
 
-    mHitData = gameSeq->mGameDataHolderAccessor.mData->getGameDataFile()->mPlayerHitPointData;
+    GameDataHolder* holder = tryGetGameDataHolder();
+    if (holder && holder->getGameDataFile())
+        mHitData = holder->getGameDataFile()->getPlayerHitPointData();
 
     bool isPlayerDead = PlayerFunction::isPlayerDeadStatus(player);
 
@@ -27,7 +29,7 @@ void CategoryHealth::updateCat() {
     }
 
     // Try killing the player if the kill button is pressed
-    StageScene* curScene = tryGetStageScene(gameSeq);
+    StageScene* curScene = tryGetStageScene();
     if (isInStageScene(curScene) && mIsKillPlayer && !isPlayerDead) {
         PlayerHelper::killPlayer(player);
         mIsKillPlayer = false;

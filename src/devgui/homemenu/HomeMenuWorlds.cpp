@@ -8,27 +8,15 @@
 #include "game/Player/PlayerFunction.h"
 #include "game/System/GameDataFunction.h"
 
+#include "System/WorldList.h"
 #include "devgui/DevGuiManager.h"
-#include "helpers/FunctionHelper.h"
 #include "helpers/GetHelper.h"
 #include "imgui.h"
-
-static WorldList* getWorldList(GameDataHolderAccessor accessor) {
-    //    Logger::log("Offset: %x\n", FunctionHelper::readLdrOffset("_ZN16GameDataFunction19getWorldScenarioNumE22GameDataHolderAccessori"));
-    return accessor.mData->getWorldList();
-    // return *(WorldList**)((uintptr_t)accessor.mData +
-    //                       FunctionHelper::readLdrOffset("_ZN16GameDataFunction19getWorldScenarioNumE22GameDataHolderAccessori"));
-}
 
 HomeMenuWorlds::HomeMenuWorlds(DevGuiManager* parent, const char* menuName, bool isDisplayInListByDefault)
     : HomeMenuBase(parent, menuName, isDisplayInListByDefault) {}
 
 void HomeMenuWorlds::updateMenuDisplay() {
-    if (hk::ro::getMainModule()->isVersion("120")) {
-        mScenarioPicker = -1;
-        ImGui::MenuItem("Not available on 1.2!", nullptr, false, false);
-        return;
-    }
     StageScene* scene = tryGetStageScene();
     if (!scene) {
         mScenarioPicker = -1;
@@ -38,23 +26,26 @@ void HomeMenuWorlds::updateMenuDisplay() {
 
     GameDataHolderAccessor holder(scene);
     s32 worldID = GameDataFunction::getCurrentWorldId(holder);
-    WorldListEntry* worldEntry = getWorldList(holder)->mWorldList.at(worldID);
-    const char* worldName = getWorldList(holder)->getWorldDevelopName(worldID);
+    const char* worldName = GameDataFunction::getWorldDevelopName(holder, worldID);
 
     // Draw the top components to select kindom and scenario
-    drawKingdomPicker(worldName, scene, holder);
+    drawKingdomPicker(worldName, holder);
     if (GameDataFunction::isMainStage(holder))
-        drawScenarioPicker(*worldEntry, scene, holder);
+        drawScenarioPicker(mainNames[worldID], scene);
 
     if (addMenu("Sub-Areas")) {
+        if (hk::ro::getMainModule()->isVersion("120")) {
+            ImGui::MenuItem("Not available on 1.2!", nullptr, false, false);
+            ImGui::EndMenu();
+            return;
+        }
         ImGui::BeginChild("Sub-Area Child", ImVec2(525, 325), false, ImGuiWindowFlags_NoBackground);
 
-        for (auto& dbEntry : worldEntry->stageNames) {
-            //            Logger::log("Stage name: %s\n", dbEntry.mStageName.cstr());
-            bool isDemo = al::isEqualString(dbEntry.stageCategory, "Demo");
+        for (auto& dbEntry : holder->getWorldList()->mWorldList[worldID]->stageList) {
+            bool isDemo = al::isEqualString(dbEntry.category, "Demo");
 
-            if (ImGui::MenuItem(dbEntry.stageName.cstr(), dbEntry.stageCategory.cstr(), false, !isDemo))
-                warpToStage(holder, dbEntry.stageName.cstr(), dbEntry.useScenario);
+            if (ImGui::MenuItem(dbEntry.name.cstr(), dbEntry.name.cstr(), false, !isDemo))
+                warpToStage(holder, dbEntry.name.cstr(), dbEntry.useScenarioNo);
         }
 
         ImGui::EndChild();
@@ -62,20 +53,20 @@ void HomeMenuWorlds::updateMenuDisplay() {
     }
 }
 
-inline void HomeMenuWorlds::drawKingdomPicker(const char* worldName, StageScene* scene, GameDataHolderAccessor holder) {
+inline void HomeMenuWorlds::drawKingdomPicker(const char* worldName, GameDataHolderAccessor holder) {
     ImGui::SetNextItemWidth(140.f);
     if (ImGui::BeginCombo("Kingdom", worldName, ImGuiComboFlags_HeightLargest)) {
         ImGui::SetWindowFontScale(1.66f);
 
-        for (auto& entry : getWorldList(holder)->mWorldList)
-            if (ImGui::Selectable(entry.worldDevelopName, false))
-                warpToStage(holder, entry.mainStageName, -1);
+        for (auto& entry : mainNames)
+            if (ImGui::Selectable(entry.mShort, false))
+                warpToStage(holder, entry.mInternal, -1);
 
         ImGui::EndCombo();
     }
 }
 
-inline void HomeMenuWorlds::drawScenarioPicker(WorldListEntry& entry, StageScene* scene, GameDataHolderAccessor holder) {
+inline void HomeMenuWorlds::drawScenarioPicker(KingdomEnglishNameMain& entry, StageScene* scene) {
     PlayerActorBase* player = tryGetPlayerActor(scene);
     if (player && mScenarioPicker == -1)
         mScenarioPicker = GameDataFunction::getScenarioNo(player);
@@ -89,10 +80,10 @@ inline void HomeMenuWorlds::drawScenarioPicker(WorldListEntry& entry, StageScene
 
     ImGui::SameLine();
     if (ImGui::Button(" Load "))
-        warpToStage(holder, entry.mainStageName, mScenarioPicker);
+        warpToStage(scene, GameDataFunction::getCurrentStageName(scene), mScenarioPicker);
 }
 
-inline const char* HomeMenuWorlds::getScenarioType(WorldListEntry& entry, int scenario) {
+inline const char* HomeMenuWorlds::getScenarioType(KingdomEnglishNameMain& entry, int scenario) {
     if (scenario == entry.clearMainScenario)
         return "Peace";
     if (scenario == entry.endingScenario)

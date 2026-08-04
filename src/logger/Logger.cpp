@@ -19,6 +19,10 @@ Logger& Logger::instance() {
     return instance;
 }
 
+extern "C" void hk::diag::hkLogSink(const char* msg, size len) {
+    Logger::log(msg);
+}
+
 static constexpr int socketPoolSize = 0x600000;
 static constexpr int socketAllocPoolSize = 0x20000;
 char socketPool[socketPoolSize + socketAllocPoolSize] __attribute__((aligned(0x1000)));

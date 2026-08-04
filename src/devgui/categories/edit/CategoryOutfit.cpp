@@ -1,5 +1,7 @@
 #include "devgui/categories/edit/CategoryOutfit.h"
 
+#include "hk/ro/RoUtil.h"
+
 #include "game/MapObj/ChangeStageInfo.h"
 #include "game/System/GameDataFile.h"
 #include "game/System/GameDataFunction.h"
@@ -24,8 +26,13 @@ void CategoryOutfit::updateCat() {
     if (!holder)
         return;
 
-    holder->getGameDataFile()->mCurrentCostumeName = mTargetBody;
-    holder->getGameDataFile()->mCurrentCapName = mTargetCap;
+    if (hk::ro::getMainModule()->isVersion("120")) {
+        *((sead::FixedSafeString<64>*)(((u64*)&holder->getGameDataFile()->mCurrentCostumeName) + 1)) = mTargetBody;
+        *((sead::FixedSafeString<64>*)(((u64*)&holder->getGameDataFile()->mCurrentCapName) + 1)) = mTargetCap;
+    } else {
+        holder->getGameDataFile()->mCurrentCostumeName = mTargetBody;
+        holder->getGameDataFile()->mCurrentCapName = mTargetCap;
+    }
 
     if (mIsReloadScene) {
         mIsReloadScene = false;
@@ -33,9 +40,9 @@ void CategoryOutfit::updateCat() {
         if (!scene)
             return;
 
-        ChangeStageInfo stageInfo(holder, "start", GameDataFunction::getCurrentStageName(scene->mGameDataHolder), false, -1,
+        ChangeStageInfo stageInfo(holder, "start", GameDataFunction::getCurrentStageName(scene), false, -1,
                                   ChangeStageInfo::SubScenarioType::NO_SUB_SCENARIO);
-        GameDataFunction::tryChangeNextStage(scene->mGameDataHolder.mData, &stageInfo);
+        GameDataFunction::tryChangeNextStage(scene, &stageInfo);
     }
 }
 
@@ -45,8 +52,13 @@ void CategoryOutfit::updateCatDisplay() {
     if (ImGui::Checkbox("Edit Player Outfit", &mIsOverride)) {
         GameDataHolder* holder = tryGetGameDataHolder();
         if (holder) {
-            mTargetBody = holder->getGameDataFile()->mCurrentCostumeName.cstr();
-            mTargetCap = holder->getGameDataFile()->mCurrentCapName.cstr();
+            if (hk::ro::getMainModule()->isVersion("120")) {
+                mTargetBody = (*((sead::FixedSafeString<64>*)(((u64*)&holder->getGameDataFile()->mCurrentCostumeName) + 1))).cstr();
+                mTargetCap = (*((sead::FixedSafeString<64>*)(((u64*)&holder->getGameDataFile()->mCurrentCapName) + 1))).cstr();
+            } else {
+                mTargetBody = holder->getGameDataFile()->mCurrentCostumeName.cstr();
+                mTargetCap = holder->getGameDataFile()->mCurrentCapName.cstr();
+            }
         }
     }
 

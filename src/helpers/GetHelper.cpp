@@ -1,6 +1,10 @@
 #include "helpers/GetHelper.h"
 
+#include "hk/ro/RoUtil.h"
+
 #include "Library/Base/StringUtil.h"
+#include "Library/Scene/Scene.h"
+#include "Library/Sequence/Sequence.h"
 #include "al/Library/Player/PlayerUtil.h"
 #include "al/Library/Scene/SceneUtil.h"
 
@@ -10,8 +14,16 @@
 #include "game/System/GameSystem.h"
 
 #include "custom/game/Scene/StageScene.h"
+#include "custom/game/Sequence/HakoniwaSequence12.h"
 
 #include <typeinfo>
+
+#include "Sequence/HakoniwaSequence.h"
+#include "prim/seadSafeString.h"
+
+static inline bool isVersion120() {
+    return hk::ro::getMainModule()->isVersion("120");
+}
 
 bool isInScene() {
     al::Sequence* mSequence = GameSystemFunction::getGameSystem()->mSequence;
@@ -223,4 +235,39 @@ bool tryReloadStage() {
                               ChangeStageInfo::SubScenarioType::NO_SUB_SCENARIO);
     GameDataFunction::tryChangeNextStage(scene->mGameDataHolder.mData, &stageInfo);
     return true;
+}
+
+al::Scene* tryGetSuperScene(HakoniwaSequence* seq) {
+    if (!seq)
+        return nullptr;
+
+    auto curScene = static_cast<al::Sequence*>(seq)->mCurrentScene;
+    if (curScene && curScene->mIsAlive)
+        return curScene;
+
+    return nullptr;
+};
+
+const sead::FixedSafeString<128> getStageNameFromHakoniwa(HakoniwaSequence* seq) {
+    if (!seq)
+        return sead::FixedSafeString<128>("");
+
+    if (isVersion120()) {
+        HakoniwaSequence12* seq = static_cast<HakoniwaSequence12*>(seq);
+        return seq->mStageName;
+    } else {
+        return seq->mStageName;
+    }
+}
+
+s32 getScenarioFromHakoniwa(HakoniwaSequence* seq) {
+    if (!seq)
+        return -1;
+
+    if (isVersion120()) {
+        HakoniwaSequence12* seq = static_cast<HakoniwaSequence12*>(seq);
+        return seq->mNextScenarioNum;
+    } else {
+        return seq->mNextScenarioNum;
+    }
 }

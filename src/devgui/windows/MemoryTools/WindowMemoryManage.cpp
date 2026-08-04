@@ -1,21 +1,18 @@
 #include "devgui/windows/MemoryTools/WindowMemoryManage.h"
 
-#include "hk/types.h"
+#include "hk/prim/traits/Integer.h"
 
 #include "sead/heap/seadHeapMgr.h"
 
-#include "Library/Base/StringUtil.h"
 #include "Library/LiveActor/LiveActorGroup.h"
 #include "Library/LiveActor/LiveActorKit.h"
 #include "Library/Memory/HeapUtil.h"
 #include "Library/Scene/Scene.h"
 
-#include "game/Sequence/HakoniwaSequence.h"
-#include "game/System/GameSystem.h"
-
 #include <cstdio>
 
 #include "devgui/DevGuiManager.h"
+#include "helpers/GetHelper.h"
 #include "imgui.h"
 
 WindowMemoryManage::WindowMemoryManage(DevGuiManager* parent, const char* winName, bool isActiveByDefault)
@@ -35,13 +32,7 @@ bool WindowMemoryManage::tryUpdateWinDisplay() {
 }
 
 void WindowMemoryManage::drawSimpleHeapView() {
-    al::Sequence* curSequence = GameSystemFunction::getGameSystem()->mSequence;
-    al::Scene* scene = nullptr;
-
-    if (curSequence && al::isEqualString(curSequence->mName.cstr(), "HakoniwaSequence")) {
-        auto gameSeq = (HakoniwaSequence*)curSequence;
-        scene = gameSeq->mCurrentScene;
-    }
+    al::Scene* scene = tryGetScene();
 
     ImGui::SetWindowFontScale(1.2f);
 

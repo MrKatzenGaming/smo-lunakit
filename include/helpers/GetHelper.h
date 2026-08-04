@@ -20,6 +20,7 @@ bool tryReloadStage();
 // Safe getters
 al::Sequence* tryGetSequence();
 HakoniwaSequence* tryGetHakoniwaSequence();
+al::Scene* tryGetSuperScene(HakoniwaSequence* seq);
 
 al::Scene* tryGetScene();
 al::Scene* tryGetScene(al::Sequence* curSequence);
@@ -33,6 +34,9 @@ GameDataHolder* tryGetGameDataHolder(StageScene* scene);
 GameDataHolderAccessor* tryGetGameDataHolderAccess();
 GameDataHolderAccessor* tryGetGameDataHolderAccess(HakoniwaSequence* curSequence);
 // GameDataHolderAccessor* tryGetGameDataHolderAccess(al::Scene* scene);
+
+const sead::FixedSafeString<128> getStageNameFromHakoniwa(HakoniwaSequence* seq);
+s32 getScenarioFromHakoniwa(HakoniwaSequence* seq);
 
 PlayerActorBase* tryGetPlayerActor();
 PlayerActorBase* tryGetPlayerActor(HakoniwaSequence* curSequence);
