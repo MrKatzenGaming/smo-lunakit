@@ -261,6 +261,7 @@ void STAS::endScript() {
     mNextFrame = -1;
     mPrevButtons[0] = 0;
     mPrevButtons[1] = 0;
+    mIsUseAbsoluteJoystick = false;
     delete[] mScript;
 }
 
