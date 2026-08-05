@@ -4,6 +4,7 @@
 #include "hk/ValueOrResult.h"
 #include "hk/hook/Trampoline.h"
 #include "hk/prim/traits/Integer.h"
+#include "hk/types.h"
 
 #include "nn/fs/fs_directories.h"
 
@@ -127,24 +128,21 @@ NERVES_MAKE_STRUCT(STAS, Update, Wait, Record)
 
 SEAD_SINGLETON_DISPOSER_IMPL(STAS);
 
-HkTrampoline inputHookCont = [](TrampolineStatic(), al::NpadController* controller) -> void {
-    auto* tas = STAS::instance();
-    if (tas && tas->isRunning())
-        return;
-    orig(controller);
-};
-HkTrampoline inputHookAccel = [](TrampolineStatic(), al::JoyPadAccelerometerAddon* addon) -> void {
-    auto* tas = STAS::instance();
-    if (tas && tas->isRunning())
-        return;
-    orig(addon);
-};
-HkTrampoline inputHookGyro = [](TrampolineStatic(), al::PadGyroAddon* addon) -> void {
-    auto* tas = STAS::instance();
-    if (tas && tas->isRunning())
-        return;
-    orig(addon);
-};
+#define hookCode(ORIG)                                                                                                                               \
+    STAS* tas = STAS::instance();                                                                                                                    \
+    if (tas && tas->isRunning())                                                                                                                     \
+        return;                                                                                                                                      \
+    orig(ORIG);
+
+HkTrampoline inputHookCont = [](TrampolineStatic(), al::NpadController* controller) -> void { hookCode(controller); };
+HkTrampoline inputHookAccel = [](TrampolineStatic(), al::JoyPadAccelerometerAddon* addon) -> void { hookCode(addon); };
+HkTrampoline inputHookGyro = [](TrampolineStatic(), al::PadGyroAddon* addon) -> void { hookCode(addon); };
+
+void STAS::installHooks() {
+    inputHookCont.installAtSym<"_ZN2al14NpadController9calcImpl_Ev">();
+    inputHookAccel.installAtSym<"_ZN2al24JoyPadAccelerometerAddon4calcEv">();
+    inputHookGyro.installAtSym<"_ZN2al12PadGyroAddon4calcEv">();
+}
 
 STAS::STAS() : al::NerveExecutor("STAS") {
     initNerve(&NrvSTAS.Wait, 0);
@@ -155,14 +153,6 @@ STAS::STAS() : al::NerveExecutor("STAS") {
 
     updateDir();
 }
-
-void STAS::installHooks() {
-    inputHookCont.installAtSym<"_ZN2al14NpadController9calcImpl_Ev">();
-    inputHookAccel.installAtSym<"_ZN2al24JoyPadAccelerometerAddon4calcEv">();
-    inputHookGyro.installAtSym<"_ZN2al12PadGyroAddon4calcEv">();
-}
-
-STAS::~STAS() = default;
 
 void STAS::updateDir() {
     sead::ScopedCurrentHeapSetter heapSetter(DevGuiManager::instance()->getHeap());

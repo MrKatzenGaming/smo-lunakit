@@ -186,7 +186,7 @@ private:
 class STAS : public al::NerveExecutor {
     SEAD_SINGLETON_DISPOSER(STAS);
     STAS();
-    ~STAS();
+    ~STAS() = default;
 
 public:
     bool tryLoadScript();
