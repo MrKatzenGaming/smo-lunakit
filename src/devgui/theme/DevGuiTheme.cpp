@@ -21,7 +21,7 @@ void DevGuiTheme::init() {
         FsHelper::LoadData loadData = {.path = filePath.cstr()};
 
         FsHelper::loadFileFromPath(loadData);
-        mThemes[i] = al::ByamlIter((u8*)loadData.buffer);
+        mThemes[i] = al::ByamlIter(loadData.buffer);
 
         if (mThemes[i].isExistKey("Flags")) {
             al::ByamlIter iterFlags = mThemes[i].getIterByKey("Flags");

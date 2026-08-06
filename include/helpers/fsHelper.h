@@ -8,7 +8,7 @@ namespace FsHelper {
 
 struct LoadData {
     const char* path;
-    void* buffer;
+    u8* buffer;
     long bufSize;
 };
 

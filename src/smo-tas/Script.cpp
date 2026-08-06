@@ -15,7 +15,7 @@ hk::Result Script::load(const char* path) {
     if (FsHelper::loadFileFromPath(data).failed())
         return hk::ResultFailed();
 
-    mData = (u8*)data.buffer;
+    mData = data.buffer;
     mCursor = 0;
     mFileSize = data.bufSize;
 
@@ -107,7 +107,7 @@ hk::Result Script::load(const char* path) {
 }
 
 void Script::unload() {
-    free(mData);
+    delete[] mData;
     mData = nullptr;
     mCursor = 0;
     mFileSize = 0;

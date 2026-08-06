@@ -1,7 +1,6 @@
 #include "helpers/fsHelper.h"
 
 #include "hk/Result.h"
-#include "hk/diag/diag.h"
 
 #include "nn/fs/fs_directories.h"
 #include "nn/fs/fs_files.h"
@@ -64,7 +63,7 @@ hk::Result loadFileFromPath(LoadData& loadData) {
     long size = 0;
     nn::fs::GetFileSize(&size, handle);
     loadData.bufSize = size;
-    loadData.buffer = malloc(size);
+    loadData.buffer = new u8[size];
 
     if (!loadData.buffer)
         return hk::ResultFailed();

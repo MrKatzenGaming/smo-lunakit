@@ -41,7 +41,7 @@ CustomStageResource::CustomStageResource(const char* resourcePath, const char* r
 
     FsHelper::loadFileFromPath(loadData);
 
-    mRootByaml = al::ByamlIter((u8*)loadData.buffer);
+    mRootByaml = al::ByamlIter(loadData.buffer);
 
     unsigned int size = mRootByaml.getSize();
     mCategories.allocBuffer(size, heap);

@@ -47,7 +47,7 @@ s32 Logger::init(sead::Heap* heap) {
     FsHelper::LoadData loadData = {.path = LOGGERSAVEPATH};
 
     FsHelper::loadFileFromPath(loadData);
-    al::ByamlIter root = al::ByamlIter((u8*)loadData.buffer);
+    al::ByamlIter root = al::ByamlIter(loadData.buffer);
 
     root.tryGetBoolByKey(&mIsDisabled, "Disable");
 
@@ -64,6 +64,8 @@ s32 Logger::init(sead::Heap* heap) {
 
     root.tryGetStringByKey(&ip, "IP");
     root.tryGetUIntByKey(&port, "Port");
+
+    delete[] loadData.buffer;
 
     nn::Result initResult = nn::socket::Initialize(socketPool, socketPoolSize, socketAllocPoolSize, 0xE);
 

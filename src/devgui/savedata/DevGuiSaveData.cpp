@@ -36,7 +36,7 @@ void DevGuiSaveData::read() {
     }
 
     FsHelper::loadFileFromPath(loadData);
-    al::ByamlIter root = al::ByamlIter((u8*)loadData.buffer);
+    al::ByamlIter root = al::ByamlIter(loadData.buffer);
 
     // Check if the program version matches the save file version, if so wipe the save and write a new one
     const char* saveVer;
@@ -142,6 +142,8 @@ void DevGuiSaveData::read() {
             inp->setPos2(pos2);
         }
     }
+
+    delete[] loadData.buffer;
 
     Logger::log("Successfully read save file information\n");
 }
@@ -283,6 +285,7 @@ void DevGuiSaveData::readImGuiLayout() {
     FsHelper::loadFileFromPath(loadData);
 
     ImGui::LoadIniSettingsFromMemory((const char*)loadData.buffer, loadData.bufSize);
+    delete[] loadData.buffer;
 }
 
 void DevGuiSaveData::writeImGuiLayout() {
