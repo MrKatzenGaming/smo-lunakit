@@ -194,14 +194,14 @@ void draw() {
 HkTrampoline GameSystemInit = [](TrampolineStatic(), GameSystem* thisPtr) -> void {
     nn::nifm::Initialize();
 
-    // creates heap for LunaKit at 9MB directly off the Stationed heap
-    lkHeap = sead::ExpHeap::create(9_MB, "LunaKitHeap", al::getStationedHeap(), 8, sead::Heap::HeapDirection::cHeapDirection_Forward, false);
+    // creates heap for LunaKit at 10MB directly off the Stationed heap
+    lkHeap = sead::ExpHeap::create(10_MB, "LunaKitHeap", al::getStationedHeap(), 8, sead::Heap::HeapDirection::cHeapDirection_Forward, false);
     lkHeap->enableLock(true);
-
-    imgui::setup(lkHeap);
 
     Logger::instance().init(lkHeap);
     DisableSocketInit.installAtSym<"_ZN2nn6socket10InitializeEPvmmi">();
+
+    imgui::setup(lkHeap);
 
     DevGuiManager::createInstance(lkHeap);
     DevGuiManager::instance()->init(lkHeap);

@@ -1,6 +1,5 @@
 #pragma once
 #include "hk/gfx/ImGuiBackendNvn.h"
-#include "hk/types.h"
 
 #include "sead/heap/seadExpHeap.h"
 #include "sead/heap/seadHeap.h"
@@ -19,7 +18,6 @@ namespace imgui {
 static sead::Heap* sImGuiHeap = nullptr;
 
 static void setupFont() {
-    // FsHelper::LoadData loadData = {.path = "content:/DebugData/Font/ChironHeiHK-Regular.ttf"};
     FsHelper::LoadData loadData = {.path = "sd:/LunaKit/ImGuiData/Font/SFMonoSquare-Regular.otf"};
 
     FsHelper::loadFileFromPath(loadData);
@@ -27,7 +25,7 @@ static void setupFont() {
     ImVector<ImWchar> ranges;
     ImFontGlyphRangesBuilder builder;
     builder.AddRanges(ImGui::GetIO().Fonts->GetGlyphRangesDefault());
-    // builder.AddRanges(ImGui::GetIO().Fonts->GetGlyphRangesJapanese());
+    builder.AddRanges(ImGui::GetIO().Fonts->GetGlyphRangesJapanese());
     builder.AddText(""
                     "！、"
                     "äüöß"
@@ -37,11 +35,10 @@ static void setupFont() {
     builder.BuildRanges(&ranges);
 
     ImFontConfig c{};
-    strncpy(c.Name, "ChironHeiHK-Regular", sizeof(c.Name) - 1);
+    strncpy(c.Name, "SFMonoSquare", sizeof(c.Name) - 1);
+    ImFont* font = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(loadData.buffer, loadData.bufSize, 17, &c, ranges.Data);
 
-    ImFont* font = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(loadData.buffer, loadData.bufSize, 17.0f, &c, ranges.Data);
-
-    hk::gfx::ImGuiBackendNvn::instance()->initTexture(false);
+    hk::gfx::ImGuiBackendNvn::instance()->initTexture(true);
     ImGui::GetIO().FontDefault = font;
 }
 
@@ -270,11 +267,11 @@ static void updateScale(bool isDocked, float dockedScale, float handheldScale) {
     ImGui::ScaleWindowsInViewport((ImGuiViewportP*)viewport, scale);
     prevScale = scale;
     // set font scale
-    io.FontGlobalScale = scale;
+    stylePtr.FontScaleMain = scale;
 }
 
 static void setup(sead::Heap* baseHeap) {
-    sImGuiHeap = sead::ExpHeap::create(4_MB, "ImGuiHeap", baseHeap, 8, sead::Heap::cHeapDirection_Forward, false);
+    sImGuiHeap = sead::ExpHeap::create(8_MB, "ImGuiHeap", baseHeap, 8, sead::Heap::cHeapDirection_Forward, true);
 
     hk::gfx::ImGuiBackendNvn* imgui = hk::gfx::ImGuiBackendNvn::instance();
 
@@ -284,7 +281,6 @@ static void setup(sead::Heap* baseHeap) {
     imgui->tryInitialize();
 
     ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_IsTouchScreen;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.BackendFlags |= ImGuiBackendFlags_HasGamepad;

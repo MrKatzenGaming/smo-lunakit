@@ -44,3 +44,5 @@ add_compile_definitions(SWITCH=1)
 if(DEBUG)
   target_compile_definitions(${PROJECT_NAME} PRIVATE SMOOHKDBG)
 endif()
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE IMGUI_USER_CONFIG="${CMAKE_CURRENT_SOURCE_DIR}/include/imconfig.h")
