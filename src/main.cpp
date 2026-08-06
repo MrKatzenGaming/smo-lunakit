@@ -137,11 +137,6 @@ HkTrampoline RedirectFileDevice = [](TrampolineStatic(), sead::FileDeviceMgr* th
 
 HkTrampoline FileLoaderLoadArc = [](TrampolineStatic(), al::FileLoader* thisPtr, sead::SafeString& path, const char* ext,
                                     sead::FileDevice* device) -> sead::ArchiveRes* {
-    // ResourceLoadLogger* log = ResourceLoadLogger::instance();
-
-    // if (log)
-    // log->pushTextToVector(path.cstr());
-
     sead::FileDevice* sdFileDevice = sead::FileDeviceMgr::instance()->findDevice("sd");
 
     if (sdFileDevice && sdFileDevice->isExistFile(path))
@@ -151,11 +146,6 @@ HkTrampoline FileLoaderLoadArc = [](TrampolineStatic(), al::FileLoader* thisPtr,
 };
 
 HkTrampoline FileLoaderIsExistFile = [](TrampolineStatic(), al::FileLoader* thisPtr, sead::SafeString& path, sead::FileDevice* device) -> bool {
-    // ResourceLoadLogger* log = ResourceLoadLogger::instance();
-
-    // if (log)
-    // log->pushTextToVector(path.cstr());
-
     sead::FileDevice* sdFileDevice = sead::FileDeviceMgr::instance()->findDevice("sd");
 
     if (sdFileDevice && sdFileDevice->isExistFile(path))
@@ -212,9 +202,6 @@ HkTrampoline GameSystemInit = [](TrampolineStatic(), GameSystem* thisPtr) -> voi
 
     Logger::instance().init(lkHeap);
     DisableSocketInit.installAtSym<"_ZN2nn6socket10InitializeEPvmmi">();
-
-    // ResourceLoadLogger::createInstance(lkHeap);
-    // ResourceLoadLogger::instance()->init(lkHeap);
 
     DevGuiManager::createInstance(lkHeap);
     DevGuiManager::instance()->init(lkHeap);

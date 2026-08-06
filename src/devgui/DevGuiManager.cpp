@@ -30,10 +30,7 @@
 #include "devgui/windows/DupHotkeys/WindowDupHotkeys.h"
 #include "devgui/windows/Editor/WindowEditor.h"
 #include "devgui/windows/FPS/WindowFPS.h"
-#include "devgui/windows/Graphics/WindowGBuffer.h"
-#include "devgui/windows/Graphics/WindowPresets.h"
 #include "devgui/windows/Info/WindowInfo.h"
-#include "devgui/windows/MemoryTools/WindowLoadLog.h"
 #include "devgui/windows/MemoryTools/WindowMemoryManage.h"
 #include "devgui/windows/MoonRefresh/WindowMoonRefresh.h"
 #include "devgui/windows/StagePause/WindowStagePause.h"
@@ -74,14 +71,7 @@ void DevGuiManager::createElements() {
     createWindow<WindowTASTools>(windowNameTasTools, false);
     createWindow<WindowInput>(windowNameInput, false);
     createWindow<WindowStagePause>(windowNameStagePause, false);
-
-    WindowGroup* memoryGroup = createWindowGroup("Memory Tools", 2);
-    // createWindow<WindowLoadLog>(windowNameLoadLog, false, memoryGroup);
-    createWindow<WindowMemoryManage>(windowNameMemoryManage, true, memoryGroup);
-
-    // WindowGroup* graphicsGroup = createWindowGroup("Graphics", 2);
-    // createWindow<WindowPresets>(windowNamePresets, false, graphicsGroup);
-    // createWindow<WindowGBuffer>(windowNameGbuffer, false, graphicsGroup);
+    createWindow<WindowMemoryManage>(windowNameMemoryManage, true);
 
     // Create all home menu tabs
     Logger::log("Constructing all home menu items\n");

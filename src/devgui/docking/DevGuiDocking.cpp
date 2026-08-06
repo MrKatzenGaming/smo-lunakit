@@ -2,16 +2,12 @@
 
 #include "devgui/DevGuiManager.h"
 #include "devgui/savedata/DevGuiSaveData.h"
-#include "helpers/ImGuiHelper.h"
 #include "imgui_internal.h"
 
 // Include different window classes in order to set up default anchoring placements
 #include "devgui/windows/ActorBrowse/WindowActorBrowse.h"
 #include "devgui/windows/Editor/WindowEditor.h"
-#include "devgui/windows/Graphics/WindowGBuffer.h"
-#include "devgui/windows/Graphics/WindowPresets.h"
 #include "devgui/windows/Info/WindowInfo.h"
-#include "devgui/windows/MemoryTools/WindowLoadLog.h"
 #include "devgui/windows/MemoryTools/WindowMemoryManage.h"
 #include "devgui/windows/StagePause/WindowStagePause.h"
 #include "devgui/windows/TAS/WindowTAS.h"
@@ -90,11 +86,8 @@ void DevGuiDocking::update() {
     if (!mParent->getSaveData()->isExistImGuiLayoutFile()) {
         // Create the default interface layout if no saved layout exists
         ImGui::DockBuilderDockWindow(windowNameMemoryManage, dockLU);
-        ImGui::DockBuilderDockWindow(windowNameLoadLog, dockLU);
         ImGui::DockBuilderDockWindow(windowNameParamEditor, dockLM);
         ImGui::DockBuilderDockWindow(windowNameInfo, dockLD);
-        ImGui::DockBuilderDockWindow(windowNamePresets, dockLM);
-        ImGui::DockBuilderDockWindow(windowNameGbuffer, dockLD);
         ImGui::DockBuilderDockWindow(windowNameactorBrowse, mDockRight);
         ImGui::DockBuilderDockWindow(windowNameTas, dockLM);
         ImGui::DockBuilderDockWindow(windowNameStagePause, dockLM);
