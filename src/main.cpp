@@ -62,12 +62,12 @@ void runTas(al::Scene* scene) {
     if (!tas || al::isNerve(scene, &StageSceneNrvStagePause::sInstance))
         return;
 
-    if (tas->isRunning() && tas->getSpeedUntilFrame() > 0 && !tas->hasSpeedUntilFrame()) {
-        if (tas->getFrameIndex() == tas->getSpeedUntilFrame()) {
+    if (tas->isRunning() && tas->mSpeedupFrame > 0 && !tas->mIsSpeedupDone) {
+        if (tas->getCurFrame() == tas->mSpeedupFrame) {
             WindowStagePause* win = DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause);
             if (win)
                 win->tryTogglePause();
-            tas->setHasSpeedUntilFrame(true);
+            tas->mIsSpeedupDone = true;
             return;
         }
     }
@@ -252,9 +252,9 @@ HkTrampoline RunTasHook = [](TrampolineStatic(), HakoniwaSequence* seq) -> void 
 
     WindowStagePause* win = DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause);
     STAS* tas = STAS::instance();
-    if (tas && win && tas->isRunning() && !win->isPausing() && !al::isLessEqualStep(seq, 2) && !tas->hasSpeedUntilFrame()) {
-        for (int i = 1; i < tas->getSpeed(); i++) {
-            if (tas->hasSpeedUntilFrame())
+    if (tas && win && tas->isRunning() && !win->isPausing() && !al::isLessEqualStep(seq, 2) && !tas->mIsSpeedupDone) {
+        for (int i = 1; i < tas->mSpeed; i++) {
+            if (tas->mIsSpeedupDone)
                 break;
             orig(seq);
             if (tryGetScene(seq) && al::isFirstStep(tryGetScene(seq)))

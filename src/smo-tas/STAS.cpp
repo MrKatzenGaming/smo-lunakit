@@ -12,13 +12,13 @@
 #include "sead/heap/seadHeapMgr.h"
 
 #include "Library/LiveActor/ActorPoseUtil.h"
+#include "Library/Scene/Scene.h"
 #include "al/Library/Base/StringUtil.h"
 #include "al/Library/Controller/InputFunction.h"
 #include "al/Library/Nerve/NerveSetupUtil.h"
 #include "al/Library/Nerve/NerveUtil.h"
 
 #include "game/Player/HackCap.h"
-#include "game/System/GameSystem.h"
 #include "game/Util/StageInputFunction.h"
 
 #include "custom/al/Pad/JoyPadAccelerometerAddon.h"
@@ -29,8 +29,10 @@
 
 #include "MapObj/ChangeStageInfo.h"
 #include "Player/PlayerActorHakoniwa.h"
+#include "Sequence/HakoniwaSequence.h"
 #include "System/GameDataHolder.h"
 #include "devgui/DevGuiManager.h"
+#include "devgui/windows/StagePause/WindowStagePause.h"
 #include "ghost/GhostManager.h"
 #include "heap/seadHeapMgr.h"
 #include "helpers/GetHelper.h"
@@ -38,111 +40,17 @@
 #include "logger/Logger.hpp"
 #include "math/seadMatrix.h"
 #include "math/seadQuat.h"
-
-hk::Result Script::load(const char* path) {
-    sead::ScopedCurrentHeapSetter s(mHeap);
-    FsHelper::LoadData data{.path = path};
-    if (FsHelper::loadFileFromPath(data).failed())
-        return hk::ResultFailed();
-
-    mData = (u8*)data.buffer;
-    mCursor = 0;
-    mFileSize = data.bufSize;
-
-    mFileHeader = *(FileHeader*)&mData[mCursor];
-    mCursor += sizeof(mFileHeader);
-
-    if (mFileHeader.magic[0] != 'S' || mFileHeader.magic[1] != 'T' || mFileHeader.magic[2] != 'A' || mFileHeader.magic[3] != 'S') {
-        unload();
-        Logger::log("Wrong Header\n");
-        return hk::ResultFailed();
-    }
-
-    if (mFileHeader.title_id != 0x0100000000010000) {
-        unload();
-        Logger::log("Wrong Title ID\n");
-        return hk::ResultFailed();
-    }
-
-    switch (mFileHeader.version) {
-    case 1: {
-        mScriptHeader.cmdCount = read<u32>();
-        mScriptHeader.frameCount = read<u32>();
-        mScriptHeader.editingSeconds = read<u32>();
-
-        for (int i = 0; i < 8; i++)
-            mScriptHeader.conTypes[i] = read<u8>();
-
-        mCursor += read<u16>();
-        mCursor += read<u32>();
-        mCursor += read<u32>();
-
-        mCursor = hk::alignUp(mCursor, 4);
-        return hk::ResultSuccess();
-    }
-    default:
-        Logger::log("Unsupported STAS version\n");
-        unload();
-        return hk::ResultNotImplemented();
-    }
-}
-
-void Script::unload() {
-    free(mData);
-    mCursor = 0;
-    mFileHeader = FileHeader();
-    mScriptHeader = ScriptHeader();
-}
-
-hk::ValueOrResult<Command*> Script::tryReadCommand() {
-    sead::ScopedCurrentHeapSetter s(DevGuiManager::instance()->getHeap());
-
-    // Logger::log("Cursor: %d, Data: %d\n", mCursor, mData ? 1 : 0);
-
-    if (mCursor >= mFileSize)
-        return hk::ResultOutOfRange();
-
-    CommandType type = read<CommandType>();
-    // Logger::log("Type: %d\n", type);
-
-    u64 size = read<u64>() & 0xffffffffffff;
-    mCursor -= 2;
-    // Logger::log("Size: %d\n", size);
-    if (size == 0)
-        return hk::ResultOutOfRange();
-
-    Command* c = new Command{.type = type, .size = size, .data = &mData[mCursor]};
-    mCursor += size;
-
-    return hk::ValueOrResult(c);
-}
+#include "smo-tas/Script.h"
 
 namespace {
 NERVE_IMPL(STAS, Update);
 NERVE_IMPL(STAS, Wait);
-NERVE_IMPL(STAS, Record);
 
-NERVES_MAKE_STRUCT(STAS, Update, Wait, Record)
+NERVES_MAKE_STRUCT(STAS, Update, Wait)
 
 }  // namespace
 
 SEAD_SINGLETON_DISPOSER_IMPL(STAS);
-
-#define hookCode(ORIG)                                                                                                                               \
-    STAS* tas = STAS::instance();                                                                                                                    \
-    if (tas && tas->isRunning())                                                                                                                     \
-        return;                                                                                                                                      \
-    orig(ORIG);
-
-HkTrampoline inputHookCont = [](TrampolineStatic(), al::NpadController* controller) -> void { hookCode(controller); };
-HkTrampoline inputHookAccel = [](TrampolineStatic(), al::JoyPadAccelerometerAddon* addon) -> void { hookCode(addon); };
-HkTrampoline inputHookGyro = [](TrampolineStatic(), al::PadGyroAddon* addon) -> void { hookCode(addon); };
-
-void STAS::installHooks() {
-    inputHookCont.installAtSym<"_ZN2al14NpadController9calcImpl_Ev">();
-    inputHookAccel.installAtSym<"_ZN2al24JoyPadAccelerometerAddon4calcEv">();
-    inputHookGyro.installAtSym<"_ZN2al12PadGyroAddon4calcEv">();
-}
 
 STAS::STAS() : al::NerveExecutor("STAS") {
     initNerve(&NrvSTAS.Wait, 0);
@@ -157,21 +65,18 @@ STAS::STAS() : al::NerveExecutor("STAS") {
 void STAS::updateDir() {
     sead::ScopedCurrentHeapSetter heapSetter(DevGuiManager::instance()->getHeap());
     nn::fs::DirectoryHandle handle = {};
-    nn::Result r = nn::fs::OpenDirectory(&handle, TAS_SCRIPTPATH, nn::fs::OpenDirectoryMode_File);
-    if (r.IsFailure())
+    if (nn::fs::OpenDirectory(&handle, TAS_SCRIPTPATH, nn::fs::OpenDirectoryMode_File).IsFailure())
         return;
 
     s64 entryCount = 0;
-    r = nn::fs::GetDirectoryEntryCount(&entryCount, handle);
-    if (r.IsFailure()) {
+    if (nn::fs::GetDirectoryEntryCount(&entryCount, handle).IsFailure()) {
         nn::fs::CloseDirectory(handle);
         return;
     }
 
     auto* entryBuffer = new nn::fs::DirectoryEntry[entryCount];
-    r = nn::fs::ReadDirectory(&entryCount, entryBuffer, handle, entryCount);
-    nn::fs::CloseDirectory(handle);
-    if (r.IsFailure()) {
+    if (nn::fs::ReadDirectory(&entryCount, entryBuffer, handle, entryCount).IsFailure()) {
+        nn::fs::CloseDirectory(handle);
         delete[] entryBuffer;
         return;
     }
@@ -181,15 +86,33 @@ void STAS::updateDir() {
     mEntryCount = entryCount;
 }
 
-bool STAS::tryStartScript() {
-    if (tryLoadScript()) {
-        startScript();
-        return true;
+hk::Result STAS::tryStartScript() {
+    if (hk::Result r = tryLoadScript(); r.failed())
+        return r;
+
+    // check if script uses 2 - player mode
+    HakoniwaSequence* seq = tryGetHakoniwaSequence();
+    if (!seq || !seq->mCurrentScene || !seq->mCurrentScene->mIsAlive)
+        return hk::ResultFailed();
+
+    if (mScript->is2P() != rs::isSeparatePlay(seq->mCurrentScene)) {
+        if (mScript->is2P()) {
+            if (!ControllerAppletFunction::connectControllerSeparatePlay(seq->mGamePadSystem))
+                return hk::ResultFailed();
+            rs::changeSeparatePlayMode(seq->mCurrentScene, true);
+        } else {
+            if (!ControllerAppletFunction::connectControllerSinglePlay(seq->mGamePadSystem))
+                return hk::ResultFailed();
+            rs::changeSeparatePlayMode(seq->mCurrentScene, false);
+        }
     }
-    return false;
+
+    al::setNerve(this, &NrvSTAS.Update);
+
+    return hk::ResultSuccess();
 }
 
-bool STAS::tryLoadScript() {
+hk::Result STAS::tryLoadScript() {
     sead::ScopedCurrentHeapSetter heapSetter(DevGuiManager::instance()->getHeap());
     endScript();
     updateDir();
@@ -201,58 +124,32 @@ bool STAS::tryLoadScript() {
         }
     }
     if (!isEntryExist)
-        return false;
-    sead::FormatFixedSafeString<256> scriptPath(TAS_SCRIPTPATH "/%s", mLoadedEntry.mName);
-
-    // if (!(al::isEndWithString(mLoadedEntry.mName, ".stas") || al::isEndWithString(mLoadedEntry.mName, ".STAS")))
-    //     return false;
+        return hk::ResultNotFound();
+    al::StringTmp<0x100> scriptPath(TAS_SCRIPTPATH "/%s", mLoadedEntry.mName);
 
     mScript = new Script(DevGuiManager::instance()->getHeap());
     if (mScript->load(scriptPath.cstr()).failed()) {
         endScript();
-        return false;
+        return hk::ResultFailed();
     };
 
     if (mScript->getPlayerCount() > 2) {
         Logger::log("Player Count > 2\n");
         endScript();
-        return false;
+        return hk::ResultInvalidArgument();
     }
 
-    return true;
-}
-
-void STAS::startScript() {
-    bool isWait = false;
-
-    // check if script uses 2-player mode
-    if (mScript->is2P() != rs::isSeparatePlay(mScene)) {
-        al::GamePadSystem* gamePadSystem = GameSystemFunction::getGameSystem()->mGamePadSystem;
-        if (mScript->is2P()) {
-            if (!ControllerAppletFunction::connectControllerSeparatePlay(gamePadSystem))
-                return;
-            rs::changeSeparatePlayMode(mScene, true);
-            isWait = true;
-        } else {
-            if (!ControllerAppletFunction::connectControllerSinglePlay(gamePadSystem))
-                return;
-            rs::changeSeparatePlayMode(mScene, false);
-            isWait = true;
-        }
-    }
-
-    al::setNerve(this, &NrvSTAS.Update);
+    return hk::ResultSuccess();
 }
 
 void STAS::endScript() {
     sead::ScopedCurrentHeapSetter heapSetter(DevGuiManager::instance()->getHeap());
     al::setNerve(this, &NrvSTAS.Wait);
-    mFrameIndex = -1;
+    mCurFrame = -1;
     mNextFrame = -1;
-    mPrevButtons[0] = 0;
-    mPrevButtons[1] = 0;
-    mIsUseAbsoluteJoystick = false;
-    delete[] mScript;
+    mPrevButtons.fill(0);
+    mIsUseAbsJoystick = false;
+    delete mScript;
 }
 
 sead::BitFlag32 convertButtonsSTASToSead(sead::BitFlag64 stasPad) {
@@ -292,26 +189,17 @@ sead::BitFlag32 convertButtonsSTASToSead(sead::BitFlag64 stasPad) {
                 mask.setBit(sead::Controller::cPadIdx_Right);
             else if (i == cSTAS_DDown)
                 mask.setBit(sead::Controller::cPadIdx_Down);
-            else if (i == cSTAS_LeftStickLeft)
-                mask.setBit(sead::Controller::cPadIdx_LeftStickLeft);
-            else if (i == cSTAS_LeftStickUp)
-                mask.setBit(sead::Controller::cPadIdx_LeftStickUp);
-            else if (i == cSTAS_LeftStickRight)
-                mask.setBit(sead::Controller::cPadIdx_LeftStickRight);
-            else if (i == cSTAS_LeftStickDown)
-                mask.setBit(sead::Controller::cPadIdx_LeftStickDown);
-            else if (i == cSTAS_RightStickLeft)
-                mask.setBit(sead::Controller::cPadIdx_RightStickLeft);
-            else if (i == cSTAS_RightStickUp)
-                mask.setBit(sead::Controller::cPadIdx_RightStickUp);
-            else if (i == cSTAS_RightStickRight)
-                mask.setBit(sead::Controller::cPadIdx_RightStickRight);
-            else if (i == cSTAS_RightStickDown)
-                mask.setBit(sead::Controller::cPadIdx_RightStickDown);
         }
     }
 
     return mask;
+}
+
+template <typename T>
+T read(u8* src, u64* cursor) {
+    T data = *(T*)&src[*cursor];
+    *cursor += sizeof(T);
+    return data;
 }
 
 void STAS::applyCommand(Command* cmd) {
@@ -320,14 +208,20 @@ void STAS::applyCommand(Command* cmd) {
     switch (cmd->type) {
     case CommandType::FRAME: {
         mNextFrame = ((CmdFrame*)cmd->data)->frame;
-
         break;
     }
+
     case CommandType::CONTROLLER: {
         CmdController c = *(CmdController*)cmd->data;
 
+        if (c.player > 1)
+            break;
+
         sead::ControllerMgr* controllerMgr = sead::ControllerMgr::instance();
         auto* controller = (al::NpadController*)controllerMgr->getController(al::getPlayerControllerPort(c.player));
+
+        if (!controller)
+            break;
 
         controller->mLeftStick = {(f32)c.stickL.x / 32767.f, (f32)c.stickL.y / 32767.f};
         controller->mRightStick = {(f32)c.stickR.x / 32767.f, (f32)c.stickR.y / 32767.f};
@@ -342,15 +236,22 @@ void STAS::applyCommand(Command* cmd) {
         mPrevButtons[c.player] = buttons;
 
         if (controller->mPadTrig.isOnBit(sead::Controller::cPadIdx_1 /*Left Stick*/))
-            setIsUseAbsoluteJoystick(!isUseAbsoluteJoystick());
+            mIsUseAbsJoystick = !mIsUseAbsJoystick;
 
         break;
     }
+
     case CommandType::MOTION: {
         CmdMotion c = *(CmdMotion*)cmd->data;
 
+        if (c.player > 1)
+            break;
+
         sead::ControllerMgr* controllerMgr = sead::ControllerMgr::instance();
         auto* controller = (al::NpadController*)controllerMgr->getController(al::getPlayerControllerPort(c.player));
+
+        if (!controller)
+            break;
 
         controller->mPadAccelerationDeviceNum = 2;
 
@@ -365,8 +266,10 @@ void STAS::applyCommand(Command* cmd) {
             accelLeft->mAcceleration = c.accel;
             gyroLeft->mAngularVel = c.gyro;
             gyroLeft->mDirection = sead::Matrix33f::ident;
+
             if (c.conId != 2)
                 break;
+            [[fallthrough]];
         case 1:
             accelRight->mAcceleration = c.accel;
             gyroRight->mAngularVel = c.gyro;
@@ -379,14 +282,18 @@ void STAS::applyCommand(Command* cmd) {
 
     case CommandType::GO: {
         CmdGo c;
-        u8* cursor = cmd->data;
-        c.scenario = cursor[0];
-        c.subScenario = cursor[1];
-        c.returnPrev = cursor[2];
-        c.stageLen = cursor[4];
-        c.stageName = (char*)&cursor[6];
-        c.entrLen = cursor[4 + 2 + c.stageLen];
-        c.entrId = (char*)&cursor[6 + c.stageLen + 2];
+        u8* data = cmd->data;
+        u64 cursor = 0;
+        c.scenario = read<s8>(data, &cursor);
+        c.subScenario = read<s8>(data, &cursor);
+        c.returnPrev = read<bool>(data, &cursor);
+        cursor++;
+        c.stageLen = read<u16>(data, &cursor);
+        c.stageName = (char*)&data[cursor];
+        cursor += c.stageLen;
+        cursor = hk::alignUp(cursor, 4);
+        c.entrLen = read<u16>(data, &cursor);
+        c.entrId = (char*)&data[cursor];
 
         GameDataHolder* holder = tryGetGameDataHolder();
         ChangeStageInfo info(holder, c.entrId, c.stageName, c.returnPrev, c.scenario, (ChangeStageInfo::SubScenarioType)c.subScenario);
@@ -424,9 +331,32 @@ void STAS::applyCommand(Command* cmd) {
         break;
     }
 
-    default:
-        Logger::log("Command %d unknown or not implemented\n", cmd->type);
+    case CommandType::ABSSTICK: {
+        CmdAbsStick* c = (CmdAbsStick*)cmd->data;
+        mIsUseAbsJoystick = c->enable;
         break;
+    }
+
+    case CommandType::SPEEDUP: {
+        CmdSpeedup* c = (CmdSpeedup*)cmd->data;
+        mSpeed = c->speed;
+        break;
+    }
+
+    case CommandType::PAUSE: {
+        WindowStagePause* win = (WindowStagePause*)DevGuiManager::instance()->getWindow(windowNameStagePause);
+        win->requestPause();
+        break;
+    }
+
+    case CommandType::COMMENT:
+    case CommandType::INVALID:
+        break;
+
+    default: {
+        Logger::log("Command 0x%04X unknown or not implemented\n", cmd->type);
+        break;
+    }
     }
     delete cmd;
 }
@@ -444,31 +374,39 @@ void STAS::exeUpdate() {
         }
     }
 
-    while (mFrameIndex <= mScript->getFrames() && mFrameIndex >= mNextFrame) {
-        hk::ValueOrResult<Command*> cmdR = mScript->tryReadCommand();
-        if (!cmdR.hasValue())
+    while (mCurFrame <= mScript->getFrames() && mCurFrame >= mNextFrame) {
+        hk::ValueOrResult<Command*> cmd = mScript->tryReadCommand();
+        if (!cmd.hasValue())
             break;
-
-        Command* cmd = cmdR.getInnerValue();
-        applyCommand(cmd);
+        applyCommand(cmd.getInnerValue());
     }
 
-    if (mFrameIndex >= mScript->getFrames()) {
+    if (mCurFrame >= mScript->getFrames()) {
         auto* ghostMgr = GhostManager::instance();
         if (ghostMgr->isRecording())
             ghostMgr->setNerveRecordEnd();
-        // Logger::log("Ended Script on Step: %d\n", al::getNerveStep(this));
-        // al::setNerve(this, &NrvTASWait);
         endScript();
         return;
     }
-    mFrameIndex++;
+    mCurFrame++;
 }
-
-void STAS::exeWait() {}
-
-void STAS::exeRecord() {}
 
 bool STAS::isRunning() {
     return al::isNerve(this, &NrvSTAS.Update);
+}
+
+#define hookCode(ORIG)                                                                                                                               \
+    STAS* tas = STAS::instance();                                                                                                                    \
+    if (tas && tas->isRunning())                                                                                                                     \
+        return;                                                                                                                                      \
+    orig(ORIG);
+
+HkTrampoline inputHookCont = [](TrampolineStatic(), al::NpadController* controller) -> void { hookCode(controller); };
+HkTrampoline inputHookAccel = [](TrampolineStatic(), al::JoyPadAccelerometerAddon* addon) -> void { hookCode(addon); };
+HkTrampoline inputHookGyro = [](TrampolineStatic(), al::PadGyroAddon* addon) -> void { hookCode(addon); };
+
+void STAS::installHooks() {
+    inputHookCont.installAtSym<"_ZN2al14NpadController9calcImpl_Ev">();
+    inputHookAccel.installAtSym<"_ZN2al24JoyPadAccelerometerAddon4calcEv">();
+    inputHookGyro.installAtSym<"_ZN2al12PadGyroAddon4calcEv">();
 }

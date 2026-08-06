@@ -144,7 +144,7 @@ void GhostManager::exeRecord() {
         return;
     Logger::log("    Player exists!\n");
     int step = al::getNerveStep(this);
-    if (tas->getFrameIndex() >= tas->getFrameCount()) {
+    if (tas->getCurFrame() >= tas->getFrameCount()) {
         al::setNerve(this, &NrvGhostManager.RecordEnd);
         return;
     }

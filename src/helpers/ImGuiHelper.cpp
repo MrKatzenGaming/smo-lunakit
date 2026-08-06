@@ -37,4 +37,12 @@ void Quat(const char* tooltip, sead::Quatf* quat) {
         ImGui::SetTooltip("%s", tooltip);
 }
 
+bool DragUInt(const char* label, u32* v, float v_speed, u32 v_min, u32 v_max, const char* format, ImGuiSliderFlags flags) {
+    return ImGui::DragScalar(label, ImGuiDataType_U32, v, v_speed, &v_min, &v_max, format, flags);
+}
+
+bool SliderUInt(const char* label, u32* v, u32 v_min, u32 v_max, const char* format, ImGuiSliderFlags flags) {
+    return ImGui::SliderScalar(label, ImGuiDataType_U32, v, &v_min, &v_max, format, flags);
+}
+
 }  // namespace ImGuiHelper

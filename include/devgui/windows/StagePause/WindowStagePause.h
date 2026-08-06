@@ -17,6 +17,7 @@ private:
     bool mIsPausing = false;
     bool mIsUseBuffer = false;
     bool mCamDuringPause = false;
+    bool mShouldPause = false;
     void runFrame();
 
 public:
@@ -33,4 +34,6 @@ public:
     bool isPausing() { return mIsPausing; };
 
     bool isCamDuringPause() { return mCamDuringPause; };
+
+    void requestPause() { mShouldPause = true; };
 };

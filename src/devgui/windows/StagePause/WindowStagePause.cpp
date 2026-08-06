@@ -85,6 +85,10 @@ void WindowStagePause::updateWin() {
     WindowBase::updateWin();
     tryAdvanceFrame();
     runFrame();
+    if (mShouldPause && !mIsPausing) {
+        mShouldPause = false;
+        tryTogglePause();
+    }
 }
 
 void WindowStagePause::tryTogglePause() {
