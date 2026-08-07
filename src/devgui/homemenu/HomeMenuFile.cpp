@@ -1,6 +1,10 @@
 #include "devgui/homemenu/HomeMenuFile.h"
 
+#include "game/Scene/StageSceneStateOption.h"
+#include "game/Scene/StageSceneStatePauseMenu.h"
 #include "game/System/SaveDataAccessFunction.h"
+
+#include "custom/game/Scene/StageScene.h"
 
 #include "devgui/DevGuiManager.h"
 #include "helpers/GetHelper.h"
@@ -17,12 +21,15 @@ void HomeMenuFile::updateMenuDisplay() {
 
     bool isSaved = SaveDataAccessFunction::isDoneSave(holder);
 
-    // Quick save file loader (Maybe add custom save archive support?)
-    if (addMenu("Load (Incomplete)", false)) {
+    // Quick save file loader
+    if (addMenu("Load", true)) {
         SaveFileIdx targetIdx = selectSaveFile(holder, true);
 
-        if (targetIdx != SaveFileIdx::NONE)
-            holder->requestSetPlayingFileId((int)targetIdx);
+        if (StageScene* scene = tryGetStageScene(); scene && targetIdx != SaveFileIdx::NONE) {
+            scene->mStagePauseMenu->mStateOption->mIsLoadData = true;
+            holder->requestSetPlayingFileId(targetIdx);
+            scene->kill();
+        }
 
         ImGui::EndMenu();
     }
