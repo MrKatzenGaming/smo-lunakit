@@ -15,7 +15,6 @@ LunaKit is a development tool / modification of Super Mario Odyssey designed to 
 - Extremely fast stage warping, including custom stages using [Custom Stage plugins](https://github.com/Amethyst-szs/smo-lunakit/wiki/Custom-Stage-Support)
 - Easy to make [Custom Theme plugins](https://github.com/Amethyst-szs/smo-lunakit/wiki/LunaKit-Theme-Plugins)
 ![The window menu open over Cascade Kingdom, showing the bult in themes](https://user-images.githubusercontent.com/62185604/232249852-e2e5ebaf-1bf7-4a01-bcdc-0c89fb13c6fd.png)
-- Automatically install new updates as they come out with a built in automatic updater
 - Highly modular and expandable code with a detailed [Wiki page](https://github.com/Amethyst-szs/smo-lunakit/wiki)
 
 ## How to use:
@@ -25,7 +24,6 @@ LunaKit is a development tool / modification of Super Mario Odyssey designed to 
 - Remove any previous mods that would cause conflicts
 - Download newest build from [releases](https://github.com/Amethyst-szs/smo-lunakit/releases/)
 - Drag and drop the included `atmosphere` and `LunaKit` folders onto the root of your SD card
-- Boot up game in docked mode *(not handhled!)*
 
 ### Installation on [Ryujinx](https://ryujinx.org/)
 - Enable mouse input in Ryujinx settings
@@ -36,7 +34,6 @@ LunaKit is a development tool / modification of Super Mario Odyssey designed to 
 
 ## Controls:
 - Open the interface by holding ZR + R and tapping L
-  - Dock the Nintendo Switch first, it must have been docked at least once in the current session to function. This bug will hopefully be fixed!
 - Hide windows by pressing L-Stick  
 - Mouse controls (RECOMMENDED)
   - Navigate interface with a mouse
@@ -48,27 +45,13 @@ LunaKit is a development tool / modification of Super Mario Odyssey designed to 
   - Change windows by holding Y and using shoulder buttons
 
 ## Building:
-- Requires running Linux (Ubuntu recommended)
-  - If you're running Windows, try [WSL](https://learn.microsoft.com/en-us/windows/wsl/install)!
-- Install [devkitPro](https://devkitpro.org/wiki/Getting_Started) with the switch-dev platform
-- Clone or fork this repository
-  - If using WSL, make sure to clone the repo inside your WSL directories! Using a folder on your windows machine with WSL drastically slows compile times
-- Open bash and run `make`
-  - To send to your switch (requires editing FPT_IP in makefile), run make send
-  - To increase core usage for compile, run make -j# (# for total cores to use)
+refer to [Hakkuns build instructions](sys/README.md#SETUP)
 
 ## Credits:
 - [Amethyst-szs](https://github.com/Amethyst-szs): LunaKit Creator
 - [CraftyBoss](https://github.com/CraftyBoss): SMO ExLaunch, ImGui, and more
 - [Mars](https://github.com/Mars2032): Referenced TAS Mod, Emotional support  
 - [DaveGamble/cJSON](https://github.com/DaveGamble/cJSON): C JSON Parser
-
-
-# Original SMO-Exlaunch-Base Description
-
-A base repository using exlaunch-cmake that contains code for modifying Super Mario Odyssey 1.0.
-
-## Credits
 
 - [Calypso](https://github.com/tetraxile/Calypso)
 - [exlaunch](https://github.com/shadowninja108/exlaunch/)
