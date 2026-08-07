@@ -88,6 +88,11 @@ struct CmdTouch {
     TouchEntry entries[];
 };
 
+struct CmdSaveFile {
+    s8 fileId = 0;
+    bool reload = false;
+};
+
 struct CmdGo {
     s8 scenario = 0;
     s8 subScenario = 0;

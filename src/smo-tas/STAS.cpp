@@ -29,8 +29,11 @@
 
 #include "MapObj/ChangeStageInfo.h"
 #include "Player/PlayerActorHakoniwa.h"
+#include "Scene/StageSceneStateOption.h"
+#include "Scene/StageSceneStatePauseMenu.h"
 #include "Sequence/HakoniwaSequence.h"
 #include "System/GameDataHolder.h"
+#include "System/GameDataHolderAccessor.h"
 #include "devgui/DevGuiManager.h"
 #include "devgui/windows/StagePause/WindowStagePause.h"
 #include "ghost/GhostManager.h"
@@ -276,6 +279,18 @@ void STAS::applyCommand(Command* cmd) {
             gyroRight->mDirection = sead::Matrix33f::ident;
 
             break;
+        }
+        break;
+    }
+
+    case CommandType::SAVEFILE: {
+        CmdSaveFile* c = (CmdSaveFile*)cmd->data;
+        if (StageScene* scene = tryGetStageScene(); scene) {
+            if (GameDataHolder* holder = tryGetGameDataHolder(); holder) {
+                scene->mStagePauseMenu->mStateOption->mIsLoadData = true;
+                holder->requestSetPlayingFileId(c->reload ? holder->getPlayingFileId() : c->fileId);
+                scene->kill();
+            }
         }
         break;
     }
