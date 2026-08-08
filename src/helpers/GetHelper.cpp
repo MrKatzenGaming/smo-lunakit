@@ -253,8 +253,8 @@ const sead::FixedSafeString<128> getStageNameFromHakoniwa(HakoniwaSequence* seq)
         return sead::FixedSafeString<128>("");
 
     if (isVersion120()) {
-        HakoniwaSequence12* seq = static_cast<HakoniwaSequence12*>(seq);
-        return seq->mStageName;
+        HakoniwaSequence12* seq12 = reinterpret_cast<HakoniwaSequence12*>(seq);
+        return seq12->mStageName;
     } else {
         return seq->mStageName;
     }
@@ -265,8 +265,8 @@ s32 getScenarioFromHakoniwa(HakoniwaSequence* seq) {
         return -1;
 
     if (isVersion120()) {
-        HakoniwaSequence12* seq = static_cast<HakoniwaSequence12*>(seq);
-        return seq->mNextScenarioNum;
+        HakoniwaSequence12* seq12 = reinterpret_cast<HakoniwaSequence12*>(seq);
+        return seq12->mNextScenarioNum;
     } else {
         return seq->mNextScenarioNum;
     }

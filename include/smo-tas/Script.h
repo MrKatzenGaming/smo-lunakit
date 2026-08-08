@@ -44,6 +44,7 @@ enum class CommandType : u16 {
     ABSSTICK = 0xc004,
     SPEEDUP = 0xc005,
     PAUSE = 0xc006,
+    DEMO = 0xc007,
 
     INVALID = 0xffff
 };
@@ -115,6 +116,10 @@ struct CmdAbsStick {
 
 struct CmdSpeedup {
     u8 speed = 1;
+};
+
+struct CmdDemo {
+    bool enable = false;
 };
 
 class Script {

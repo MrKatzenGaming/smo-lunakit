@@ -364,6 +364,18 @@ void STAS::applyCommand(Command* cmd) {
         break;
     }
 
+    case CommandType::DEMO: {
+        CmdDemo* c = (CmdDemo*)cmd->data;
+        PlayerActorHakoniwa* p = tryGetPlayerActorHakoniwa();
+        if (p) {
+            if (c->enable)
+                p->startDemoPuppetable();
+            else
+                p->endDemoPuppetable();
+        }
+        break;
+    }
+
     case CommandType::COMMENT:
     case CommandType::INVALID:
         break;
