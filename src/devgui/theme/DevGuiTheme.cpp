@@ -118,6 +118,7 @@ void DevGuiTheme::tryUpdateTheme() {
     style.Colors[ImGuiCol_ScrollbarGrabActive] = HighlightInteract;
 
     style.Colors[ImGuiCol_CheckMark] = HighlightInteract;
+    style.Colors[ImGuiCol_CheckboxSelectedBg] = Primary;
 
     style.Colors[ImGuiCol_SliderGrab] = PrimaryInteract;
     style.Colors[ImGuiCol_SliderGrabActive] = HighlightInteract;
