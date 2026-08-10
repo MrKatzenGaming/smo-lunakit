@@ -3,10 +3,9 @@ set(LLDFLAGS --no-demangle --gc-sections --error-limit=0)
 
 set(OPTIMIZE_OPTIONS_DEBUG -O2 -gdwarf-4)
 set(OPTIMIZE_OPTIONS_RELEASE -O3 -ffast-math -flto)
-set(WARN_OPTIONS -Werror=return-type -Wno-invalid-offsetof -Wno-unqualified-std-cast-call -Wno-macro-redefined -Wno-deprecated-declarations)
+set(WARN_OPTIONS -Werror=return-type -Wno-invalid-offsetof -Wno-main -Wno-unqualified-std-cast-call -Wno-macro-redefined -Wno-deprecated-declarations)
 
 set(INCLUDES lib lib/imgui include)
-set(DEFINITIONS IMGUI_DISABLE_TTY_FUNCTIONS IMGUI_DISABLE_FILE_FUNCTIONS)
 set(EXCEPTION_FLAGS -fno-exceptions)
 
 set(ASM_OPTIONS "")
@@ -16,15 +15,18 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 set(IS_32_BIT FALSE)
-set(TARGET_IS_STATIC FALSE)
+set(HAKKUN_TARGET MODULE)
+
 set(MODULE_NAME ${PROJNAME})
 set(TITLE_ID 0x0100000000010000)
 set(MODULE_BINARY subsdk4)
-set(SDK_PAST_1900 FALSE)
-set(USE_SAIL TRUE)
 
-set(TRAMPOLINE_LEVEL 1)
+set(TARGET_IS_STATIC FALSE)
+set(SDK_PAST_1900 FALSE)
+
+set(USE_ADVANCED_RESULT TRUE)
+set(USE_SAIL TRUE)
 set(BAKE_SYMBOLS FALSE)
+set(TRAMPOLINE_LEVEL 1)
 
 set(HAKKUN_ADDONS Nvn ImGui HeapSourceDynamic)
-set(HAKKUN_DEBUGRENDERER_VTXBUFFER_SIZE 0x8000)

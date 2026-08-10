@@ -1,12 +1,9 @@
-.PHONY: debug clean
-FTP_IP ?= 192.168.178.78 # put console IP here
+.PHONY: debug clean format check_includes
 
-DEBUGLOG ?= 1 # defaults to disable debug logger 
-
-PROJNAME ?= smo-lunakit
+DEBUGLOG ?= 1 
 
 debug: format
-	cmake -DCMAKE_BUILD_TYPE=Debug -DDEBUG=TRUE -DPROJNAME=$(PROJNAME) -DDEBUGLOG=$(DEBUGLOG) -S . -B build && $(MAKE) -C build
+	cmake -DCMAKE_BUILD_TYPE=Debug -DDEBUGLOG=$(DEBUGLOG) -S . -B build && $(MAKE) -C build
 
 clean:
 	rm -rf build
@@ -14,3 +11,7 @@ clean:
 format:
 	clear
 	find src include lib/custom -name "*.c" -o -name "*.cpp" -o -name "*.hpp" -o -name "*.h" | xargs clang-format -i
+
+check_includes:
+	-clear
+	python3 check_includes.py
