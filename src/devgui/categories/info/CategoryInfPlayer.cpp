@@ -24,7 +24,7 @@
 #include <typeinfo>
 
 #include "devgui/DevGuiManager.h"
-#include "devgui/windows/StagePause/WindowStagePause.h"
+#include "devgui/windows/WindowStagePause.h"
 #include "helpers/GetHelper.h"
 #include "helpers/ImGuiHelper.h"
 #include "helpers/MathHelper.h"

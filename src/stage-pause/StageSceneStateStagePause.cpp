@@ -12,7 +12,7 @@
 #include "custom/al/graphics/GraphicsFunction.h"
 
 #include "devgui/DevGuiManager.h"
-#include "devgui/windows/StagePause/WindowStagePause.h"
+#include "devgui/windows/WindowStagePause.h"
 
 namespace ScenePlayerFunction {
 void startSnapShotMode(const al::Scene*);

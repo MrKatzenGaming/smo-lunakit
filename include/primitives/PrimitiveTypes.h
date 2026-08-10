@@ -4,10 +4,10 @@
 
 #include "sead/gfx/seadColor.h"
 
-#include "Library/LiveActor/LiveActor.h"
-#include "Library/Rail/Rail.h"
-#include "Project/Rail/BezierCurve.h"
 #include "al/Library/Collision/CollisionPartsTriangle.h"
+#include "al/Library/LiveActor/LiveActor.h"
+#include "al/Library/Rail/Rail.h"
+#include "al/Project/Rail/BezierCurve.h"
 
 enum PrimitiveTypes { PRIM_NONE = -1, PRIM_POINT, PRIM_LINE, PRIM_AXIS, PRIM_AREA, PRIM_TRIANGLE, PRIM_HIT_SENSOR, PRIM_BEZIER_CURVE, PRIM_RAIL };
 

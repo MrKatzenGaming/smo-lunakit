@@ -10,7 +10,6 @@ CategoryInfStats::CategoryInfStats(const char* catName, const char* catDesc, sea
 
 void CategoryInfStats::updateCatDisplay() {
     StageScene* stageScene = tryGetStageScene();
-    // GameDataHolderAccessor* accessor = tryGetGameDataHolderAccess();
 
     if (!stageScene) {
         ImGui::Text("StageScene does not exist!");

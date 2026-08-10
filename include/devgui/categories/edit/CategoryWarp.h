@@ -1,7 +1,6 @@
 #pragma once
 
 #include "sead/math/seadQuat.h"
-#include "sead/math/seadVector.h"
 
 #include "game/Player/PlayerActorHakoniwa.h"
 

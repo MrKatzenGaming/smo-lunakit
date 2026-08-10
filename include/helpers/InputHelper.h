@@ -1,7 +1,7 @@
 #pragma once
 #include "nn/hid.h"
 
-#include "helpers/ImGuiHelper.h"
+#include "sead/math/seadVector.h"  // IWYU pragma: keep
 
 class InputHelper {
 public:

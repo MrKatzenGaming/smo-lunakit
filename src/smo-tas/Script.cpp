@@ -1,12 +1,12 @@
 #include "smo-tas/Script.h"
 
 #include "hk/Result.h"
-#include "hk/diag/diag.h"
 #include "hk/prim/traits/Integer.h"
 
 #include "sead/heap/seadHeapMgr.h"
 
 #include "devgui/DevGuiManager.h"
+#include "helpers/fsHelper.h"
 #include "logger/Logger.hpp"
 
 hk::Result Script::load(const char* path) {

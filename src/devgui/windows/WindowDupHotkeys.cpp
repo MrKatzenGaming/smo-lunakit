@@ -1,4 +1,4 @@
-#include "devgui/windows/DupHotkeys/WindowDupHotkeys.h"
+#include "devgui/windows/WindowDupHotkeys.h"
 
 #include "devgui/DevGuiManager.h"
 #include "devgui/categories/hotkeys/CategoryDupKill.h"

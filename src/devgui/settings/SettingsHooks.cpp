@@ -26,7 +26,7 @@
 
 #include "devgui/DevGuiManager.h"
 #include "devgui/settings/DevGuiSettings.h"
-#include "devgui/windows/MoonRefresh/WindowMoonRefresh.h"
+#include "devgui/windows/WindowMoonRefresh.h"
 #include "helpers/GetHelper.h"
 #include "helpers/InputHelper.h"
 

@@ -1,5 +1,5 @@
 #include "devgui/DevGuiManager.h"
-#include "devgui/windows/ActorBrowse/WindowActorBrowse.h"
+#include "devgui/windows/WindowActorBrowse.h"
 #include "imgui.h"
 
 void WindowActorBrowse::childButtonHeader(al::Scene* scene) {

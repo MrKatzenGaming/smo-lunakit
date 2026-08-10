@@ -1,7 +1,5 @@
 #pragma once
 
-#include "nn/types.h"
-
 #include "devgui/homemenu/HomeMenuBase.h"
 
 class HomeMenuExtra : public HomeMenuBase {

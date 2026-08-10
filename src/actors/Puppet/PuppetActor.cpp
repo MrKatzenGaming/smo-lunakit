@@ -25,7 +25,6 @@
 #include <cstddef>
 
 #include "actors/Puppet/PuppetCapActor.h"
-#include "helpers/FunctionHelper.h"
 
 static const char* subActorNames[] = {
     "顔",    // Face

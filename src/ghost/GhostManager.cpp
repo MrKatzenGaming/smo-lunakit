@@ -110,13 +110,13 @@ void GhostManager::tryStartReplay() {
         nn::fs::DirectoryEntry& curEntry = mEntries[i];
         sead::FormatFixedSafeString<256> scriptPath(REPLAY_SAVEPATH "/%s", curEntry.mName);
         nn::fs::FileHandle handle;
-        nn::Result r = nn::fs::OpenFile(&handle, scriptPath.cstr(), nn::fs::OpenMode::OpenMode_Read);
-        if (r.IsFailure())
+        hk::Result r = nn::fs::OpenFile(&handle, scriptPath.cstr(), nn::fs::OpenMode::OpenMode_Read).GetInnerValueForDebug();
+        if (r.failed())
             continue;
         auto* frames = (ReplayFrame*)new u8[curEntry.mFileSize];
-        r = nn::fs::ReadFile(handle, 0, frames, curEntry.mFileSize);
+        r = nn::fs::ReadFile(handle, 0, frames, curEntry.mFileSize).GetInnerValueForDebug();
         nn::fs::CloseFile(handle);
-        if (r.IsFailure()) {
+        if (r.failed()) {
             delete[] frames;
             continue;
         }
@@ -182,19 +182,19 @@ void GhostManager::exeRecordEnd() {
 void GhostManager::updateDir() {
     sead::ScopedCurrentHeapSetter heapSetter(DevGuiManager::instance()->getHeap());
     nn::fs::DirectoryHandle handle = {};
-    nn::Result r = nn::fs::OpenDirectory(&handle, REPLAY_SAVEPATH, nn::fs::OpenDirectoryMode_File);
-    if (r.IsFailure())
+    hk::Result r = nn::fs::OpenDirectory(&handle, REPLAY_SAVEPATH, nn::fs::OpenDirectoryMode_File).GetInnerValueForDebug();
+    if (r.failed())
         return;
     s64 entryCount = 0;
-    r = nn::fs::GetDirectoryEntryCount(&entryCount, handle);
-    if (r.IsFailure()) {
+    r = nn::fs::GetDirectoryEntryCount(&entryCount, handle).GetInnerValueForDebug();
+    if (r.failed()) {
         nn::fs::CloseDirectory(handle);
         return;
     }
     auto* entryBuffer = new nn::fs::DirectoryEntry[entryCount];
-    r = nn::fs::ReadDirectory(&entryCount, entryBuffer, handle, entryCount);
+    r = nn::fs::ReadDirectory(&entryCount, entryBuffer, handle, entryCount).GetInnerValueForDebug();
     nn::fs::CloseDirectory(handle);
-    if (r.IsFailure()) {
+    if (r.failed()) {
         delete[] entryBuffer;
         return;
     }
@@ -205,7 +205,7 @@ void GhostManager::updateDir() {
     mActiveReplays = new bool[entryCount];
 }
 
-nn::Result GhostManager::write() {
+hk::Result GhostManager::write() {
     return FsHelper::writeFileToPath(mFrames, sizeof(ReplayFrame) * mFrameLength, mReplayPath.cstr());
 }
 

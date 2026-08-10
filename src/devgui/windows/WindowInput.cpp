@@ -1,4 +1,4 @@
-#include "devgui/windows/input/WindowInput.h"
+#include "devgui/windows/WindowInput.h"
 
 #include "sead/controller/seadControllerMgr.h"
 #include "sead/prim/seadBitFlag.h"
@@ -7,10 +7,9 @@
 
 #include "devgui/DevGuiManager.h"
 #include "devgui/savedata/DevGuiSaveData.h"
-#include "devgui/windows/StagePause/WindowStagePause.h"
 #include "devgui/windows/WindowBase.h"
+#include "devgui/windows/WindowStagePause.h"
 #include "imgui.h"
-#include "smo-tas/STAS.h"
 
 WindowInput::WindowInput(DevGuiManager* parent, const char* winName, bool isActiveByDefault) : WindowBase(parent, winName, isActiveByDefault) {}
 

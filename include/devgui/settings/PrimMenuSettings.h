@@ -2,8 +2,6 @@
 
 #include "sead/container/seadPtrArray.h"
 
-#include "logger/Logger.hpp"
-
 class DevGuiManager;  // Forward declaration (include is in cpp file)
 
 enum PrimMenuCategories {

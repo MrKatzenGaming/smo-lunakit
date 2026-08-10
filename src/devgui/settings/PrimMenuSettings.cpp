@@ -3,6 +3,7 @@
 #include "al/Library/Base/StringUtil.h"
 
 #include "devgui/DevGuiManager.h"
+#include "logger/Logger.hpp"
 
 PrimMenuSettings::PrimMenuSettings(DevGuiManager* parent) {
     Logger::log("Starting primitive settings constructor\n");

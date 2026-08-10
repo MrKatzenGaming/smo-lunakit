@@ -1,8 +1,7 @@
-#include "devgui/windows/MoonRefresh/WindowMoonRefresh.h"
+#include "devgui/windows/WindowMoonRefresh.h"
 
 #include "devgui/DevGuiManager.h"
 #include "devgui/savedata/DevGuiSaveData.h"
-#include "helpers/GetHelper.h"
 #include "imgui.h"
 
 WindowMoonRefresh::WindowMoonRefresh(DevGuiManager* parent, const char* winName, bool isActiveByDefault)

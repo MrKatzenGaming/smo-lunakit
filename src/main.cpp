@@ -44,12 +44,13 @@
 #include "custom/game/Scene/StageScene.h"
 
 #include <cstring>
+#include <cxxabi.h>
 
 #include "Imgui.hpp"
 #include "devgui/DevGuiHooks.h"
 #include "devgui/DevGuiManager.h"
-#include "devgui/windows/StagePause/WindowStagePause.h"
-#include "devgui/windows/input/WindowInput.h"
+#include "devgui/windows/WindowInput.h"
+#include "devgui/windows/WindowStagePause.h"
 #include "ghost/GhostManager.h"
 #include "helpers/GetHelper.h"
 #include "helpers/InputHelper.h"
@@ -80,7 +81,6 @@ void runTas(al::Scene* scene) {
     ghostManager->updateGhostNerve();
 }
 
-#include <cxxabi.h>
 HkTrampoline RunTasHookScene = [](TrampolineStatic(), al::Scene* scene) -> void {
     int status;
     al::NerveKeeper* sceneNerveKeeper = scene->getNerveKeeper();

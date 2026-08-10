@@ -1,15 +1,11 @@
 #pragma once
 
-#include "nn/types.h"
-#include "vapours/results.hpp"
+#include "hk/Result.h"
+#include "hk/prim/traits/Integer.h"
 
-#include "sead/heap/seadDisposer.h"
-
-#include "al/Library/Yaml/ByamlIter.h"
-#include "al/Library/Yaml/Writer/ByamlWriter.h"
+#include "sead/heap/seadHeap.h"
 
 #include "devgui/savedata/DevGuiWriteStream.h"
-#include "helpers/fsHelper.h"
 
 #define LOGGERSAVEPATH "sd:/LunaKit/LKData/logger.byml"
 
@@ -21,12 +17,12 @@ public:
 
     static Logger& instance();
 
-    s32 init(sead::Heap* heap);
+    hk::Result init(sead::Heap* heap);
 
     static void log(const char* fmt, ...);
     static void log(const char* fmt, va_list args);
 
-    s32 writeLoggerSave(sead::Heap* heap, bool disable, const char* ip, u32 port);
+    hk::Result writeLoggerSave(sead::Heap* heap, bool disable, const char* ip, u32 port);
 
     static bool getDisabledState() { return instance().mIsDisabled; }
 

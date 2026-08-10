@@ -15,16 +15,15 @@
 
 #pragma once
 
-#define THEMEPATH "sd:/LunaKit/LKData/Themes/"
+#include "nn/fs/fs_types.h"
 
-#include "nn/fs/fs_directories.h"
-#include "nn/oe.h"
-
-#include "Library/Yaml/ByamlIter.h"
+#include "al/Library/Yaml/ByamlIter.h"
 
 class DevGuiManager;  // Forward declaration (include is in cpp file)
 class ImVec2;         // Forward declaration
 class ImVec4;         // Forward declaration
+
+#define THEMEPATH "sd:/LunaKit/LKData/Themes/"
 
 class DevGuiTheme {
 public:

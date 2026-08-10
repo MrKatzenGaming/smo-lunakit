@@ -13,13 +13,15 @@
 
 #pragma once
 
-#define SAVEPATH "sd:/LunaKit/LKData/data.byml"
-#define IMGUILAYOUTPATH "sd:/LunaKit/LKData/imgui_layout.ini"
+#include "hk/Result.h"
 
-#include "DevGuiWriteStream.h"
-#include "devgui/windows/ActorBrowse/WindowActorBrowse.h"
+#include "devgui/savedata/DevGuiWriteStream.h"
+#include "devgui/windows/WindowActorBrowse.h"
 
 class DevGuiManager;  // Forward declaration (include is in cpp file)
+
+#define SAVEPATH "sd:/LunaKit/LKData/data.byml"
+#define IMGUILAYOUTPATH "sd:/LunaKit/LKData/imgui_layout.ini"
 
 class DevGuiSaveData {
 public:
@@ -59,7 +61,7 @@ public:
     bool isExistImGuiLayoutFile();
 
 private:
-    nn::Result write();  // Writes the save data to the SD card
+    hk::Result write();  // Writes the save data to the SD card
 
     bool mIsQueueSave = false;
     float mSaveTimer = 0.f;

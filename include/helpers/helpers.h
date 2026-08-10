@@ -1,8 +1,5 @@
 #pragma once
 
-#include "helpers/InputHelper.h"
-#include "helpers/fsHelper.h"
-
 __attribute__((used)) static const char* updateStatusList[] = {"Broken",          "Activated",        "First Launch",      "Cloud Landing",
                                                                "Crashed in Lost", "Repaired in Lost", "Crashed in Ruined", "Final"};
 

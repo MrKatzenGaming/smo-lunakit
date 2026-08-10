@@ -2,6 +2,9 @@
 
 #include "nn/oe.h"
 
+#include "sead/heap/seadExpHeap.h"
+#include "sead/heap/seadHeap.h"
+
 #include "al/Library/Base/StringUtil.h"
 #include "al/Library/Yaml/ByamlIter.h"
 #include "al/Library/Yaml/Writer/ByamlWriter.h"
@@ -11,12 +14,13 @@
 #include "devgui/settings/DevGuiSettings.h"
 #include "devgui/settings/PrimMenuSettings.h"
 #include "devgui/theme/DevGuiTheme.h"
-#include "devgui/windows/MoonRefresh/WindowMoonRefresh.h"
 #include "devgui/windows/WindowBase.h"
-#include "devgui/windows/input/WindowInput.h"
+#include "devgui/windows/WindowInput.h"
+#include "devgui/windows/WindowMoonRefresh.h"
 #include "ghost/GhostManager.h"
 #include "helpers/fsHelper.h"
 #include "imgui.h"
+#include "logger/Logger.hpp"
 
 void DevGuiSaveData::init(DevGuiManager* parent) {
     mParent = parent;
@@ -153,14 +157,14 @@ bool DevGuiSaveData::trySave() {
         mSaveTimer += -0.017f;  // FIXME: THIS SHOULD BE DElTA TIME SO IT IGNORES LAG!!
         if (mSaveTimer < 0.f) {
             mIsQueueSave = false;
-            return write().IsSuccess();
+            return write().succeeded();
         }
     }
 
     return false;
 }
 
-nn::Result DevGuiSaveData::write() {
+hk::Result DevGuiSaveData::write() {
     mWriteStream->rewind();
 
     sead::Heap* writerHeap = sead::ExpHeap::create(1500000, "GDWriterHeap", mHeap, 8, sead::Heap::HeapDirection::cHeapDirection_Forward, false);
@@ -249,7 +253,7 @@ nn::Result DevGuiSaveData::write() {
     file->write(mWriteStream);
 
     u32 size = file->calcPackSize();
-    nn::Result result = FsHelper::writeFileToPath(mWorkBuf, size, SAVEPATH);
+    hk::Result result = FsHelper::writeFileToPath(mWorkBuf, size, SAVEPATH);
 
     Logger::log("Saved data to %s\n", SAVEPATH);
 

@@ -1,4 +1,4 @@
-#include "devgui/windows/ActorBrowse/WindowActorBrowse.h"
+#include "devgui/windows/WindowActorBrowse.h"
 
 #include "devgui/DevGuiManager.h"
 #include "helpers/GetHelper.h"

@@ -1,5 +1,6 @@
 #include "logger/Logger.hpp"
 
+#include "hk/Result.h"
 #include "hk/diag/diag.h"
 #include "hk/svc/api.h"
 
@@ -8,11 +9,15 @@
 #include "nn/util.h"
 #include "vapours/results/results_common.hpp"
 
+#include "al/Library/Yaml/ByamlIter.h"
+#include "al/Library/Yaml/Writer/ByamlWriter.h"
+
 #include <cstring>
 #include <netinet/in.h>
 #include <sys/socket.h>
 
 #include "heap/seadHeapMgr.h"
+#include "helpers/fsHelper.h"
 
 Logger& Logger::instance() {
     static Logger instance = {};
@@ -27,7 +32,7 @@ static constexpr int socketPoolSize = 0x600000;
 static constexpr int socketAllocPoolSize = 0x20000;
 char socketPool[socketPoolSize + socketAllocPoolSize] __attribute__((aligned(0x1000)));
 
-s32 Logger::init(sead::Heap* heap) {
+hk::Result Logger::init(sead::Heap* heap) {
     if (mState != LoggerState::UNINITIALIZED)
         return -1;
 
@@ -67,10 +72,10 @@ s32 Logger::init(sead::Heap* heap) {
 
     delete[] loadData.buffer;
 
-    nn::Result initResult = nn::socket::Initialize(socketPool, socketPoolSize, socketAllocPoolSize, 0xE);
+    hk::Result initResult = nn::socket::Initialize(socketPool, socketPoolSize, socketAllocPoolSize, 0xE).GetInnerValueForDebug();
 
-    HK_ABORT_UNLESS(initResult.IsSuccess(), "Failed Initializing Socket %d, %d, %s", nn::socket::GetLastErrno(), initResult.GetDescription(),
-                    strerror(nn::socket::GetLastErrno()));
+    // HK_ABORT_UNLESS(initResult.succeeded(), "Failed Initializing Socket %d, %d, %s", nn::socket::GetLastErrno(), initResult.getDescription(),
+    // strerror(nn::socket::GetLastErrno()));
 
     nn::nifm::SubmitNetworkRequest();
 
@@ -93,16 +98,16 @@ s32 Logger::init(sead::Heap* heap) {
     serverAddress.sin_port = nn::socket::InetHtons(port);
     serverAddress.sin_family = nn::socket::InetHtons(AF_INET);
 
-    nn::Result result = nn::socket::Connect(mSocketFd, (sockaddr*)&serverAddress, sizeof(serverAddress));
+    hk::Result result = nn::socket::Connect(mSocketFd, (sockaddr*)&serverAddress, sizeof(serverAddress)).GetInnerValueForDebug();
 
-    HK_ABORT_UNLESS(result.IsSuccess(), "Failed to connect logger %s", strerror(nn::socket::GetLastErrno()));
+    // HK_ABORT_UNLESS(result.IsSuccess(), "Failed to connect logger %s", strerror(nn::socket::GetLastErrno()));
 
-    mState = result.IsSuccess() ? LoggerState::CONNECTED : LoggerState::DISCONNECTED;
+    mState = result.succeeded() ? LoggerState::CONNECTED : LoggerState::DISCONNECTED;
 
     if (mState == LoggerState::CONNECTED)
         Logger::log("Connected!\n");
 
-    return result.GetInnerValueForDebug();
+    return result;
 }
 
 void Logger::log(const char* fmt, ...) {
@@ -140,7 +145,7 @@ void Logger::log(const char* fmt, va_list args) {
     }
 }
 
-s32 Logger::writeLoggerSave(sead::Heap* heap, bool disable, const char* ip, u32 port) {
+hk::Result Logger::writeLoggerSave(sead::Heap* heap, bool disable, const char* ip, u32 port) {
     if (disable && !mIsDisabled)
         Logger::log("Logger disabled! Goodbye!\n");
 
@@ -156,7 +161,7 @@ s32 Logger::writeLoggerSave(sead::Heap* heap, bool disable, const char* ip, u32 
     file.pop();
     file.write(mWriteStream);
 
-    s32 result = FsHelper::writeFileToPath(mWorkBuf, file.calcPackSize(), LOGGERSAVEPATH).GetInnerValueForDebug();
+    hk::Result result = FsHelper::writeFileToPath(mWorkBuf, file.calcPackSize(), LOGGERSAVEPATH);
 
     return result;
 }

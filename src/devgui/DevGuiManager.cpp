@@ -1,7 +1,5 @@
 #include "devgui/DevGuiManager.h"
 
-#include "al/Library/Base/StringUtil.h"
-
 #include <cstddef>
 
 // sead
@@ -10,6 +8,8 @@
 
 // Helpers
 #include "helpers/InputHelper.h"
+#include "imgui.h"
+#include "logger/Logger.hpp"
 
 // Custom stage plugin support
 #include "cstages/CustomStageManager.h"
@@ -26,18 +26,18 @@
 #include "devgui/theme/DevGuiTheme.h"
 
 // All windows
-#include "devgui/windows/ActorBrowse/WindowActorBrowse.h"
-#include "devgui/windows/DupHotkeys/WindowDupHotkeys.h"
-#include "devgui/windows/Editor/WindowEditor.h"
-#include "devgui/windows/FPS/WindowFPS.h"
-#include "devgui/windows/Info/WindowInfo.h"
-#include "devgui/windows/MemoryTools/WindowMemoryManage.h"
-#include "devgui/windows/MoonRefresh/WindowMoonRefresh.h"
-#include "devgui/windows/StagePause/WindowStagePause.h"
-#include "devgui/windows/TAS/WindowTAS.h"
-#include "devgui/windows/TASTools/WindowTASTools.h"
+#include "devgui/windows/WindowActorBrowse.h"
+#include "devgui/windows/WindowDupHotkeys.h"
+#include "devgui/windows/WindowEditor.h"
+#include "devgui/windows/WindowFPS.h"
 #include "devgui/windows/WindowGroup.h"
-#include "devgui/windows/input/WindowInput.h"
+#include "devgui/windows/WindowInfo.h"
+#include "devgui/windows/WindowInput.h"
+#include "devgui/windows/WindowMemoryManage.h"
+#include "devgui/windows/WindowMoonRefresh.h"
+#include "devgui/windows/WindowStagePause.h"
+#include "devgui/windows/WindowTAS.h"
+#include "devgui/windows/WindowTASTools.h"
 
 // All tabs on the bar the top of the screen
 #include "devgui/homemenu/HomeMenuCStages.h"
@@ -47,7 +47,6 @@
 #include "devgui/homemenu/HomeMenuSettings.h"
 #include "devgui/homemenu/HomeMenuWindows.h"
 #include "devgui/homemenu/HomeMenuWorlds.h"
-#include "imgui.h"
 
 // This class is a singleton! It does not have a typical constructor
 // This is class is created in GameSystemInit in main.cpp

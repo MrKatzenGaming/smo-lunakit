@@ -1,4 +1,4 @@
-#include "devgui/windows/TAS/WindowTAS.h"
+#include "devgui/windows/WindowTAS.h"
 
 #include "devgui/DevGuiManager.h"
 #include "devgui/categories/tas/CategoryTASReplay.h"

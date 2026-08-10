@@ -13,7 +13,7 @@
 #include <typeinfo>
 
 #include "devgui/DevGuiManager.h"
-#include "devgui/windows/ActorBrowse/WindowActorBrowse.h"
+#include "devgui/windows/WindowActorBrowse.h"
 #include "helpers/GetHelper.h"
 #include "helpers/ImGuiHelper.h"
 #include "imgui.h"

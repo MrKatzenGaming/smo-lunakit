@@ -2,7 +2,7 @@
 
 // due to the sheer size of this enum, it's better to just do it manually than to use the macro
 
-#include "hk/types.h"
+#include "hk/prim/traits/Integer.h"
 
 #include "crc32.h"
 

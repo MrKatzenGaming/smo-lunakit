@@ -1,4 +1,4 @@
-#include "devgui/windows/FPS/WindowFPS.h"
+#include "devgui/windows/WindowFPS.h"
 
 #include "nn/oe.h"
 

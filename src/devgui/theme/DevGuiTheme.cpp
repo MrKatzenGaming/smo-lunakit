@@ -1,5 +1,7 @@
 #include "devgui/theme/DevGuiTheme.h"
 
+#include "nn/fs/fs_directories.h"
+
 #include "al/Library/Base/StringUtil.h"
 
 #include <cstdlib>
@@ -229,19 +231,19 @@ void DevGuiTheme::setStyleParam(ImVec2* target, al::ByamlIter* parameters, const
 
 void DevGuiTheme::setupDirectoryInfo() {
     nn::fs::DirectoryHandle handle;
-    nn::Result r = nn::fs::OpenDirectory(&handle, "sd:/LunaKit/LKData/Themes/", nn::fs::OpenDirectoryMode_File);
-    if (r.IsFailure())
+    hk::Result r = nn::fs::OpenDirectory(&handle, "sd:/LunaKit/LKData/Themes/", nn::fs::OpenDirectoryMode_File).GetInnerValueForDebug();
+    if (r.failed())
         return;
     s64 entryCount;
-    r = nn::fs::GetDirectoryEntryCount(&entryCount, handle);
-    if (r.IsFailure()) {
+    r = nn::fs::GetDirectoryEntryCount(&entryCount, handle).GetInnerValueForDebug();
+    if (r.failed()) {
         nn::fs::CloseDirectory(handle);
         return;
     }
     nn::fs::DirectoryEntry* entryBuffer = (nn::fs::DirectoryEntry*)malloc(sizeof(nn::fs::DirectoryEntry) * entryCount);
-    r = nn::fs::ReadDirectory(&entryCount, entryBuffer, handle, entryCount);
+    r = nn::fs::ReadDirectory(&entryCount, entryBuffer, handle, entryCount).GetInnerValueForDebug();
     nn::fs::CloseDirectory(handle);
-    if (r.IsFailure()) {
+    if (r.failed()) {
         delete[] entryBuffer;
         return;
     }

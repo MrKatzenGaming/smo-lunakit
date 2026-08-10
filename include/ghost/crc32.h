@@ -5,8 +5,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
-#include <ranges>
-#include <set>
 #include <string_view>
 
 // Credits to Shadow for making a majority of this code for me!

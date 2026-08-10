@@ -1,4 +1,4 @@
-#include "devgui/windows/MemoryTools/WindowMemoryManage.h"
+#include "devgui/windows/WindowMemoryManage.h"
 
 #include "hk/prim/traits/Integer.h"
 

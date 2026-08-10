@@ -4,7 +4,6 @@
 
 #include "al/Library/HitSensor/HitSensorKeeper.h"
 #include "al/Library/LiveActor/ActorMovementFunction.h"
-#include "al/Library/LiveActor/ActorPoseKeeper.h"
 #include "al/Library/LiveActor/ActorSensorUtil.h"
 #include "al/Project/HitSensor/HitSensor.h"
 

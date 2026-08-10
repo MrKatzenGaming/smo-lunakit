@@ -21,10 +21,6 @@
 
 #include <typeinfo>
 
-static inline bool isVersion120() {
-    return hk::ro::getMainModule()->isVersion("120");
-}
-
 bool isInScene() {
     al::Sequence* mSequence = GameSystemFunction::getGameSystem()->mSequence;
     if (mSequence && al::isEqualString(mSequence->mName.cstr(), "HakoniwaSequence")) {
@@ -252,7 +248,7 @@ const sead::FixedSafeString<128> getStageNameFromHakoniwa(HakoniwaSequence* seq)
     if (!seq)
         return sead::FixedSafeString<128>("");
 
-    if (isVersion120()) {
+    if (hk::ro::getMainModule()->isVersion("120")) {
         HakoniwaSequence12* seq12 = reinterpret_cast<HakoniwaSequence12*>(seq);
         return seq12->mStageName;
     } else {
@@ -264,7 +260,7 @@ s32 getScenarioFromHakoniwa(HakoniwaSequence* seq) {
     if (!seq)
         return -1;
 
-    if (isVersion120()) {
+    if (hk::ro::getMainModule()->isVersion("120")) {
         HakoniwaSequence12* seq12 = reinterpret_cast<HakoniwaSequence12*>(seq);
         return seq12->mNextScenarioNum;
     } else {

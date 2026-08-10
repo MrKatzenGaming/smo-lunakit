@@ -7,7 +7,7 @@
 #include "al/Library/LiveActor/ActorPoseUtil.h"
 #include "al/Library/LiveActor/LiveActorKit.h"
 
-#include "game/Player/HackCap.h"
+#include "game/Player/HackCap.h"  // IWYU pragma: keep
 #include "game/Player/PlayerRecoverySafetyPoint.h"
 
 #include "devgui/DevGuiManager.h"

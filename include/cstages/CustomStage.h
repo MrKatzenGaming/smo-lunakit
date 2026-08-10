@@ -13,8 +13,6 @@
 
 #pragma once
 
-#include "nn/fs/fs_directories.h"
-
 #include "sead/basis/seadTypes.h"
 #include "sead/container/seadPtrArray.h"
 

@@ -1,4 +1,4 @@
-#include "devgui/windows/Info/WindowInfo.h"
+#include "devgui/windows/WindowInfo.h"
 
 #include "devgui/DevGuiManager.h"
 #include "devgui/categories/info/CategoryInfCappy.h"

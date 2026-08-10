@@ -1,4 +1,4 @@
-#include "devgui/windows/TASTools/WindowTASTools.h"
+#include "devgui/windows/WindowTASTools.h"
 
 #include "hk/hook/InstrUtil.h"
 #include "hk/hook/Trampoline.h"
@@ -11,6 +11,7 @@
 
 #include <cstdint>
 
+#include "devgui/DevGuiHooks.h"
 #include "devgui/DevGuiManager.h"
 #include "devgui/windows/WindowBase.h"
 #include "helpers/ImGuiHelper.h"
@@ -84,7 +85,7 @@ HkTrampoline getPlayerViewMtxHook = [](TrampolineStatic(), PlayerActorHakoniwa* 
         return *player->getViewMtx();
 };
 
-void setupTasHooks() {
+void DevGuiHooks::setupTasHooks() {
     Logger::log("Setting up TAS Tools hooks\n");
     hk::hook::writeBranchLinkAtSym<"$isPatternReverseHook">(isPatternReverse);
     hk::hook::writeBranchLinkAtSym<"$getMofumofuTargetHook">(getMofumofuTarget);

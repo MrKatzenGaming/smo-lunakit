@@ -1,6 +1,6 @@
 #pragma once
 
-#include "helpers/NrvFind/NrvFindHelper.h"
+#include <cstdint>
 
 const uintptr_t nrvHakoniwaSequenceBootLoadData = 0x01d977e0;             // Quickly returns to startup screen, crashes due to heaps
 const uintptr_t nrvHakoniwaSequenceChangeLangauge = 0x01d977d0;           // No effect

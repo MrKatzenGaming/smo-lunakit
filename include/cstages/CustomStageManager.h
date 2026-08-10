@@ -17,12 +17,13 @@
 
 #pragma once
 
+#include "nn/fs/fs_types.h"
+
 #include "sead/basis/seadNew.h"
+
+#include "cstages/CustomStage.h"
+
 #define CUSTOMSTAGEPATH "sd:/LunaKit/LKData/CustomStages/"
-
-#include "nn/fs/fs_directories.h"
-
-#include "CustomStage.h"
 
 class CustomStageManager {
 public:

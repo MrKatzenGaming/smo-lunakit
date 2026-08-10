@@ -1,6 +1,6 @@
 #pragma once
 
-#include "helpers/NrvFind/NrvFindHelper.h"
+#include <cstdint>
 
 const uintptr_t nrvStageSceneDemoAppearFromHome = 0x01d8ccf8;
 const uintptr_t nrvStageSceneDemoCapManHeroTalkMoonRock = 0x01d8cc60;

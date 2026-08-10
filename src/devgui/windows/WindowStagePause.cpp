@@ -1,4 +1,6 @@
-#include "devgui/windows/StagePause/WindowStagePause.h"
+#include "devgui/windows/WindowStagePause.h"
+
+#include "hk/hook/Trampoline.h"
 
 #include "sead/controller/seadControllerMgr.h"
 #include "sead/heap/seadHeapMgr.h"
@@ -6,10 +8,12 @@
 #include "al/Library/Controller/InputFunction.h"
 #include "al/Library/Controller/JoyPadAccelerometerAddon.h"
 #include "al/Library/Controller/NpadController.h"
+#include "al/Library/Nerve/NerveUtil.h"
 
 #include "custom/al/Pad/PadGyroAddon.h"
 #include "custom/game/Scene/StageScene.h"
 
+#include "devgui/DevGuiHooks.h"
 #include "devgui/DevGuiManager.h"
 #include "helpers/GetHelper.h"
 #include "imgui.h"
@@ -153,4 +157,27 @@ bool WindowStagePause::tryAdvanceFrame() {
         mIsStagePaused = false;
     }
     return true;
+}
+
+HkTrampoline StageSceneInitHook = [](TrampolineStatic(), StageScene* thisPtr, al::SceneInitInfo* initInfo) -> void {
+    orig(thisPtr, initInfo);
+    thisPtr->mStatePause = new StageSceneStateStagePause("StagePause", thisPtr, thisPtr->mAudioSystemPauseController);
+    if (thisPtr->mStatePause)
+        al::initNerveState(thisPtr, thisPtr->mStatePause, &StageSceneNrvStagePause::sInstance, "StagePause");
+};
+
+HkTrampoline ShadowUpdateHook = [](TrampolineStatic(), al::ShadowKeeper* thisPtr) -> void {
+    WindowStagePause* win = DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause);
+    if (win && win->getStagePaused())
+        return;
+
+    orig(thisPtr);
+};
+
+void DevGuiHooks::exlSetupStageSceneHooks() {
+    StageSceneInitHook.installAtSym<"_ZN10StageScene4initERKN2al13SceneInitInfoE">();
+    ShadowUpdateHook.installAtSym<"_ZN2al18ShadowMaskDirector16updateShadowMaskEv">();
+
+    hk::hook::a64::assemble<"mov x0 #0x4c8">().installAtSym<"$StagePauseHook1">();
+    hk::hook::a64::assemble<"mov x0 #0x4c8">().installAtSym<"$StagePauseHook2">();
 }

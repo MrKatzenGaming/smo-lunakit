@@ -1,6 +1,6 @@
 #include "devgui/categories/hotkeys/CategoryHotkeyBase.h"
 
-#include "hk/util/Math.h"
+#include "hk/util/Algorithm.h"
 
 #include "helpers/InputHelper.h"
 #include "imgui.h"

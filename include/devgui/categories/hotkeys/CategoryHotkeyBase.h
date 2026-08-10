@@ -2,8 +2,6 @@
 
 #include "devgui/categories/CategoryBase.h"
 
-typedef int ImGuiComboFlags;  // Forward declaration
-
 class CategoryHotkeyBase : public CategoryBase {
 public:
     CategoryHotkeyBase(const char* catName, const char* catDesc, sead::Heap* heap);

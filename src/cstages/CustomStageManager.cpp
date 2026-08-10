@@ -1,5 +1,9 @@
 #include "cstages/CustomStageManager.h"
 
+#include "hk/Result.h"
+
+#include "nn/fs/fs_directories.h"
+
 #include "sead/heap/seadHeapMgr.h"
 
 #include "logger/Logger.hpp"
@@ -27,19 +31,19 @@ void CustomStageManager::init(sead::Heap* heap) {
 void CustomStageManager::setupDirectoryInfo() {
     sead::ScopedCurrentHeapSetter setter(mHeap);
     nn::fs::DirectoryHandle handle;
-    nn::Result r = nn::fs::OpenDirectory(&handle, CUSTOMSTAGEPATH, nn::fs::OpenDirectoryMode_File);
-    if (r.IsFailure())
+    hk::Result r = nn::fs::OpenDirectory(&handle, CUSTOMSTAGEPATH, nn::fs::OpenDirectoryMode_File).GetInnerValueForDebug();
+    if (r.failed())
         return;
     s64 entryCount;
-    r = nn::fs::GetDirectoryEntryCount(&entryCount, handle);
-    if (r.IsFailure()) {
+    r = nn::fs::GetDirectoryEntryCount(&entryCount, handle).GetInnerValueForDebug();
+    if (r.failed()) {
         nn::fs::CloseDirectory(handle);
         return;
     }
     nn::fs::DirectoryEntry* entryBuffer = new (mHeap) nn::fs::DirectoryEntry[entryCount];
-    r = nn::fs::ReadDirectory(&entryCount, entryBuffer, handle, entryCount);
+    r = nn::fs::ReadDirectory(&entryCount, entryBuffer, handle, entryCount).GetInnerValueForDebug();
     nn::fs::CloseDirectory(handle);
-    if (r.IsFailure()) {
+    if (r.failed()) {
         delete[] entryBuffer;
         return;
     }

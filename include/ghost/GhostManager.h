@@ -1,5 +1,7 @@
 #pragma once
 
+#include "hk/Result.h"
+
 #include "nn/fs/fs_types.h"
 
 #include "sead/container/seadPtrArray.h"
@@ -50,7 +52,7 @@ public:
     void setMaxGhosts(int max) { mMaxGhostNum = max; };
 
 private:
-    nn::Result write();
+    hk::Result write();
     s64 mEntryCount;
     nn::fs::DirectoryEntry* mEntries = nullptr;
     bool* mActiveReplays = nullptr;

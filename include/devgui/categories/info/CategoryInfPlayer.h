@@ -1,6 +1,6 @@
 #pragma once
 
-#include "sead/math/seadVector.h"
+#include "sead/math/seadVector.h"  // IWYU pragma: keep
 
 #include "devgui/categories/CategoryBase.h"
 

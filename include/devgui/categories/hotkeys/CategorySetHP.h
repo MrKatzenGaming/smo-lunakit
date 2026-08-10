@@ -4,8 +4,6 @@
 
 #include "devgui/categories/hotkeys/CategoryHotkeyBase.h"
 
-typedef int ImGuiComboFlags;  // Forward declaration
-
 class CategorySetHP : public CategoryHotkeyBase {
 public:
     CategorySetHP(const char* catName, const char* catDesc, sead::Heap* heap);

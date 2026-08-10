@@ -2,7 +2,7 @@
 
 #include "sead/controller/seadControllerAddon.h"
 #include "sead/math/seadMatrix.h"
-#include "sead/math/seadVector.h"
+#include "sead/math/seadVectorFwd.h"
 
 namespace al {
 class PadGyroAddon : public sead::ControllerAddon {

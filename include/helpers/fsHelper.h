@@ -2,8 +2,6 @@
 
 #include "hk/Result.h"
 
-#include "nn/types.h"
-
 namespace FsHelper {
 
 struct LoadData {
@@ -12,9 +10,9 @@ struct LoadData {
     long bufSize;
 };
 
-nn::Result writeFileToPath(void* buf, size_t size, const char* path);
+hk::Result writeFileToPath(void* buf, size_t size, const char* path);
 
-nn::Result appendFileOnPath(void* buf, s64 pos, size_t size, const char* path);
+hk::Result appendFileOnPath(void* buf, s64 pos, size_t size, const char* path);
 
 hk::Result loadFileFromPath(LoadData& loadData);
 

@@ -2,9 +2,20 @@
 
 #include "devgui/DevGuiManager.h"
 #include "devgui/settings/DevGuiSettings.h"
-#include "devgui/settings/MassHookDefine.h"
 
-MASS_HOOK_DEFINER(RsDemoHook, FirstDemoScenarioHook, FirstDemoWorldHook, FirstDemoMoonRockHook, ShowDemoHackHook)
+#define HOOK_CALLBACK(NAME)                                                                                                                          \
+    HkTrampoline NAME = [](TrampolineStatic(), void* thisPtr) -> bool {                                                                              \
+        DevGuiSettings* set = DevGuiManager::instance()->getSettings();                                                                              \
+        if (set->getStateByName("Always Manually Skip Cutscenes"))                                                                                   \
+            return true;                                                                                                                             \
+        return orig(thisPtr);                                                                                                                        \
+    };
+
+HOOK_CALLBACK(RsDemoHook)
+HOOK_CALLBACK(FirstDemoScenarioHook)
+HOOK_CALLBACK(FirstDemoWorldHook)
+HOOK_CALLBACK(FirstDemoMoonRockHook)
+HOOK_CALLBACK(ShowDemoHackHook)
 
 void exlSetupDemoHooks() {
     RsDemoHook.installAtSym<"_ZN2rs11isFirstDemoEPKN2al5SceneE">();

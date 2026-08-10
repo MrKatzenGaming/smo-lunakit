@@ -14,9 +14,7 @@
 
 #pragma once
 
-#include "sead/heap/seadExpHeap.h"
-#include "sead/heap/seadHeap.h"
-#include "sead/heap/seadHeapMgr.h"
+#include "sead/container/seadPtrArray.h"
 
 class DevGuiManager;  // Forward declaration (include is in cpp file)
 

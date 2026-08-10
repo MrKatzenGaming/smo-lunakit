@@ -1,4 +1,4 @@
-#include "devgui/windows/Editor/WindowEditor.h"
+#include "devgui/windows/WindowEditor.h"
 
 #include "devgui/DevGuiManager.h"
 #include "devgui/categories/edit/CategoryCoins.h"

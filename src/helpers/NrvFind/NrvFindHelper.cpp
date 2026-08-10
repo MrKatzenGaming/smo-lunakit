@@ -9,7 +9,6 @@
 namespace NrvFindHelper {
 
 const al::Nerve* getNerveAt(uintptr_t offset) {
-    // return (const al::Nerve*)((((u64)malloc) - 0x00724b94) + offset);
     return (al::Nerve*)(hk::ro::getMainModule()->range().start() + offset);
 }
 

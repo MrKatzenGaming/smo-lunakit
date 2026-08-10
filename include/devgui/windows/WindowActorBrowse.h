@@ -9,14 +9,14 @@
 
 #pragma once
 
-#define MAXFAVS 32
-
-#include "Library/LiveActor/LiveActorGroup.h"
-#include "Library/Scene/Scene.h"
 #include "al/Library/Camera/ActorCameraTarget.h"
+#include "al/Library/LiveActor/LiveActorGroup.h"
+#include "al/Library/Scene/Scene.h"
 
 #include "devgui/windows/WindowBase.h"
 #include "primitives/PrimitiveTypes.h"
+
+#define MAXFAVS 32
 
 enum ActorBrowseFilterType_ { ActorBrowseFilterType_NONE = 0, ActorBrowseFilterType_FAV = 1 << 0, ActorBrowseFilterType_SEARCH = 1 << 1 };
 

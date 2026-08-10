@@ -1,6 +1,6 @@
 #include "al/Library/LiveActor/LiveActorKit.h"
 
-#include "devgui/windows/ActorBrowse/WindowActorBrowse.h"
+#include "devgui/windows/WindowActorBrowse.h"
 #include "imgui.h"
 
 void WindowActorBrowse::childActorList(al::Scene* scene) {

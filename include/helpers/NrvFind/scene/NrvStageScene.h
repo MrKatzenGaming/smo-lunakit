@@ -1,6 +1,6 @@
 #pragma once
 
-#include "helpers/NrvFind/NrvFindHelper.h"
+#include <cstdint>
 
 const uintptr_t nrvStageSceneAmiibo = 0x01d8ccd0;                   // Freezes scene for 1/2-3/4 second
 const uintptr_t nrvStageSceneAppearFromWorldWarpHole = 0x01d8cc38;  // Appears kingdom header in corner

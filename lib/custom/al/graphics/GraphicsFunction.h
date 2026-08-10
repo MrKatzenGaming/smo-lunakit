@@ -1,6 +1,6 @@
 #pragma once
 
-#include "sead/math/seadVector.h"
+#include "sead/math/seadVectorFwd.h"
 
 namespace nn {
 
