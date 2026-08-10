@@ -1,7 +1,7 @@
 #pragma once
 
-#include "math/seadQuat.h"
-#include "math/seadVectorFwd.h"
+#include "sead/math/seadQuat.h"
+#include "sead/math/seadVectorFwd.h"
 
 namespace MathHelper {
 sead::Vector3f QuatToEuler(sead::Quatf* quat);

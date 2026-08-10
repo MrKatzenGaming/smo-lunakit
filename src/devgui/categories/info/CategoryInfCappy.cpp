@@ -1,5 +1,7 @@
 #include "devgui/categories/info/CategoryInfCappy.h"
 
+#include "sead/math/seadVectorFwd.h"
+
 #include "al/Library/LiveActor/ActorMovementFunction.h"
 #include "al/Library/LiveActor/ActorPoseKeeper.h"
 #include "al/Library/Nerve/Nerve.h"
@@ -22,7 +24,6 @@
 #include "helpers/ImGuiHelper.h"
 #include "helpers/MathHelper.h"
 #include "imgui.h"
-#include "math/seadVectorFwd.h"
 
 #define DEG(X) X * 180 / M_PI
 

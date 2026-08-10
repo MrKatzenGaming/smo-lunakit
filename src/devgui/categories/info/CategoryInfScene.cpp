@@ -1,16 +1,16 @@
 #include "devgui/categories/info/CategoryInfScene.h"
 
-#include "Library/Sequence/Sequence.h"
 #include "al/Library/Nerve/Nerve.h"
 #include "al/Library/Nerve/NerveKeeper.h"
 #include "al/Library/Nerve/NerveStateCtrl.h"
+#include "al/Library/Sequence/Sequence.h"
 
+#include "game/Sequence/HakoniwaSequence.h"
 #include "game/System/GameDataFile.h"
 
 #include <cxxabi.h>
 #include <typeinfo>
 
-#include "Sequence/HakoniwaSequence.h"
 #include "helpers/GetHelper.h"
 #include "imgui.h"
 

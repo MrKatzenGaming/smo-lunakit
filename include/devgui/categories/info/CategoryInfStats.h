@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Library/Scene/Scene.h"
+#include "al/Library/Scene/Scene.h"
 
-#include "System/GameDataHolderAccessor.h"
+#include "game/System/GameDataHolderAccessor.h"
+
 #include "devgui/categories/CategoryBase.h"
 
 class CategoryInfStats : public CategoryBase {

@@ -1,7 +1,8 @@
 #pragma once
 
-#include "PlayerAnims.h"
-#include "math/seadQuat.h"
+#include "sead/math/seadQuat.h"
+
+#include "ghost/PlayerAnims.h"
 
 struct ReplayFrame {
     PlayerAnims::Enum playerAnim = PlayerAnims::Enum::Unknown;

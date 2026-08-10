@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Library/Nerve/Nerve.h"
-#include <Library/Scene/Scene.h>
+#include "sead/math/seadVector.h"
+
+#include "al/Library/Nerve/Nerve.h"
+#include "al/Library/Scene/Scene.h"
 
 #include <game/System/GameDataHolderAccessor.h>
-
-#include "math/seadVector.h"
 
 class StageSceneStateWorldMap;
 class StageSceneStateShop;

@@ -1,9 +1,10 @@
 #include "cstages/CustomStage.h"
 
+#include "sead/heap/seadHeapMgr.h"
+
 #include "al/Library/File/FileUtil.h"
 #include "al/Library/Yaml/ByamlUtil.h"
 
-#include "heap/seadHeapMgr.h"
 #include "helpers/fsHelper.h"
 
 CustomStageEntry::CustomStageEntry(const char* stageName) {

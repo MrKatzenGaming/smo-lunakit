@@ -3,7 +3,7 @@
 #include "sead/math/seadQuat.h"
 #include "sead/math/seadVector.h"
 
-#include "Library/LiveActor/LiveActorFlag.h"
+#include "al/Library/LiveActor/LiveActorFlag.h"
 
 #include "game/Player/PlayerActorHakoniwa.h"
 

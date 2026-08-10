@@ -1,13 +1,13 @@
 #pragma once
 #include "hk/gfx/ImGuiBackendNvn.h"
 
+#include "nn/hid.h"
+
 #include "sead/heap/seadExpHeap.h"
 #include "sead/heap/seadHeap.h"
 
 #include <cstring>
-#include <utility>
 
-#include "OdysseyHeaders/NintendoSDK/nn/hid.h"
 #include "helpers/InputHelper.h"
 #include "helpers/fsHelper.h"
 #include "imgui.h"

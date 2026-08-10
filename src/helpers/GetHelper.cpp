@@ -2,14 +2,17 @@
 
 #include "hk/ro/RoUtil.h"
 
-#include "Library/Base/StringUtil.h"
-#include "Library/Scene/Scene.h"
-#include "Library/Sequence/Sequence.h"
+#include "sead/prim/seadSafeString.h"
+
+#include "al/Library/Base/StringUtil.h"
 #include "al/Library/Player/PlayerUtil.h"
+#include "al/Library/Scene/Scene.h"
 #include "al/Library/Scene/SceneUtil.h"
+#include "al/Library/Sequence/Sequence.h"
 
 #include "game/MapObj/ChangeStageInfo.h"
 #include "game/Player/PlayerActorBase.h"
+#include "game/Sequence/HakoniwaSequence.h"
 #include "game/System/GameDataFunction.h"
 #include "game/System/GameSystem.h"
 
@@ -17,9 +20,6 @@
 #include "custom/game/Sequence/HakoniwaSequence12.h"
 
 #include <typeinfo>
-
-#include "Sequence/HakoniwaSequence.h"
-#include "prim/seadSafeString.h"
 
 static inline bool isVersion120() {
     return hk::ro::getMainModule()->isVersion("120");

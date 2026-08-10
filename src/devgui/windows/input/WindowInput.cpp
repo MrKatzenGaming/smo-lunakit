@@ -3,7 +3,7 @@
 #include "sead/controller/seadControllerMgr.h"
 #include "sead/prim/seadBitFlag.h"
 
-#include "Library/Controller/InputFunction.h"
+#include "al/Library/Controller/InputFunction.h"
 
 #include "devgui/DevGuiManager.h"
 #include "devgui/savedata/DevGuiSaveData.h"

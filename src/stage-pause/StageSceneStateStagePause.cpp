@@ -13,7 +13,6 @@
 
 #include "devgui/DevGuiManager.h"
 #include "devgui/windows/StagePause/WindowStagePause.h"
-#include "devgui/windows/TASTools/WindowTASTools.h"
 
 namespace ScenePlayerFunction {
 void startSnapShotMode(const al::Scene*);

@@ -14,6 +14,7 @@
 #include "game/Player/PlayerActorHakoniwa.h"
 #include "game/Player/PlayerCapActionHistory.h"
 #include "game/Player/PlayerWallActionHistory.h"
+#include "game/System/GameDataFile.h"
 #include "game/System/GameDataHolder.h"
 #include "game/System/GameDataHolderWriter.h"
 #include "game/System/PlayerHitPointData.h"
@@ -23,7 +24,6 @@
 
 #include <cstring>
 
-#include "System/GameDataFile.h"
 #include "devgui/DevGuiManager.h"
 #include "devgui/settings/DevGuiSettings.h"
 #include "devgui/windows/MoonRefresh/WindowMoonRefresh.h"

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Library/Scene/Scene.h"
-#include "Library/Sequence/Sequence.h"
+#include "al/Library/Scene/Scene.h"
+#include "al/Library/Sequence/Sequence.h"
 
 #include "game/Player/PlayerActorBase.h"
 #include "game/Player/PlayerActorHakoniwa.h"

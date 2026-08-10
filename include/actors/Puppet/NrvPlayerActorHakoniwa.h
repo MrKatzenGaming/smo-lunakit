@@ -1,6 +1,6 @@
 #pragma once
 
-#include "NerveFindUtil.h"
+#include "actors/Puppet/NerveFindUtil.h"
 
 const uintptr_t nrvPlayerActorHakoniwaAbyss = 0x01d789f0;        // Falling animation, doesn't collide with objects
 const uintptr_t nrvPlayerActorHakoniwaBind = 0x01d789e0;         // Instantly cancelled with no object to bind to

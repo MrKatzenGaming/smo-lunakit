@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PuppetHackActor.h"
+#include "actors/Puppet/PuppetHackActor.h"
 
 struct CaptureEntry {
     PuppetHackActor* actor;

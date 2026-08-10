@@ -10,39 +10,38 @@
 
 #include "sead/controller/seadControllerMgr.h"
 #include "sead/heap/seadHeapMgr.h"
+#include "sead/math/seadMatrix.h"
+#include "sead/math/seadQuat.h"
 
-#include "Library/LiveActor/ActorPoseUtil.h"
-#include "Library/Scene/Scene.h"
 #include "al/Library/Base/StringUtil.h"
 #include "al/Library/Controller/InputFunction.h"
+#include "al/Library/Controller/JoyPadAccelerometerAddon.h"
+#include "al/Library/Controller/NpadController.h"
+#include "al/Library/LiveActor/ActorPoseUtil.h"
 #include "al/Library/Nerve/NerveSetupUtil.h"
 #include "al/Library/Nerve/NerveUtil.h"
+#include "al/Library/Scene/Scene.h"
 
+#include "game/MapObj/ChangeStageInfo.h"
 #include "game/Player/HackCap.h"
+#include "game/Player/PlayerActorHakoniwa.h"
+#include "game/Scene/StageSceneStateOption.h"
+#include "game/Scene/StageSceneStatePauseMenu.h"
+#include "game/Sequence/HakoniwaSequence.h"
+#include "game/System/GameDataHolder.h"
+#include "game/System/GameDataHolderAccessor.h"
 #include "game/Util/StageInputFunction.h"
 
-#include "custom/al/Pad/JoyPadAccelerometerAddon.h"
-#include "custom/al/Pad/NpadController.h"
 #include "custom/al/Pad/PadGyroAddon.h"
 
 #include <cstring>
 
-#include "MapObj/ChangeStageInfo.h"
-#include "Player/PlayerActorHakoniwa.h"
-#include "Scene/StageSceneStateOption.h"
-#include "Scene/StageSceneStatePauseMenu.h"
-#include "Sequence/HakoniwaSequence.h"
-#include "System/GameDataHolder.h"
-#include "System/GameDataHolderAccessor.h"
 #include "devgui/DevGuiManager.h"
 #include "devgui/windows/StagePause/WindowStagePause.h"
 #include "ghost/GhostManager.h"
-#include "heap/seadHeapMgr.h"
 #include "helpers/GetHelper.h"
 #include "helpers/fsHelper.h"
 #include "logger/Logger.hpp"
-#include "math/seadMatrix.h"
-#include "math/seadQuat.h"
 #include "smo-tas/Script.h"
 
 namespace {
@@ -256,7 +255,7 @@ void STAS::applyCommand(Command* cmd) {
         if (!controller)
             break;
 
-        controller->mPadAccelerationDeviceNum = 2;
+        controller->mSixAxisSensorCount = 2;
 
         auto* accelLeft = (al::JoyPadAccelerometerAddon*)controller->getAddonByOrder(sead::ControllerDefine::cAddon_Accelerometer, 0);
         auto* accelRight = (al::JoyPadAccelerometerAddon*)controller->getAddonByOrder(sead::ControllerDefine::cAddon_Accelerometer, 1);

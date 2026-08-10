@@ -3,8 +3,7 @@
 #include "hk/ro/RoUtil.h"
 
 #include "game/System/GameDataFile.h"
-
-#include "custom/game/GameData/GameProgressData.h"
+#include "game/System/GameProgressData.h"
 
 #include "helpers/GetHelper.h"
 #include "helpers/helpers.h"
@@ -33,7 +32,7 @@ void CategoryHomeShip::updateCat() {
 
     if (mIsUpdateStatus) {
         mIsUpdateStatus = false;
-        progress->mHomeStatus = (HomeShipStates)mUpdateWorldIdx;
+        progress->mHomeStatus = (GameProgressData::HomeStatus)mUpdateWorldIdx;
     }
 
     if (mIsUpdateLevel) {
@@ -43,7 +42,7 @@ void CategoryHomeShip::updateCat() {
 
     if (mIsUpdateWaterfall) {
         mIsUpdateWaterfall = false;
-        progress->mWaterfallWorldProgress = (WaterfallWorldProgressStates)mUpdateWorldIdx;
+        progress->mWaterfallWorldProgress = (GameProgressData::WaterfallWorldProgress)mUpdateWorldIdx;
     }
 }
 

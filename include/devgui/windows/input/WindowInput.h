@@ -3,7 +3,7 @@
 #include "sead/controller/seadControllerMgr.h"
 #include "sead/math/seadVectorFwd.h"
 
-#include "custom/al/Pad/NpadController.h"
+#include "al/Library/Controller/NpadController.h"
 
 #include "devgui/windows/WindowBase.h"
 #include "imgui.h"

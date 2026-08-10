@@ -3,9 +3,9 @@
 #include "hk/hook/Trampoline.h"
 #include "hk/hook/a64/Assembler.h"
 
-#include "Library/LiveActor/LiveActor.h"
-#include "Library/Nerve/NerveUtil.h"
-#include "Project/Scene/SceneInitInfo.h"
+#include "al/Library/LiveActor/LiveActor.h"
+#include "al/Library/Nerve/NerveUtil.h"
+#include "al/Project/Scene/SceneInitInfo.h"
 
 #include "custom/game/Scene/StageScene.h"
 

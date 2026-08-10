@@ -1,6 +1,7 @@
 #include "devgui/categories/info/CategoryInfPlayer.h"
 
 #include "sead/gfx/seadCamera.h"
+#include "sead/math/seadVectorFwd.h"
 
 #include "al/Library/Camera/CameraUtil.h"
 #include "al/Library/LiveActor/ActorMovementFunction.h"
@@ -28,7 +29,6 @@
 #include "helpers/ImGuiHelper.h"
 #include "helpers/MathHelper.h"
 #include "imgui.h"
-#include "math/seadVectorFwd.h"
 
 #define DEG(X) X * 180 / M_PI
 

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Library/Sequence/Sequence.h"
+#include "sead/basis/seadTypes.h"
 
-#include <basis/seadTypes.h>
+#include "al/Library/Sequence/Sequence.h"
 
-#include "System/GameDataHolderAccessor.h"
+#include "game/System/GameDataHolderAccessor.h"
 
 class HakoniwaStateDemoOpening;
 class HakoniwaStateDemoEnding;

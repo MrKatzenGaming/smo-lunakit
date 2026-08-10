@@ -5,16 +5,17 @@
 #include "sead/heap/seadDisposer.h"
 #include "sead/heap/seadHeapMgr.h"
 
-#include "Library/Camera/CameraUtil.h"
-#include "Library/Nerve/Nerve.h"
-#include "Library/Nerve/NerveUtil.h"
-#include "Library/System/GameSystemInfo.h"
+#include "al/Library/Camera/CameraUtil.h"
+#include "al/Library/Nerve/Nerve.h"
+#include "al/Library/Nerve/NerveUtil.h"
+#include "al/Library/System/GameSystemInfo.h"
 
 #include "agl/common/aglDrawContext.h"
 
+#include "game/Sequence/HakoniwaSequence.h"
+
 #include <typeinfo>
 
-#include "Sequence/HakoniwaSequence.h"
 #include "helpers/GetHelper.h"
 
 PrimitiveQueue::PrimitiveQueue(sead::Heap* heap) {

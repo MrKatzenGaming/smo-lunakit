@@ -1,10 +1,11 @@
 #include "devgui/popups/PopupKeyboard.h"
 
+#include "sead/prim/seadSafeString.h"
+
 #include <cctype>
 
 #include "imgui.h"
 #include "logger/Logger.hpp"
-#include "prim/seadSafeString.h"
 
 void PopupKeyboard::update() {
     if (!mIsKeyboardOpen)

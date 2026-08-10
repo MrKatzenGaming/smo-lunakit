@@ -1,9 +1,8 @@
 #pragma once
 
 #include "sead/controller/seadControllerAddon.h"
-
-#include "math/seadMatrix.h"
-#include "math/seadVector.h"
+#include "sead/math/seadMatrix.h"
+#include "sead/math/seadVector.h"
 
 namespace al {
 class PadGyroAddon : public sead::ControllerAddon {

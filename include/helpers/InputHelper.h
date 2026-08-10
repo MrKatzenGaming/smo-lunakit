@@ -1,5 +1,6 @@
 #pragma once
-#include "OdysseyHeaders/NintendoSDK/nn/hid.h"
+#include "nn/hid.h"
+
 #include "helpers/ImGuiHelper.h"
 
 class InputHelper {

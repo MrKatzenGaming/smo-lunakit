@@ -1,6 +1,7 @@
 #pragma once
 
-#include "heap/seadHeapMgr.h"
+#include "sead/heap/seadHeapMgr.h"
+
 #include "logger/Logger.hpp"
 
 class DataStream {

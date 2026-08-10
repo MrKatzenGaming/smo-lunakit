@@ -1,7 +1,8 @@
 #include "devgui/categories/tas/CategoryTASScripts.h"
 
+#include "sead/prim/seadSafeString.h"
+
 #include "imgui.h"
-#include "prim/seadSafeString.h"
 #include "smo-tas/STAS.h"
 
 CategoryTASScripts::CategoryTASScripts(const char* catName, const char* catDesc, sead::Heap* heap) : CategoryBase(catName, catDesc, heap) {}

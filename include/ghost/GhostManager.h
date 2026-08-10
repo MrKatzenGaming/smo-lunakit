@@ -6,12 +6,12 @@
 #include "sead/heap/seadDisposer.h"
 #include "sead/stream/seadRamStream.h"
 
-#include "Library/Scene/Scene.h"
+#include "al/Library/Scene/Scene.h"
 
 #include "game/Player/PlayerActorHakoniwa.h"
 
-#include "Ghost.h"
 #include "devgui/savedata/DevGuiWriteStream.h"
+#include "ghost/Ghost.h"
 
 #define REPLAY_SAVEPATH "sd:/smo/tas/replay"
 #define MAX_GHOST_COUNT 8

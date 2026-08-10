@@ -5,8 +5,8 @@
 
 #include "sead/heap/seadDisposer.h"
 
-#include "Library/Yaml/ByamlIter.h"
-#include "Library/Yaml/Writer/ByamlWriter.h"
+#include "al/Library/Yaml/ByamlIter.h"
+#include "al/Library/Yaml/Writer/ByamlWriter.h"
 
 #include "devgui/savedata/DevGuiWriteStream.h"
 #include "helpers/fsHelper.h"

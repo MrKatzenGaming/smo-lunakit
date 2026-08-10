@@ -5,13 +5,14 @@
 #include "nn/fs/fs_types.h"
 #include "nn/types.h"
 
-#include "Library/Nerve/NerveExecutor.h"
-#include "Library/Scene/Scene.h"
+#include "sead/container/seadSafeArray.h"
+
+#include "al/Library/Nerve/NerveExecutor.h"
+#include "al/Library/Scene/Scene.h"
 
 #include <cstddef>
 
-#include "Script.h"
-#include "container/seadSafeArray.h"
+#include "smo-tas/Script.h"
 
 #define TAS_SCRIPTPATH "sd:/smo/tas/scripts"
 

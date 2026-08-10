@@ -1,6 +1,6 @@
 #pragma once
 
-#include "NerveFindUtil.h"
+#include "actors/Puppet/NerveFindUtil.h"
 
 const uintptr_t nrvHackCapBlow = 0x01d75bf8;                // Quickly returns hat towards player, endless spinning if already hidden
 const uintptr_t nrvHackCapCatch = 0x01d75b50;               // Catches cappy, bugged if already caught

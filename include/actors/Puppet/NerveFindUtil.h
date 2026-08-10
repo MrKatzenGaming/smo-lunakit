@@ -2,7 +2,7 @@
 
 #include "sead/basis/seadTypes.h"
 
-#include "Library/LiveActor/LiveActor.h"
+#include "al/Library/LiveActor/LiveActor.h"
 #include "al/nerve/Nerve.h"
 #include "al/util/NerveUtil.h"
 

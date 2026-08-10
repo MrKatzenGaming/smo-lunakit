@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Library/Nerve/Nerve.h>
-#include <Library/Nerve/NerveStateBase.h>
+#include "al/Library/Nerve/Nerve.h"
+#include "al/Library/Nerve/NerveStateBase.h"
 
 class SceneAudioSystemPauseController;
 

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Library/LiveActor/ActorInitInfo.h"
-#include "Library/Nerve/NerveExecutor.h"
+#include "al/Library/LiveActor/ActorInitInfo.h"
+#include "al/Library/Nerve/NerveExecutor.h"
 
-#include "ReplayFrame.h"
+#include "ghost/ReplayFrame.h"
 
 class GhostManager;
 class PuppetActor;

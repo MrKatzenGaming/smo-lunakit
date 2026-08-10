@@ -1,15 +1,16 @@
 #pragma once
 
-#include "Library/LiveActor/LiveActor.h"
+#include "sead/heap/seadDisposer.h"
+
 #include "al/Library/LiveActor/ActorAnimFunction.h"
+#include "al/Library/LiveActor/LiveActor.h"
 
 #include "game/Player/PlayerFunction.h"
 #include "game/Player/PlayerModelHolder.h"
 
-#include "HackModelHolder.h"
-#include "PuppetCapActor.h"
+#include "actors/Puppet/HackModelHolder.h"
+#include "actors/Puppet/PuppetCapActor.h"
 #include "ghost/Ghost.h"
-#include "heap/seadDisposer.h"
 
 class PuppetActor : public al::LiveActor, public sead::IDisposer {
     friend class Ghost;

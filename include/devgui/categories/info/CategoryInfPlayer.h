@@ -1,7 +1,8 @@
 #pragma once
 
+#include "sead/math/seadVector.h"
+
 #include "devgui/categories/CategoryBase.h"
-#include "math/seadVector.h"
 
 class CategoryInfPlayer : public CategoryBase {
 public:

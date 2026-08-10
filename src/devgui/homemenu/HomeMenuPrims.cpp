@@ -1,5 +1,7 @@
 #include "devgui/homemenu/HomeMenuPrims.h"
 
+#include "sead/math/seadVectorFwd.h"
+
 #include "al/Library/Collision/CollisionPartsKeeperUtil.h"
 #include "al/Library/LiveActor/ActorMovementFunction.h"
 #include "al/Library/LiveActor/ActorPoseUtil.h"
@@ -12,7 +14,6 @@
 #include "devgui/savedata/DevGuiSaveData.h"
 #include "helpers/GetHelper.h"
 #include "imgui.h"
-#include "math/seadVectorFwd.h"
 
 HomeMenuPrims::HomeMenuPrims(DevGuiManager* parent, const char* menuName, bool isDisplayInListByDefault)
     : HomeMenuBase(parent, menuName, isDisplayInListByDefault) {

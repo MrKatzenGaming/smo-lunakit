@@ -2,7 +2,7 @@
 
 #include "nn/oe.h"
 
-#include "Library/Framework/GameFrameworkNx.h"
+#include "al/Library/Framework/GameFrameworkNx.h"
 
 #include "game/System/Application.h"
 

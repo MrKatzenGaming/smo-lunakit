@@ -1,9 +1,9 @@
 #include "devgui/categories/edit/CategoryHealth.h"
 
 #include "game/Player/PlayerFunction.h"
+#include "game/Sequence/HakoniwaSequence.h"
 #include "game/System/GameDataFile.h"
 
-#include "Sequence/HakoniwaSequence.h"
 #include "helpers/GetHelper.h"
 #include "helpers/PlayerHelper.h"
 #include "imgui.h"

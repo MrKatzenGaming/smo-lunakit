@@ -1,15 +1,16 @@
 #include "devgui/windows/StagePause/WindowStagePause.h"
 
-#include "Library/Controller/InputFunction.h"
+#include "sead/controller/seadControllerMgr.h"
+#include "sead/heap/seadHeapMgr.h"
 
-#include "custom/al/Pad/JoyPadAccelerometerAddon.h"
-#include "custom/al/Pad/NpadController.h"
+#include "al/Library/Controller/InputFunction.h"
+#include "al/Library/Controller/JoyPadAccelerometerAddon.h"
+#include "al/Library/Controller/NpadController.h"
+
 #include "custom/al/Pad/PadGyroAddon.h"
 #include "custom/game/Scene/StageScene.h"
 
-#include "controller/seadControllerMgr.h"
 #include "devgui/DevGuiManager.h"
-#include "heap/seadHeapMgr.h"
 #include "helpers/GetHelper.h"
 #include "imgui.h"
 #include "stage-pause/StageSceneStateStagePause.h"
@@ -41,7 +42,7 @@ void WindowStagePause::runFrame() {
     sead::ScopedCurrentHeapSetter heapSetter(DevGuiManager::instance()->getHeap());
     sead::ControllerMgr* controllerMgr = sead::ControllerMgr::instance();
     auto* controller = (al::NpadController*)controllerMgr->getController(al::getPlayerControllerPort(0));
-    controller->mPadAccelerationDeviceNum = 2;  // number of accelerometers for joycons
+    controller->mSixAxisSensorCount = 2;  // number of accelerometers for joycons
     auto* accelLeft = (al::JoyPadAccelerometerAddon*)controller->getAddonByOrder(sead::ControllerDefine::cAddon_Accelerometer, 0);
     auto* accelRight = (al::JoyPadAccelerometerAddon*)controller->getAddonByOrder(sead::ControllerDefine::cAddon_Accelerometer, 1);
     auto* gyroLeft = (al::PadGyroAddon*)controller->getAddonByOrder(sead::ControllerDefine::cAddon_Gyro, 0);
@@ -61,7 +62,7 @@ void WindowStagePause::runFrame() {
     controller->mPadHold = 0;
 
     auto* controller2 = (al::NpadController*)controllerMgr->getController(al::getPlayerControllerPort(1));
-    controller->mPadAccelerationDeviceNum = 2;  // number of accelerometers for joycons
+    controller->mSixAxisSensorCount = 2;  // number of accelerometers for joycons
     auto* accelLeft2 = (al::JoyPadAccelerometerAddon*)controller2->getAddonByOrder(sead::ControllerDefine::cAddon_Accelerometer, 0);
     auto* accelRight2 = (al::JoyPadAccelerometerAddon*)controller2->getAddonByOrder(sead::ControllerDefine::cAddon_Accelerometer, 1);
     auto* gyroLeft2 = (al::PadGyroAddon*)controller2->getAddonByOrder(sead::ControllerDefine::cAddon_Gyro, 0);

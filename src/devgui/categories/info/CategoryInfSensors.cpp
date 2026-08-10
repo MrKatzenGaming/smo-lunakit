@@ -1,10 +1,14 @@
 #include "devgui/categories/info/CategoryInfSensors.h"
 
-#include "Library/HitSensor/HitSensorKeeper.h"
-#include "Library/LiveActor/ActorPoseKeeper.h"
-#include "Library/LiveActor/ActorSensorUtil.h"
-#include "Project/HitSensor/HitSensor.h"
+#include "sead/math/seadVectorFwd.h"
+
+#include "al/Library/HitSensor/HitSensorKeeper.h"
 #include "al/Library/LiveActor/ActorMovementFunction.h"
+#include "al/Library/LiveActor/ActorPoseKeeper.h"
+#include "al/Library/LiveActor/ActorSensorUtil.h"
+#include "al/Project/HitSensor/HitSensor.h"
+
+#include "game/Player/PlayerActorHakoniwa.h"
 
 #include "custom/game/Player/HackCap.h"
 
@@ -12,10 +16,8 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "Player/PlayerActorHakoniwa.h"
 #include "helpers/GetHelper.h"
 #include "imgui.h"
-#include "math/seadVectorFwd.h"
 #define DEG(X) X * 180 / M_PI
 
 CategoryInfSensors::CategoryInfSensors(const char* catName, const char* catDesc, sead::Heap* heap) : CategoryBase(catName, catDesc, heap) {}

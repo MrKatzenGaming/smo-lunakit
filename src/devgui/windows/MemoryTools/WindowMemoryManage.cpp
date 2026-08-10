@@ -4,10 +4,10 @@
 
 #include "sead/heap/seadHeapMgr.h"
 
-#include "Library/LiveActor/LiveActorGroup.h"
-#include "Library/LiveActor/LiveActorKit.h"
-#include "Library/Memory/HeapUtil.h"
-#include "Library/Scene/Scene.h"
+#include "al/Library/LiveActor/LiveActorGroup.h"
+#include "al/Library/LiveActor/LiveActorKit.h"
+#include "al/Library/Memory/HeapUtil.h"
+#include "al/Library/Scene/Scene.h"
 
 #include <cstdio>
 
