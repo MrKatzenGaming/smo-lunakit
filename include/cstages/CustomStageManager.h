@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include "basis/seadNew.h"
+#include "sead/basis/seadNew.h"
 #define CUSTOMSTAGEPATH "sd:/LunaKit/LKData/CustomStages/"
 
 #include "nn/fs/fs_directories.h"

@@ -12,7 +12,7 @@
 
 #include "sead/container/seadPtrArray.h"
 
-#include "WindowBase.h"
+#include "devgui/windows/WindowBase.h"
 
 class DevGuiManager;  // Forward declaration (include is in cpp file)
 

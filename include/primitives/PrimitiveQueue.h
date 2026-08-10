@@ -14,7 +14,7 @@
 #include "sead/container/seadPtrArray.h"
 #include "sead/heap/seadHeap.h"
 
-#include "PrimitiveTypes.h"
+#include "primitives/PrimitiveTypes.h"
 
 class PrimitiveQueue {
 public:

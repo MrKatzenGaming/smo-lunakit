@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "heap/seadHeap.h"
+#include "sead/heap/seadHeap.h"
 
 class CategoryBase {
 public:

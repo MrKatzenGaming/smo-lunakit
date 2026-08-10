@@ -15,11 +15,10 @@
 
 #include "nn/fs/fs_directories.h"
 
+#include "sead/basis/seadTypes.h"
 #include "sead/container/seadPtrArray.h"
 
-#include "Library/Yaml/ByamlIter.h"
-
-#include <basis/seadTypes.h>
+#include "al/Library/Yaml/ByamlIter.h"
 
 // A specific stage file listed by a plugin
 // Has validity checks to verify the stage actually exists in the game's StageData folder

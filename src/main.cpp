@@ -20,15 +20,15 @@
 #include "sead/prim/seadSafeString.h"
 #include "sead/resource/seadArchiveRes.h"
 
-#include "Library/Base/StringUtil.h"
-#include "Library/Sequence/Sequence.h"
-#include "Project/Draw/GpuPerf.h"
+#include "al/Library/Base/StringUtil.h"
 #include "al/Library/LiveActor/ActorInitInfo.h"
 #include "al/Library/LiveActor/LiveActor.h"
 #include "al/Library/Memory/HeapUtil.h"
 #include "al/Library/Nerve/NerveUtil.h"
 #include "al/Library/Scene/Scene.h"
+#include "al/Library/Sequence/Sequence.h"
 #include "al/Library/System/GameSystemInfo.h"
+#include "al/Project/Draw/GpuPerf.h"
 #include "al/Project/File/FileLoader.h"
 
 #include "agl/common/aglDrawContext.h"
@@ -39,13 +39,13 @@
 #include "game/System/GameDataFile.h"
 #include "game/System/GameDataFunction.h"
 #include "game/System/GameSystem.h"
+#include "game/Util/DemoUtil.h"
 
 #include "custom/game/Scene/StageScene.h"
 
 #include <cstring>
 
 #include "Imgui.hpp"
-#include "Util/DemoUtil.h"
 #include "devgui/DevGuiHooks.h"
 #include "devgui/DevGuiManager.h"
 #include "devgui/windows/StagePause/WindowStagePause.h"

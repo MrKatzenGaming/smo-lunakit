@@ -24,6 +24,12 @@ for file in source_files:
     i = 0
     
     line = data[i].strip()
+    if line == "/*" or (i==0 and line == ""):
+        while line != "*/":
+            i+=1
+            line = data[i].strip()
+        i+=1
+        line = data[i].strip()
     hasIWYU = False
     while line.startswith(("#include", "/*", " *", "#pragma")) or len(line) == 0:
         if "#pragma once" in line or "*" in line or len(line) == 0:
