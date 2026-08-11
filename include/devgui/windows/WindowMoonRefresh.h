@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstring>
+
 #include "devgui/windows/WindowBase.h"
 
 __attribute__((used)) static const char* windowNameMoonRefresh = "Moon Refresh";
@@ -10,22 +12,22 @@ public:
 
     bool tryUpdateWinDisplay() override;
 
-    static bool getIsGrayRefreshEnabled() { return mIsGrayRefreshEnabled; };
+    bool getIsGrayRefreshEnabled() { return mIsGrayRefreshEnabled; };
 
-    static bool getIsRefreshEnabled() { return mIsRefreshEnabled; };
+    bool getIsRefreshEnabled() { return mIsRefreshEnabled; };
 
-    static char* getRefreshText() { return mRefreshText; };
+    char* getRefreshText() { return mRefreshText; };
 
-    static void setIsGrayRefreshEnabled(bool enabled) { mIsGrayRefreshEnabled = enabled; };
+    void setIsGrayRefreshEnabled(bool enabled) { mIsGrayRefreshEnabled = enabled; };
 
-    static void setIsRefreshEnabled(bool enabled) { mIsRefreshEnabled = enabled; };
+    void setIsRefreshEnabled(bool enabled) { mIsRefreshEnabled = enabled; };
 
-    static void setRefreshText(char* text) { mRefreshText = text; };
+    void setRefreshText(char* text) { strncpy(mRefreshText, text, sizeof(mRefreshText)); };
 
 private:
-    static bool mIsGrayRefreshEnabled;
-    static bool mIsRefreshEnabled;
-    static char* mRefreshText;
+    bool mIsGrayRefreshEnabled = false;
+    bool mIsRefreshEnabled = false;
+    char mRefreshText[51] = {"///////////////////////"};
 
     bool mIsKeyboardInUse = false;
     bool mWasKeyboardOpen = false;

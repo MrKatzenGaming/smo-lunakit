@@ -7,10 +7,6 @@
 WindowMoonRefresh::WindowMoonRefresh(DevGuiManager* parent, const char* winName, bool isActiveByDefault)
     : WindowBase(parent, winName, isActiveByDefault) {}
 
-bool WindowMoonRefresh::mIsGrayRefreshEnabled = false;
-bool WindowMoonRefresh::mIsRefreshEnabled = false;
-char* WindowMoonRefresh::mRefreshText = const_cast<char*>("///////////////////////");
-
 bool WindowMoonRefresh::tryUpdateWinDisplay() {
     if (!WindowBase::tryUpdateWinDisplay())
         return false;
@@ -27,7 +23,7 @@ bool WindowMoonRefresh::tryUpdateWinDisplay() {
         ImGui::SetTooltip("If enabled, moons will not be saved to the save file.\nIf disabled, moons will be saved to the save file.");
 
     if (mIsRefreshEnabled) {
-        if (ImGui::InputText("Refresh Text", mRefreshText, 51))
+        if (ImGui::InputText("Refresh Text", mRefreshText, sizeof(mRefreshText)))
             mParent->getSaveData()->queueSaveWrite();
         if (ImGui::IsItemHovered())
             ImGui::SetTooltip("The text that will be displayed when a moon is collected.");
@@ -39,7 +35,7 @@ bool WindowMoonRefresh::tryUpdateWinDisplay() {
             ImGui::SetTooltip("Set the text that will be displayed when a moon is collected.");
         ImGui::SameLine();
         if (ImGui::Button("Reset Text")) {
-            strncpy(mRefreshText, "///////////////////////", 24);
+            strncpy(mRefreshText, "///////////////////////", sizeof(mRefreshText));
             mParent->getSaveData()->queueSaveWrite();
         }
         if (ImGui::IsItemHovered())

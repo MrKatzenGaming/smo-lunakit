@@ -121,7 +121,8 @@ HkTrampoline CheckpointWarpHook = [](TrampolineStatic(), void* thisPtr) -> bool 
 };
 
 HkTrampoline GreyShineRefreshHook = [](TrampolineStatic(), GameDataHolderWriter writer, const void* shineInfo) -> bool {
-    if (WindowMoonRefresh::getIsGrayRefreshEnabled())
+    if (WindowMoonRefresh* win = DevGuiManager::instance()->getWindow<WindowMoonRefresh>(windowNameMoonRefresh);
+        win && win->getIsGrayRefreshEnabled())
         return false;
     else
         return orig(writer, shineInfo);
@@ -130,10 +131,15 @@ HkTrampoline GreyShineRefreshHook = [](TrampolineStatic(), GameDataHolderWriter 
 HkTrampoline ShineRefreshHook = [](TrampolineStatic(), GameDataHolderWriter writer, const void* shineInfo) -> void {
     ptr addr = hk::sail::lookupSymbolFromDb<>("$MoonRefreshText");
     ptr offset = addr - hk::ro::getMainModule()->range().start();
-    const char* text = WindowMoonRefresh::getRefreshText();
+
+    WindowMoonRefresh* win = DevGuiManager::instance()->getWindow<WindowMoonRefresh>(windowNameMoonRefresh);
+    if (!win)
+        orig(writer, shineInfo);
+
+    const char* text = win->getRefreshText();
     hk::ro::getMainModule()->writeRo(offset, text, strlen(text) + 1);
 
-    if (!WindowMoonRefresh::getIsRefreshEnabled())
+    if (!win->getIsRefreshEnabled())
         orig(writer, shineInfo);
 };
 

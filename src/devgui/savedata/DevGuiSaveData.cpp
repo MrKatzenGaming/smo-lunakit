@@ -115,13 +115,16 @@ void DevGuiSaveData::read() {
         bool isGrayRefreshEnabled;
         moonRefresh.tryGetBoolByKey(&isRefreshEnabled, "Refresh");
         moonRefresh.tryGetBoolByKey(&isGrayRefreshEnabled, "GrayRefresh");
+        WindowMoonRefresh* win = DevGuiManager::instance()->getWindow<WindowMoonRefresh>(windowNameMoonRefresh);
 
-        WindowMoonRefresh::setIsRefreshEnabled(isRefreshEnabled);
-        WindowMoonRefresh::setIsGrayRefreshEnabled(isGrayRefreshEnabled);
+        if (win) {
+            win->setIsRefreshEnabled(isRefreshEnabled);
+            win->setIsGrayRefreshEnabled(isGrayRefreshEnabled);
 
-        const char* refreshText;
-        if (moonRefresh.tryGetStringByKey(&refreshText, "RefreshText"))
-            WindowMoonRefresh::setRefreshText((char*)refreshText);
+            const char* refreshText;
+            if (moonRefresh.tryGetStringByKey(&refreshText, "RefreshText"))
+                win->setRefreshText((char*)refreshText);
+        }
     }
     if (root.isExistKey("InputDisplay")) {
         WindowInput* inp = DevGuiManager::instance()->getWindow<WindowInput>(windowNameInput);
@@ -228,13 +231,16 @@ hk::Result DevGuiSaveData::write() {
 
     file->pop();
 
-    file->pushHash("MoonRefresh");
+    WindowMoonRefresh* win = DevGuiManager::instance()->getWindow<WindowMoonRefresh>(windowNameMoonRefresh);
+    if (win) {
+        file->pushHash("MoonRefresh");
 
-    file->addBool("Refresh", WindowMoonRefresh::getIsRefreshEnabled());
-    file->addBool("GrayRefresh", WindowMoonRefresh::getIsGrayRefreshEnabled());
-    file->addString("RefreshText", WindowMoonRefresh::getRefreshText());
+        file->addBool("Refresh", win->getIsRefreshEnabled());
+        file->addBool("GrayRefresh", win->getIsGrayRefreshEnabled());
+        file->addString("RefreshText", win->getRefreshText());
 
-    file->pop();
+        file->pop();
+    }
 
     file->pushHash("InputDisplay");
     WindowInput* inp = mParent->getWindow<WindowInput>(windowNameInput);
