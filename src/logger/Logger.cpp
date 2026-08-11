@@ -6,12 +6,12 @@
 
 #include "nn/nifm.h"
 #include "nn/socket.h"
-#include "nn/util.h"
 #include "vapours/results/results_common.hpp"
 
 #include "al/Library/Yaml/ByamlIter.h"
 #include "al/Library/Yaml/Writer/ByamlWriter.h"
 
+#include <cstdio>
 #include <cstring>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -119,12 +119,12 @@ void Logger::log(const char* fmt, ...) {
 
     char buffer[0x500] = {};
 
-    if (nn::util::VSNPrintf(buffer, sizeof(buffer), fmt, args) > 0) {
+    if (vsnprintf(buffer, sizeof(buffer), fmt, args) > 0) {
         if (instance().mIsDisabled) {
             hk::svc::OutputDebugString(buffer, strlen(buffer));
         } else {
             char prefix[0x510];
-            nn::util::SNPrintf(prefix, sizeof(prefix), "%s", buffer);
+            snprintf(prefix, sizeof(prefix), "%s", buffer);
             nn::socket::Send(instance().mSocketFd, prefix, strlen(prefix), 0);
         }
     }
@@ -138,9 +138,9 @@ void Logger::log(const char* fmt, va_list args) {
 
     char buffer[0x500] = {};
 
-    if (nn::util::VSNPrintf(buffer, sizeof(buffer), fmt, args) > 0) {
+    if (vsnprintf(buffer, sizeof(buffer), fmt, args) > 0) {
         char prefix[0x510];
-        nn::util::SNPrintf(prefix, sizeof(prefix), "%s", buffer);
+        snprintf(prefix, sizeof(prefix), "%s", buffer);
         nn::socket::Send(instance().mSocketFd, prefix, strlen(prefix), 0);
     }
 }
