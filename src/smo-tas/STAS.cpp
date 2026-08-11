@@ -13,6 +13,7 @@
 #include "sead/math/seadMatrix.h"
 #include "sead/math/seadQuat.h"
 
+#include "Library/Sequence/Sequence.h"
 #include "al/Library/Base/StringUtil.h"
 #include "al/Library/Controller/InputFunction.h"
 #include "al/Library/Controller/JoyPadAccelerometerAddon.h"
@@ -93,19 +94,23 @@ hk::Result STAS::tryStartScript() {
         return r;
 
     // check if script uses 2 - player mode
-    HakoniwaSequence* seq = tryGetHakoniwaSequence();
+    al::Sequence* seq = tryGetSequence();
     if (!seq || !seq->mCurrentScene || !seq->mCurrentScene->mIsAlive)
         return hk::ResultFailed();
 
     if (mScript->is2P() != rs::isSeparatePlay(seq->mCurrentScene)) {
+        HakoniwaSequence* s = tryGetHakoniwaSequence();
+        if (!s || !s->mCurrentScene || !s->mCurrentScene->mIsAlive)
+            return hk::ResultFailed();
+
         if (mScript->is2P()) {
-            if (!ControllerAppletFunction::connectControllerSeparatePlay(seq->mGamePadSystem))
+            if (!ControllerAppletFunction::connectControllerSeparatePlay(s->mGamePadSystem))
                 return hk::ResultFailed();
-            rs::changeSeparatePlayMode(seq->mCurrentScene, true);
+            rs::changeSeparatePlayMode(s->mCurrentScene, true);
         } else {
-            if (!ControllerAppletFunction::connectControllerSinglePlay(seq->mGamePadSystem))
+            if (!ControllerAppletFunction::connectControllerSinglePlay(s->mGamePadSystem))
                 return hk::ResultFailed();
-            rs::changeSeparatePlayMode(seq->mCurrentScene, false);
+            rs::changeSeparatePlayMode(s->mCurrentScene, false);
         }
     }
 
