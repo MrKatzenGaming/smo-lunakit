@@ -10,7 +10,6 @@
 
 #include "sead/controller/seadControllerMgr.h"
 #include "sead/heap/seadHeapMgr.h"
-#include "sead/math/seadMatrix.h"
 #include "sead/math/seadQuat.h"
 
 #include "Library/Sequence/Sequence.h"
@@ -271,16 +270,22 @@ void STAS::applyCommand(Command* cmd) {
         case 0:
         case 2:
             accelLeft->mAcceleration = c.accel;
-            gyroLeft->mAngularVel = c.gyro;
-            gyroLeft->mDirection = sead::Matrix33f::ident;
+            gyroLeft->mAngularVelocity = c.gyro;
+
+            gyroLeft->mSide = {1.0f, 0.0f, 0.0f};   // ex
+            gyroLeft->mUp = {0.0f, 1.0f, 0.0f};     // ey
+            gyroLeft->mFront = {0.0f, 0.0f, 1.0f};  // ez
 
             if (c.conId != 2)
                 break;
             [[fallthrough]];
         case 1:
             accelRight->mAcceleration = c.accel;
-            gyroRight->mAngularVel = c.gyro;
-            gyroRight->mDirection = sead::Matrix33f::ident;
+            gyroRight->mAngularVelocity = c.gyro;
+
+            gyroRight->mSide = {1.0f, 0.0f, 0.0f};   // ex
+            gyroRight->mUp = {0.0f, 1.0f, 0.0f};     // ey
+            gyroRight->mFront = {0.0f, 0.0f, 1.0f};  // ez
 
             break;
         }
