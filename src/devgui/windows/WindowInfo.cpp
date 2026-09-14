@@ -7,6 +7,7 @@
 #include "devgui/categories/info/CategoryInfSensors.h"
 #include "devgui/categories/info/CategoryInfSequence.h"
 #include "devgui/categories/info/CategoryInfStats.h"
+#include "devgui/categories/info/CategoryInfInput.h"
 
 WindowInfo::WindowInfo(DevGuiManager* parent, const char* winName, bool isActiveByDefault) : WindowBase(parent, winName, isActiveByDefault) {
     createCategory<CategoryInfSequence>("Sequence", "Sequence Information");
@@ -15,4 +16,5 @@ WindowInfo::WindowInfo(DevGuiManager* parent, const char* winName, bool isActive
     createCategory<CategoryInfCappy>("Cappy", "Cappy Information");
     createCategory<CategoryInfSensors>("Sensors", "Hiit Sensor Information");
     createCategory<CategoryInfStats>("Stats", "Stats Information");
+    createCategory<CategoryInfInput>("Input", "Input Information");
 }
