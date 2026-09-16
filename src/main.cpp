@@ -49,6 +49,7 @@
 #include "Imgui.hpp"
 #include "devgui/DevGuiHooks.h"
 #include "devgui/DevGuiManager.h"
+#include "devgui/windows/WindowFreecam.h"
 #include "devgui/windows/WindowInput.h"
 #include "devgui/windows/WindowStagePause.h"
 #include "ghost/GhostManager.h"
@@ -275,6 +276,9 @@ extern "C" void hkMain() {
     RunTasHookScene.installAtSym<"_ZN2al5Scene8movementEv">();
     SceneEndInitHook.installAtSym<"_ZN2al5Scene7endInitERKNS_13ActorInitInfoE">();
     STAS::installHooks();
+
+    // Utilities
+    WindowFreecam::installHooks();
 
     // Debug Text Writer Drawing
     UpdateLunaKit.installAtSym<"_ZNK16HakoniwaSequence8drawMainEv">();

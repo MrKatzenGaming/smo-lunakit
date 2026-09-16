@@ -38,6 +38,7 @@
 #include "devgui/windows/WindowStagePause.h"
 #include "devgui/windows/WindowTAS.h"
 #include "devgui/windows/WindowTASTools.h"
+#include "devgui/windows/WindowFreecam.h"
 
 // All tabs on the bar the top of the screen
 #include "devgui/homemenu/HomeMenuCStages.h"
@@ -71,6 +72,7 @@ void DevGuiManager::createElements() {
     createWindow<WindowInput>(windowNameInput, false);
     createWindow<WindowStagePause>(windowNameStagePause, false);
     createWindow<WindowMemoryManage>(windowNameMemoryManage, true);
+    createWindow<WindowFreecam>(windowNameFreecam, true);
 
     // Create all home menu tabs
     Logger::log("Constructing all home menu items\n");
