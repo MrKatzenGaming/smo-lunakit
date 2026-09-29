@@ -53,6 +53,7 @@
 #include "devgui/windows/WindowInput.h"
 #include "devgui/windows/WindowStagePause.h"
 #include "ghost/GhostManager.h"
+#include "helpers/ExecuteHelper.h"
 #include "helpers/GetHelper.h"
 #include "helpers/InputHelper.h"
 #include "imgui.h"
@@ -203,6 +204,9 @@ HkTrampoline GameSystemInit = [](TrampolineStatic(), GameSystem* thisPtr) -> voi
     DisableSocketInit.installAtSym<"_ZN2nn6socket10InitializeEPvmmi">();
 
     imgui::setup(lkHeap);
+
+    ExecuteHelper::createInstance(lkHeap);
+    ExecuteHelper::installHooks();
 
     DevGuiManager::createInstance(lkHeap);
     DevGuiManager::instance()->init(lkHeap);

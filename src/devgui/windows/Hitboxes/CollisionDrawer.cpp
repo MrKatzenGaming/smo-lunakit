@@ -1,36 +1,27 @@
 #include "devgui/windows/Hitboxes/CollisionDrawer.h"
 
-#include "nn/gfx/gfx_BufferInfo.h"
-#include "nn/gfx/gfx_CommandBuffer.h"
-#include "nn/gfx/gfx_Enum.h"
-#include "nn/gfx/gfx_GpuAddress.h"
-#include "nn/gfx/gfx_MemoryPoolInfo.h"
-#include "nn/gfx/gfx_Types.h"
-
 #include "sead/gfx/seadCamera.h"
 #include "sead/gfx/seadGraphics.h"
 #include "sead/gfx/seadProjection.h"
 #include "sead/math/seadVector.h"
-#include "sead/prim/seadPtrUtil.h"
 #include "sead/prim/seadSafeString.h"
 
-#include "Library/Camera/CameraUtil.h"
-#include "Library/File/FileUtil.h"
-#include "Library/Scene/Scene.h"
-#include "Library/Shader/Block/UniformBlock.h"
-#include "al/Library/Base/StringUtil.h"
+#include "al/Library/Camera/CameraUtil.h"
+#include "al/Library/Execute/ExecutorListActorDraw.h"
 #include "al/Library/Resource/Resource.h"
-#include "al/Library/Resource/ResourceFunction.h"
+#include "al/Library/Scene/Scene.h"
+#include "al/Library/Shader/Block/UniformBlock.h"
 
 #include "agl/common/aglResBinaryShaderArchive.h"
 #include "agl/common/aglResShaderArchive.h"
 #include "agl/common/aglShaderProgram.h"
 #include "agl/common/aglShaderProgramArchive.h"
 #include "agl/common/aglVertexBuffer.h"
-#include "agl/detail/aglGPUMemBlockMgr.h"
-#include "agl/driver/aglGraphicsDriverMgr.h"
 
+#include "helpers/ExecuteHelper.h"
 #include "logger/Logger.hpp"
+
+static constexpr al::ExecuteOrder collisionOrder = {"Collision[LunaKit]", "ActorDrawCollision[LunaKit]", 32, "地形"};
 
 CollisionDrawer::CollisionDrawer() {
     // Shader Program
@@ -58,6 +49,16 @@ CollisionDrawer::CollisionDrawer() {
 
     // Uniform Block
     mUniformBlock = al::createUniformBlock(Vertex::sLayout.data(), Vertex::sLayout.size(), nullptr, 2);
+
+    // Execute List
+    ExecuteHelper::instance()->appendDrawTable("３Ｄ（フォワード）", &collisionOrder);
+    ExecuteHelper::instance()->addCustomDrawList(
+        "ActorDrawCollision[LunaKit]",
+        [](const al::ExecuteOrder* order) -> al::ExecutorListBase* {
+            Logger::log("Created custom executor list for '%s' with %d", order->listName, order->listMaxSize);
+            return new al::ExecutorListActorDraw(order->listName, order->listMaxSize);
+        },
+        ExecuteHelper::DrawListType::Actor);
 }
 
 void CollisionDrawer::draw(agl::DrawContext* context, const al::Scene* scene) const {
@@ -65,23 +66,9 @@ void CollisionDrawer::draw(agl::DrawContext* context, const al::Scene* scene) co
         al::UniformBlockSetter ubs{mUniformBlock, 0};
 
         const sead::Matrix34f viewMtx = al::getViewMtx(scene, 0);
-        Logger::log("=== View Matrix ===");
-        Logger::log("[[%.3f, %.3f, %.3f, %.3f],", viewMtx.m[0][0], viewMtx.m[0][1], viewMtx.m[0][2], viewMtx.m[0][3]);
-        Logger::log(" [%.3f, %.3f, %.3f, %.3f],", viewMtx.m[1][0], viewMtx.m[1][1], viewMtx.m[1][2], viewMtx.m[1][3]);
-        Logger::log(" [%.3f, %.3f, %.3f, %.3f]]", viewMtx.m[2][0], viewMtx.m[2][1], viewMtx.m[2][2], viewMtx.m[2][3]);
         const sead::Matrix44f projMtx = al::getProjectionMtx(scene, 0);
-        Logger::log("=== Proj Matrix ===");
-        Logger::log("[[%.3f, %.3f, %.3f, %.3f],", projMtx.m[0][0], projMtx.m[0][1], projMtx.m[0][2], projMtx.m[0][3]);
-        Logger::log(" [%.3f, %.3f, %.3f, %.3f],", projMtx.m[1][0], projMtx.m[1][1], projMtx.m[1][2], projMtx.m[1][3]);
-        Logger::log(" [%.3f, %.3f, %.3f, %.3f],", projMtx.m[2][0], projMtx.m[2][1], projMtx.m[2][2], projMtx.m[2][3]);
-        Logger::log(" [%.3f, %.3f, %.3f, %.3f]]", projMtx.m[3][0], projMtx.m[3][1], projMtx.m[3][2], projMtx.m[3][3]);
         sead::Matrix44f projViewMtx;
         projViewMtx.setMul(projMtx, viewMtx);
-        Logger::log("=== ProjView Matrix ===");
-        Logger::log("[[%.3f, %.3f, %.3f, %.3f],", projViewMtx.m[0][0], projViewMtx.m[0][1], projViewMtx.m[0][2], projViewMtx.m[0][3]);
-        Logger::log(" [%.3f, %.3f, %.3f, %.3f],", projViewMtx.m[1][0], projViewMtx.m[1][1], projViewMtx.m[1][2], projViewMtx.m[1][3]);
-        Logger::log(" [%.3f, %.3f, %.3f, %.3f],", projViewMtx.m[2][0], projViewMtx.m[2][1], projViewMtx.m[2][2], projViewMtx.m[2][3]);
-        Logger::log(" [%.3f, %.3f, %.3f, %.3f]]", projViewMtx.m[3][0], projViewMtx.m[3][1], projViewMtx.m[3][2], projViewMtx.m[3][3]);
         mUniformBlock->setData(0, projViewMtx);
     }
 

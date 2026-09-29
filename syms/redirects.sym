@@ -8,6 +8,8 @@ $isPatternReverseHook = 0x0b07a8
 $getMofumofuTargetHook = 0x0b07f8
 $loadCurrentFileHook = _ZN21StageSceneStateOption20exeLoadDataSelectingEv + 0x13c
 $initMarioModelCommon = 0x00444028
+$registerDrawListHook = _ZN2al22ExecuteTableHolderDraw4initEPKcRKNS_21ExecuteSystemInitInfoEPKNS_12ExecuteOrderEi + 0x29c
+$registerUpdateListHook = _ZN2al24ExecuteTableHolderUpdate4initEPKcRKNS_21ExecuteSystemInitInfoEPKNS_12ExecuteOrderEi + 0x22c
 
 @smo:101
 $SkyInitHook = _ZN2al3Sky14initFromPresetERKNS_13ActorInitInfoE + 0x50
