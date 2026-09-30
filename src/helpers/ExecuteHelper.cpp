@@ -5,6 +5,8 @@
 #include "al/Library/Base/StringUtil.h"
 #include "al/Library/Execute/ExecuteTablesImpl.h"
 
+#include "logger/Logger.hpp"
+
 SEAD_SINGLETON_DISPOSER_IMPL(ExecuteHelper);
 
 ExecuteHelper::ExecuteHelper() {
@@ -95,15 +97,15 @@ const ExecuteHelper::CustomUpdateList* ExecuteHelper::findCustomUpdateListCreato
     return nullptr;
 }
 
-bool ExecuteHelper::hasCustomDrawList(const sead::SafeString& listName, const DrawListType type) const {
-    if (const auto* customList = mCustomDrawLists.find(listName))
+bool ExecuteHelper::hasCustomDrawList(const sead::SafeString& groupName, const DrawListType type) const {
+    if (const auto* customList = mCustomDrawLists.find(groupName))
         return customList->value().type == type;
 
     return false;
 }
 
-bool ExecuteHelper::hasCustomUpdateList(const sead::SafeString& listName, const UpdateListType type) const {
-    if (const auto* customList = mCustomUpdateLists.find(listName))
+bool ExecuteHelper::hasCustomUpdateList(const sead::SafeString& groupName, const UpdateListType type) const {
+    if (const auto* customList = mCustomUpdateLists.find(groupName))
         return customList->value().type == type;
 
     return false;
@@ -174,12 +176,15 @@ static al::ExecutorListBase* registerCustomDrawList(al::ExecuteTableHolderDraw* 
         switch (customList->type) {
         case ExecuteHelper::DrawListType::Actor:
             table->registerExecutorListActor(reinterpret_cast<al::ExecutorListActorDraw*>(list));
+            Logger::log("Created custom draw list '%s' for type Actor", order->executeGroup);
             break;
         case ExecuteHelper::DrawListType::ActorModel:
             table->registerExecutorListActorModel(reinterpret_cast<al::ExecutorListActorModelDrawBase*>(list));
+            Logger::log("Created custom draw list '%s' for type ActorModel", order->executeGroup);
             break;
         case ExecuteHelper::DrawListType::Layout:
             table->registerExecutorListLayout(reinterpret_cast<al::ExecutorListLayoutDrawBase*>(list));
+            Logger::log("Created custom draw list '%s' for type Layout", order->executeGroup);
             break;
         }
 
@@ -196,9 +201,11 @@ static al::ExecutorListBase* registerCustomUpdateList(al::ExecuteTableHolderUpda
         switch (customList->type) {
         case ExecuteHelper::UpdateListType::Actor:
             table->registerExecutorListActor(reinterpret_cast<al::ExecutorListActorExecuteBase*>(list));
+            Logger::log("Created custom update list '%s' for type Actor", order->executeGroup);
             break;
         case ExecuteHelper::UpdateListType::Layout:
             table->registerExecutorListLayout(reinterpret_cast<al::ExecutorListLayoutUpdate*>(list));
+            Logger::log("Created custom update list '%s' for type Layout", order->executeGroup);
             break;
         }
 
@@ -243,21 +250,21 @@ static void registerCustomUpdateListWrapper() {
 HkTrampoline hookCalcDrawListActorNumMax = [](TrampolineStatic(), const al::ExecuteOrder* orders, s32 orderNum) -> s32 {
     s32 count = orig(orders, orderNum);
     for (s32 i = 0; i < orderNum; i++)
-        if (SEAD_INSTANCE(ExecuteHelper)->hasCustomDrawList(orders[i].listName, ExecuteHelper::DrawListType::Actor))
+        if (SEAD_INSTANCE(ExecuteHelper)->hasCustomDrawList(orders[i].executeGroup, ExecuteHelper::DrawListType::Actor))
             count++;
     return count;
 };
 HkTrampoline hookCalcDrawListActorModelNumMax = [](TrampolineStatic(), const al::ExecuteOrder* orders, s32 orderNum) -> s32 {
     s32 count = orig(orders, orderNum);
     for (s32 i = 0; i < orderNum; i++)
-        if (SEAD_INSTANCE(ExecuteHelper)->hasCustomDrawList(orders[i].listName, ExecuteHelper::DrawListType::ActorModel))
+        if (SEAD_INSTANCE(ExecuteHelper)->hasCustomDrawList(orders[i].executeGroup, ExecuteHelper::DrawListType::ActorModel))
             count++;
     return count;
 };
 HkTrampoline hookCalcDrawListLayoutNumMax = [](TrampolineStatic(), const al::ExecuteOrder* orders, s32 orderNum) -> s32 {
     s32 count = orig(orders, orderNum);
     for (s32 i = 0; i < orderNum; i++)
-        if (SEAD_INSTANCE(ExecuteHelper)->hasCustomDrawList(orders[i].listName, ExecuteHelper::DrawListType::Layout))
+        if (SEAD_INSTANCE(ExecuteHelper)->hasCustomDrawList(orders[i].executeGroup, ExecuteHelper::DrawListType::Layout))
             count++;
     return count;
 };
@@ -265,7 +272,7 @@ HkTrampoline hookCalcDrawListLayoutNumMax = [](TrampolineStatic(), const al::Exe
 HkTrampoline hookCalcUpdateListActorNumMax = [](TrampolineStatic(), const al::ExecuteOrder* orders, s32 orderNum) -> s32 {
     s32 count = orig(orders, orderNum);
     for (s32 i = 0; i < orderNum; i++)
-        if (SEAD_INSTANCE(ExecuteHelper)->hasCustomUpdateList(orders[i].listName, ExecuteHelper::UpdateListType::Actor))
+        if (SEAD_INSTANCE(ExecuteHelper)->hasCustomUpdateList(orders[i].executeGroup, ExecuteHelper::UpdateListType::Actor))
             count++;
     return count;
 };
@@ -273,7 +280,7 @@ HkTrampoline hookCalcUpdateListLayoutNumMax = [](TrampolineStatic(), const al::E
     s32 count = orig(orders, orderNum, listName);
     if (al::isEqualString(listName, "LayoutUpdate")) {
         for (s32 i = 0; i < orderNum; i++)
-            if (SEAD_INSTANCE(ExecuteHelper)->hasCustomUpdateList(orders[i].listName, ExecuteHelper::UpdateListType::Layout))
+            if (SEAD_INSTANCE(ExecuteHelper)->hasCustomUpdateList(orders[i].executeGroup, ExecuteHelper::UpdateListType::Layout))
                 count++;
     }
     return count;

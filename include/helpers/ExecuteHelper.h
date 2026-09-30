@@ -55,8 +55,8 @@ public:
     const CustomDrawList* findCustomDrawListCreator(const sead::SafeString& groupName) const;
     const CustomUpdateList* findCustomUpdateListCreator(const sead::SafeString& groupName) const;
 
-    bool hasCustomDrawList(const sead::SafeString& listName, DrawListType type) const;
-    bool hasCustomUpdateList(const sead::SafeString& listName, UpdateListType type) const;
+    bool hasCustomDrawList(const sead::SafeString& groupName, DrawListType type) const;
+    bool hasCustomUpdateList(const sead::SafeString& groupName, UpdateListType type) const;
 
     s32 getCustomDrawListCount(DrawListType type) const;
     s32 getCustomUpdateListCount(UpdateListType type) const;

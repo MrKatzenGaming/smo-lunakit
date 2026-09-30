@@ -41,6 +41,7 @@
 #include "game/System/GameSystem.h"
 #include "game/Util/DemoUtil.h"
 
+#include "custom/al/Library/Execute/ActorExecuteInfo.h"
 #include "custom/game/Scene/StageScene.h"
 
 #include <cstring>
@@ -207,6 +208,7 @@ HkTrampoline GameSystemInit = [](TrampolineStatic(), GameSystem* thisPtr) -> voi
 
     ExecuteHelper::createInstance(lkHeap);
     ExecuteHelper::installHooks();
+    al::CustomActorExecuteInfo::installHooks();
 
     DevGuiManager::createInstance(lkHeap);
     DevGuiManager::instance()->init(lkHeap);

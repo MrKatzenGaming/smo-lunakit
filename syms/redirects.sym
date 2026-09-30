@@ -10,6 +10,11 @@ $loadCurrentFileHook = _ZN21StageSceneStateOption20exeLoadDataSelectingEv + 0x13
 $initMarioModelCommon = 0x00444028
 $registerDrawListHook = _ZN2al22ExecuteTableHolderDraw4initEPKcRKNS_21ExecuteSystemInitInfoEPKNS_12ExecuteOrderEi + 0x29c
 $registerUpdateListHook = _ZN2al24ExecuteTableHolderUpdate4initEPKcRKNS_21ExecuteSystemInitInfoEPKNS_12ExecuteOrderEi + 0x22c
+$actorExecuteInfoUpdaters1 = _ZN2al20ExecuteRequestKeeper32executeRequestActorMovementAllOnEv + 0x44
+$actorExecuteInfoUpdaters2 = _ZN2al20ExecuteRequestKeeper33executeRequestActorMovementAllOffEv + 0x44
+$actorExecuteInfoDrawers1 = _ZN2al20ExecuteRequestKeeper28executeRequestActorDrawAllOnEv + 0x44
+$actorExecuteInfoDrawers2 = _ZN2al20ExecuteRequestKeeper29executeRequestActorDrawAllOffEv + 0x44
+$actorExecuteInfoDrawers3 = 0x893ae0
 
 @smo:101
 $SkyInitHook = _ZN2al3Sky14initFromPresetERKNS_13ActorInitInfoE + 0x50

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "al/Library/Execute/ExecutorActorExecuteBase.h"
+#include "al/Library/Execute/ExecutorListActorExecute.h"
 #include "al/Library/Scene/Scene.h"
 #include "al/Library/Shader/Block/UniformBlock.h"
 
@@ -9,6 +11,20 @@
 #include "agl/common/aglShaderProgramArchive.h"
 #include "agl/common/aglVertexAttribute.h"
 #include "agl/common/aglVertexBuffer.h"
+
+class ExecutorListActorCollision : public al::ExecutorListActorExecuteBase {
+public:
+    ExecutorListActorCollision(const char* name, s32 size);
+    al::ExecutorActorExecuteBase* createExecutor(const char* name) const override;
+
+    static void init();
+};
+
+class ExecutorActorCollision : public al::ExecutorActorExecuteBase {
+public:
+    ExecutorActorCollision(const char* name);
+    void execute() const override;
+};
 
 class CollisionDrawer {
 public:
