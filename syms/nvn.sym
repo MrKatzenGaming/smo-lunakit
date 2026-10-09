@@ -1,5 +1,6 @@
 @sdk
 nvnBootstrapLoader
 pfnc_nvnBufferGetAddress
+pfnc_nvnCommandBufferDrawArrays
 pfnc_nvnCommandBufferDrawElements
 pfnc_nvnMemoryPoolMap

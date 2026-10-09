@@ -63,8 +63,8 @@ void WindowHitboxes::updateWin() {
     if (!scene || !scene->mIsAlive)
         return;
 
-    agl::DrawContext* context = sequence->getDrawInfo()->drawContext;
-    mCollisionDrawer.draw(context, scene);
+    // agl::DrawContext* context = sequence->getDrawInfo()->drawContext;
+    // mCollisionDrawer.draw(context, scene);
 }
 
 bool WindowHitboxes::tryUpdateWinDisplay() {

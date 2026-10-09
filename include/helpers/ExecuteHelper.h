@@ -8,6 +8,7 @@
 #include "heap/seadDisposer.h"
 
 namespace al {
+struct ExecuteSystemInitInfo;
 class ExecuteTableHolderUpdate;
 class ExecuteTableHolderDraw;
 class ExecutorListBase;
@@ -20,7 +21,8 @@ public:
     enum class DrawListType { Actor, ActorModel, Layout };
     enum class UpdateListType { Actor, Layout };
 
-    using ListCreatorFunction = al::ExecutorListBase* (*)(const al::ExecuteOrder* order);
+    using CreateDrawListFunction = al::ExecutorListBase* (*)(const al::ExecuteOrder* order, const al::ExecuteSystemInitInfo& initInfo);
+    using CreateUpdateListFunction = al::ExecutorListBase* (*)(const al::ExecuteOrder* order);
 
     struct TableOverride {
         sead::FixedPtrArray<al::ExecuteOrder, 16> prepend;
@@ -29,12 +31,12 @@ public:
 
     struct CustomDrawList {
         DrawListType type;
-        ListCreatorFunction createFunc;
+        CreateDrawListFunction createFunc;
     };
 
     struct CustomUpdateList {
         UpdateListType type;
-        ListCreatorFunction createFunc;
+        CreateUpdateListFunction createFunc;
     };
 
     ExecuteHelper();
@@ -46,8 +48,8 @@ public:
     void prependUpdateTable(const sead::SafeString& tableName, const al::ExecuteOrder* order);
     void appendUpdateTable(const sead::SafeString& tableName, const al::ExecuteOrder* order);
 
-    void addCustomDrawList(const sead::SafeString& groupName, ListCreatorFunction createFunc, DrawListType type);
-    void addCustomUpdateList(const sead::SafeString& groupName, ListCreatorFunction createFunc, UpdateListType type);
+    void addCustomDrawList(const sead::SafeString& groupName, CreateDrawListFunction createFunc, DrawListType type);
+    void addCustomUpdateList(const sead::SafeString& groupName, CreateUpdateListFunction createFunc, UpdateListType type);
 
     const TableOverride* findDrawTableOverride(const sead::SafeString& tableName) const;
     const TableOverride* findUpdateTableOverride(const sead::SafeString& tableName) const;

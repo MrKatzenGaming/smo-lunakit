@@ -61,11 +61,11 @@ void ExecuteHelper::appendUpdateTable(const sead::SafeString& tableName, const a
     }
 }
 
-void ExecuteHelper::addCustomDrawList(const sead::SafeString& groupName, const ListCreatorFunction createFunc, const DrawListType type) {
+void ExecuteHelper::addCustomDrawList(const sead::SafeString& groupName, const CreateDrawListFunction createFunc, const DrawListType type) {
     mCustomDrawLists.insert(groupName, CustomDrawList{.type = type, .createFunc = createFunc});
 }
 
-void ExecuteHelper::addCustomUpdateList(const sead::SafeString& groupName, const ListCreatorFunction createFunc, const UpdateListType type) {
+void ExecuteHelper::addCustomUpdateList(const sead::SafeString& groupName, const CreateUpdateListFunction createFunc, const UpdateListType type) {
     mCustomUpdateLists.insert(groupName, CustomUpdateList{.type = type, .createFunc = createFunc});
 }
 
@@ -169,22 +169,23 @@ HkTrampoline hookUpdateTableInit = [](TrampolineStatic(), al::ExecuteTableHolder
     }
 };
 
-static al::ExecutorListBase* registerCustomDrawList(al::ExecuteTableHolderDraw* table, const al::ExecuteOrder* order) {
+static al::ExecutorListBase* registerCustomDrawList(al::ExecuteTableHolderDraw* table, const al::ExecuteOrder* order,
+                                                    const al::ExecuteSystemInitInfo& initInfo) {
     if (const auto customList = SEAD_INSTANCE(ExecuteHelper)->findCustomDrawListCreator(order->executeGroup)) {
-        auto* list = customList->createFunc(order);
+        auto* list = customList->createFunc(order, initInfo);
 
         switch (customList->type) {
         case ExecuteHelper::DrawListType::Actor:
             table->registerExecutorListActor(reinterpret_cast<al::ExecutorListActorDraw*>(list));
-            Logger::log("Created custom draw list '%s' for type Actor", order->executeGroup);
+            Logger::log("Created custom draw list '%s' for type Actor on table '%s'", order->executeGroup, table->getName());
             break;
         case ExecuteHelper::DrawListType::ActorModel:
             table->registerExecutorListActorModel(reinterpret_cast<al::ExecutorListActorModelDrawBase*>(list));
-            Logger::log("Created custom draw list '%s' for type ActorModel", order->executeGroup);
+            Logger::log("Created custom draw list '%s' for type ActorModel on table '%s'", order->executeGroup, table->getName());
             break;
         case ExecuteHelper::DrawListType::Layout:
             table->registerExecutorListLayout(reinterpret_cast<al::ExecutorListLayoutDrawBase*>(list));
-            Logger::log("Created custom draw list '%s' for type Layout", order->executeGroup);
+            Logger::log("Created custom draw list '%s' for type Layout on table '%s'", order->executeGroup, table->getName());
             break;
         }
 
@@ -201,11 +202,11 @@ static al::ExecutorListBase* registerCustomUpdateList(al::ExecuteTableHolderUpda
         switch (customList->type) {
         case ExecuteHelper::UpdateListType::Actor:
             table->registerExecutorListActor(reinterpret_cast<al::ExecutorListActorExecuteBase*>(list));
-            Logger::log("Created custom update list '%s' for type Actor", order->executeGroup);
+            Logger::log("Created custom update list '%s' for type Actor on table '%s' ", order->executeGroup, table->getName());
             break;
         case ExecuteHelper::UpdateListType::Layout:
             table->registerExecutorListLayout(reinterpret_cast<al::ExecutorListLayoutUpdate*>(list));
-            Logger::log("Created custom update list '%s' for type Layout", order->executeGroup);
+            Logger::log("Created custom update list '%s' for type Layout on table '%s'", order->executeGroup, table->getName());
             break;
         }
 
@@ -225,15 +226,28 @@ static al::ExecutorListBase* registerCustomUpdateList(al::ExecuteTableHolderUpda
     "ldp x29, x30, [sp], #32\n"                                                                                                                      \
     "ret\n"
 
+#define PROLOG_SAVE_X0_X1_X2_X3                                                                                                                      \
+    "stp x29, x30, [sp, #-64]!\n"                                                                                                                    \
+    "mov x29, sp\n"                                                                                                                                  \
+    "stp x0, x1, [sp, #16]\n"                                                                                                                        \
+    "stp x2, x3, [sp, #32]\n"
+
+#define EPILOG_RESTORE_X0_X1_X2_X3                                                                                                                   \
+    "ldp x0, x1, [sp, #16]\n"                                                                                                                        \
+    "ldp x2, x3, [sp, #32]\n"                                                                                                                        \
+    "ldp x29, x30, [sp], #64\n"                                                                                                                      \
+    "ret\n"
+
 static void registerCustomDrawListWrapper() {
-    asm volatile(PROLOG_SAVE_X0_X1);
+    asm volatile(PROLOG_SAVE_X0_X1_X2_X3);
     asm volatile("mov x0, x21\n"
                  "mov x1, x19\n"
+                 "mov x2, x20\n"
                  "bl %0\n"
                  "mov x27, x0\n"
                  :
                  : "X"(registerCustomDrawList));
-    asm volatile(EPILOG_RESTORE_X0_X1);
+    asm volatile(EPILOG_RESTORE_X0_X1_X2_X3);
 }
 
 static void registerCustomUpdateListWrapper() {
