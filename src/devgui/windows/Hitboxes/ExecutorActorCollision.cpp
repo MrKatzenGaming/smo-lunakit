@@ -7,11 +7,11 @@
 #include "al/Library/Camera/CameraUtil.h"
 #include "al/Library/Collision/CollisionParts.h"
 #include "al/Library/Collision/CollisionPartsTriangle.h"
+#include "al/Library/Draw/GraphicsSystemInfo.h"
 #include "al/Library/Execute/ExecutorActorExecuteBase.h"
 #include "al/Library/LiveActor/ActorFlagFunction.h"
 #include "al/Library/LiveActor/LiveActor.h"
-#include "al/Library/Resource/Resource.h"
-#include "al/Library/Scene/Scene.h"
+#include "al/Library/Model/SimpleModelEnv.h"
 
 #include "agl/common/aglShaderProgram.h"
 
@@ -58,6 +58,7 @@ void RenderedKCollisionServer::initRender() {
 
     mVertexAttribute.create(1, nullptr);
     mVertexAttribute.setVertexStream(0, &mVertexStream, 0);
+    mVertexAttribute.setVertexStream(1, &mVertexStream, 1);
     mVertexAttribute.setUp();
 
     // Uniform Block
@@ -79,7 +80,7 @@ void RenderedKCollisionServer::initRender() {
             sead::Vector3f faceNormal = getFaceNormal(&data, &model);
 
             // Nudge slightly to avoid Z-fighting
-            constexpr f32 nudge = 10.0f;
+            constexpr f32 nudge = 1.0f;
             positions[0] += faceNormal * nudge;
             positions[1] += faceNormal * nudge;
             positions[2] += faceNormal * nudge;
@@ -94,20 +95,11 @@ void RenderedKCollisionServer::initRender() {
 void RenderedKCollisionServer::draw(agl::DrawContext* context, const al::LiveActor* actor, const agl::ShaderProgram* shader) const {
     {
         al::UniformBlockSetter ubs{mUniformBlock, 0};
-
-        const sead::Matrix34f& modelMtx = actor->getCollisionParts()->getBaseMtx();
-        const sead::Matrix34f& viewMtx = al::getViewMtx(actor, 0);
-        const sead::Matrix44f& projMtx = al::getProjectionMtx(actor, 0);
-
-        sead::Matrix34f viewModelMtx;
-        viewModelMtx.setMul(viewMtx, modelMtx);
-        sead::Matrix44f projViewModelMtx;
-        projViewModelMtx.setMul(projMtx, viewModelMtx);
-        mUniformBlock->setData(0, projViewModelMtx);
+        mUniformBlock->setData(0, actor->getCollisionParts()->getBaseMtx());
     }
 
     shader->activate(context, false);
-    mUniformBlock->setUniform(context, agl::UniformBlockLocation("Context", *shader));
+    mUniformBlock->setUniform(context, agl::UniformBlockLocation("Mdl", *shader));
     mVertexAttribute.drawArrays(context, VertexStreamTopology::Triangles, 0, mVertexNum);
 }
 

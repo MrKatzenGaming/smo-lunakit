@@ -36,7 +36,7 @@ public:
         sead::Vector3f normal;
     };
 
-    static constexpr std::array<al::UniformBlockLayout, 1> sUniformLayout = {{0, al::UniformBlock::Type::Vec4, 4}};
+    static constexpr std::array<al::UniformBlockLayout, 1> sUniformLayout = {{0, al::UniformBlock::Type::Vec4, 3}};
 
     RenderedKCollisionServer();
 
