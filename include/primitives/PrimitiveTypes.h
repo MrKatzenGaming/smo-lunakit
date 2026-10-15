@@ -142,7 +142,7 @@ enum HitSensorRenderTypes {
     HitSensorType_HOLDOBJ = 1 << 8,
     HitSensorType_MISC = 1 << 9,
     HitSensorType_ALL = HitSensorType_ATTACK | HitSensorType_EYE | HitSensorType_NPC | HitSensorType_TRAMPLE | HitSensorType_BIND |
-                        HitSensorType_ENEMYBODY | HitSensorType_MAPOBJ | HitSensorType_PLAYERALL | HitSensorType_HOLDOBJ | HitSensorType_MISC
+        HitSensorType_ENEMYBODY | HitSensorType_MAPOBJ | HitSensorType_PLAYERALL | HitSensorType_HOLDOBJ | HitSensorType_MISC
 };
 
 class PrimitiveTypeHitSensor : public PrimitiveTypeBase {
