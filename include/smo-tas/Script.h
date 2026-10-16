@@ -124,6 +124,7 @@ struct CmdDemo {
 };
 
 struct CmdSection {
+    bool player;
     u16 taserLen;
     char* taser;
 };

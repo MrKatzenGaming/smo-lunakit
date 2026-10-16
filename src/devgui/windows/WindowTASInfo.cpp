@@ -21,7 +21,8 @@ bool WindowTASInfo::tryUpdateWinDisplay() {
     ImGui::Text("Title: %s", script->getTitle());
     ImGui::TextWrapped("Author(s): %s", script->getAuthor());
     ImGui::TextWrapped("Desciption: %s", script->getDesc());
-    ImGui::Text("Current TASer: %s", tas->getCurTASer());
+    ImGui::Text("Current Mario TASer: %s", tas->getCurMarTASer());
+    ImGui::Text("Current Cappy TASer: %s", tas->getCurCapTASer());
 
     return true;
 }
