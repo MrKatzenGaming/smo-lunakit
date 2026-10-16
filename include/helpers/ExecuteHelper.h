@@ -1,6 +1,6 @@
 #pragma once
 
-#include "sead/container/seadObjArray.h"
+#include "sead/container/seadPtrArray.h"
 #include "sead/container/seadStrTreeMap.h"
 
 #include "al/Library/Execute/ExecuteOrder.h"
@@ -63,9 +63,9 @@ public:
     s32 getCustomDrawListCount(DrawListType type) const;
     s32 getCustomUpdateListCount(UpdateListType type) const;
 
+private:
     static void installHooks();
 
-private:
     sead::StrTreeMap<64, TableOverride*> mDrawTableOverrides;
     sead::StrTreeMap<64, TableOverride*> mUpdateTableOverrides;
 

@@ -50,8 +50,6 @@
 #include "Imgui.hpp"
 #include "devgui/DevGuiHooks.h"
 #include "devgui/DevGuiManager.h"
-#include "devgui/windows/Hitboxes/ExecutorActorCollision.h"
-#include "devgui/windows/Hitboxes/ExecutorListActorCollision.h"
 #include "devgui/windows/WindowFreecam.h"
 #include "devgui/windows/WindowInput.h"
 #include "devgui/windows/WindowStagePause.h"
@@ -210,14 +208,9 @@ HkTrampoline GameSystemInit = [](TrampolineStatic(), GameSystem* thisPtr) -> voi
     imgui::setup(lkHeap);
 
     ExecuteHelper::createInstance(lkHeap);
-    ExecuteHelper::installHooks();
-
     ShaderHelper::createInstance(lkHeap);
 
     al::CustomActorExecuteInfo::installHooks();
-
-    ExecutorListActorCollision::installHooks();
-    RenderedKCollisionServer::installHooks();
 
     DevGuiManager::createInstance(lkHeap);
     DevGuiManager::instance()->init(lkHeap);

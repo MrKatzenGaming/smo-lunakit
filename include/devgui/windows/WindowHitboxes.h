@@ -14,6 +14,4 @@ public:
 
 private:
     bool mEnabled = false;
-
-    CollisionDrawer mCollisionDrawer;
 };

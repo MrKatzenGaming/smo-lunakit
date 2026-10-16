@@ -2,219 +2,157 @@
 
 #include "hk/hook/Trampoline.h"
 
-#include "sead/gfx/seadCamera.h"
-#include "sead/gfx/seadGraphics.h"
-#include "sead/gfx/seadProjection.h"
-#include "sead/math/seadVector.h"
 #include "sead/prim/seadSafeString.h"
 
-#include "al/Library/Camera/CameraUtil.h"
-#include "al/Library/Execute/ActorExecuteInfo.h"
-#include "al/Library/Execute/ExecuteDirector.h"
-#include "al/Library/Execute/ExecuteTableHolderDraw.h"
-#include "al/Library/Execute/ExecutorListActorDraw.h"
-#include "al/Library/Execute/ExecutorListActorModelDraw.h"
-#include "al/Library/Resource/Resource.h"
-#include "al/Library/Scene/Scene.h"
+#include "al/Library/Collision/CollisionDirector.h"
+#include "al/Library/Collision/CollisionPartsKeeperOctree.h"
+#include "al/Library/Collision/CollisionPartsKeeperUtil.h"
+#include "al/Library/Execute/ExecuteUtil.h"
+#include "al/Library/LiveActor/LiveActorKit.h"
 #include "al/Library/Shader/Block/UniformBlock.h"
+#include "al/Library/Thread/FunctorV0M.h"
 
-#include "agl/common/aglResBinaryShaderArchive.h"
-#include "agl/common/aglResShaderArchive.h"
 #include "agl/common/aglShaderProgram.h"
-#include "agl/common/aglShaderProgramArchive.h"
 #include "agl/common/aglVertexBuffer.h"
 
-#include "custom/al/actor/ActorActionKeeper.h"
-
 #include "helpers/ExecuteHelper.h"
+#include "helpers/ShaderHelper.h"
 #include "logger/Logger.hpp"
 
-static constexpr auto collisionListName = "Collision[LunaKit]";
-static constexpr auto collisionGroupName = "ActorDrawCollision[LunaKit]";
-static constexpr al::ExecuteOrder collisionOrder = {collisionListName, collisionGroupName, 1024, "地形"};
+SEAD_SINGLETON_DISPOSER_IMPL(CollisionDrawer);
 
-ExecutorListActorCollision::ExecutorListActorCollision(const char* name, const s32 size) : ExecutorListActorExecuteBase(name, size) {}
+static constexpr al::ExecuteOrder collisionOrder = {"Collision[LunaKit]", "Functor", 1, "地形"};
+static constexpr al::ExecuteOrder collisionOrderDepthOnly = {"CollisionDepthOnly[LunaKit]", "Functor", 1, "地形"};
 
-al::ExecutorActorExecuteBase* ExecutorListActorCollision::createExecutor(const char* name) const {
-    Logger::log("Creating ExecutorActorCollision for '%s' [%d/%d]", name, mSize, mCapacity);
-    return new ExecutorActorCollision(name);
-}
-
-HkTrampoline hookInitActorImpl = [](TrampolineStatic(), al::LiveActor* actor, const al::ActorInitInfo& initInfo, const sead::SafeString& folderName,
-                                    const sead::SafeString& fileName, const char* suffix) -> void {
-    orig(actor, initInfo, folderName, fileName, suffix);
-    // al::initExecutorDraw(actor, initInfo, collisionListName);
-
-    // Cannot just call registerActorDraw(), since we don't want to register an actor model
-    auto* director = initInfo.executeDirector;
-
-    if (!actor->getExecuteInfo())
-        actor->initExecuteInfo(new al::ActorExecuteInfo(director->mRequestKeeper));
-
-    for (s32 i = 0; i < director->mDrawTableCount; i++) {
-        // Logger::log(" - #%d: %p", i, director->mDrawTables[i]);
-        // for (s32 j = 0; j < director->mDrawTables[i]->mExecutorsActorSize; j++) {
-        //     auto* listActor = director->mDrawTables[i]->mExecutorsActor[j];
-        //     Logger::log(" - Actor #%d/%d: %p", i, j, listActor);
-        // }
-        // for (s32 j = 0; j < director->mDrawTables[i]->mExecutorsActorModelSize; j++) {
-        //     auto* listActor = director->mDrawTables[i]->mExecutorsActorModel[j];
-        //     Logger::log(" - ActorModel #%d/%d: %p", i, j, listActor);
-        //     for (s32 k = 0; k < director->mDrawTables[i]->mExecutorsActorModel[j]->mSize; k++) {
-        //         auto* model = director->mDrawTables[i]->mExecutorsActorModel[j]->mList[k];
-        //         Logger::log(" - Model #%d/%d/%d: %p", i, j, k, model);
-        //     }
-        // }
-        // Logger::log("Registering with %d updaters, %d drawers", actor->getExecuteInfo()->getUpdaterCount(),
-        //             actor->getExecuteInfo()->getDrawerCount());
-
-        director->mDrawTables[i]->tryRegisterActor(actor, collisionListName);
-    }
+HkTrampoline hookEndInit = [](TrampolineStatic(), al::LiveActorKit* self) -> void {
+    SEAD_INSTANCE(CollisionDrawer)->initScene(self);
+    orig(self);
 };
 
-void ExecutorListActorCollision::init() {
-    hookInitActorImpl.installAtSym<"ActorInitUtil_initActorImpl">();
-}
-
-ExecutorActorCollision::ExecutorActorCollision(const char* name) : ExecutorActorExecuteBase(name) {}
-
-void ExecutorActorCollision::execute() const {
-    Logger::log("Executing ExecutorActorCollision for '%s' with %d actors", mName, mActors.size());
-}
-
 CollisionDrawer::CollisionDrawer() {
-    // Shader Program
-    const auto* shaderRes = new al::Resource("ShaderData/lkRenderCollision");
+    ExecuteHelper::instance()->appendDrawTable("３Ｄ（ディファード地形）", &collisionOrder);
+    ExecuteHelper::instance()->appendDrawTable("３Ｄ（不透明Ｚプリパス）", &collisionOrderDepthOnly);
 
-    sead::Graphics::instance()->lockDrawContext();
-    mArchive = new agl::ShaderProgramArchive();
-    mArchive->createWithOption(agl::ResBinaryShaderArchive(shaderRes->getOtherFile("lkRenderCollision.sharcb")), agl::ResShaderArchive(), 0, nullptr);
-    mArchive->setUp();
-    sead::Graphics::instance()->unlockDrawContext();
+    mShader = SEAD_INSTANCE(ShaderHelper)->getShaderProgram("lkRenderCollision");
+    mShaderDepthOnly = SEAD_INSTANCE(ShaderHelper)->getShaderProgram("lkRenderCollisionDepthOnly");
 
-    mProgram = mArchive->mShaderPrograms.get(mArchive->searchShaderProgramIndex("lkRenderCollision"));
+    hookEndInit.installAtSym<"_ZN2al12LiveActorKit7endInitEv">();
 
-    // Buffer Data
-    mVertexData.alloc(sMaxVertices, nullptr);
-    mIndexData.alloc(sMaxIndices, nullptr);
+    RenderedKCollisionServer::installHooks();
+}
+
+CollisionDrawer::~CollisionDrawer() = default;
+
+void CollisionDrawer::initScene(const al::LiveActorKit* actorKit) {
+    using CollisionDrawerFunctor = al::FunctorV0M<CollisionDrawer*, void (CollisionDrawer::*)() const>;
+
+    al::registerExecutorFunctor(collisionOrder.listName, actorKit->getExecuteDirector(), CollisionDrawerFunctor(this, &CollisionDrawer::draw));
+    al::registerExecutorFunctor(collisionOrderDepthOnly.listName, actorKit->getExecuteDirector(),
+                                CollisionDrawerFunctor(this, &CollisionDrawer::drawDepthOnly));
+
+    mCollisionDirector = actorKit->getCollisionDirector();
+    mDrawContext = actorKit->getSceneDrawContext();
+    Logger::log("Initialized CollisionDrawer with '%p': %p / %p", actorKit, mCollisionDirector, mDrawContext);
+}
+
+static void drawNode(agl::DrawContext* context, const agl::ShaderProgram* shader, const al::CollisionPartsKeeperOctree::OctNode* node) {
+    for (const auto parts : node->collisionParts) {
+        if (parts->mSpecialPurpose != nullptr)
+            continue;
+
+        const auto server = reinterpret_cast<RenderedKCollisionServer*>(parts->getKCollisionServer());
+        server->draw(context, shader, parts);
+    }
+
+    for (s32 i = 0; i < 8; i++)
+        if (node->octants[i])
+            drawNode(context, shader, node->octants[i]);
+}
+
+void CollisionDrawer::drawImpl(const bool depthOnly) const {
+    if (!mCollisionDirector || !mDrawContext) {
+        Logger::log("Uninitialized skip");
+        return;
+    }
+
+    auto octree = mCollisionDirector->mRootOctree;
+    drawNode(mDrawContext, depthOnly ? mShaderDepthOnly : mShader, &octree->mRoot);
+}
+
+RenderedKCollisionServer::RenderedKCollisionServer() {}
+
+void RenderedKCollisionServer::initRender() {
+    u32 vertexMaxNum = 0;
+
+    for (const auto& model : mModelsData)
+        vertexMaxNum += getTriangleNum(&model) * 3;
+
+    // Buffers
+    auto vtxData = mVertexData.alloc(vertexMaxNum, nullptr);
 
     // Vertex Attribute
-    mVertexStream.setUpBuffer(mVertexData, sizeof(Vertex), sizeof(Vertex) * sMaxVertices);
+    mVertexStream.setUpBuffer(mVertexData, sizeof(Vertex), sizeof(Vertex) * vertexMaxNum);
     mVertexStream.setUpStream(0, agl::VertexStreamFormat::RGB32F, offsetof(Vertex, position));
+    mVertexStream.setUpStream(1, agl::VertexStreamFormat::RGB32F, offsetof(Vertex, normal));
 
     mVertexAttribute.create(1, nullptr);
     mVertexAttribute.setVertexStream(0, &mVertexStream, 0);
+    mVertexAttribute.setVertexStream(1, &mVertexStream, 1);
     mVertexAttribute.setUp();
 
     // Uniform Block
-    mUniformBlock = al::createUniformBlock(Vertex::sLayout.data(), Vertex::sLayout.size(), nullptr, 2);
+    mUniformBlock = al::createUniformBlock(sUniformLayout.data(), sUniformLayout.size(), nullptr, 2);
 
-    // Execute List
-    ExecuteHelper::instance()->appendDrawTable("３Ｄ（フォワード）", &collisionOrder);
-    ExecuteHelper::instance()->addCustomDrawList(
-        collisionGroupName,
-        [](const al::ExecuteOrder* order) -> al::ExecutorListBase* {
-            Logger::log("Created custom executor list for '%s' with %d slots", order->listName, order->listMaxSize);
-            return new ExecutorListActorCollision(order->listName, order->listMaxSize);
-        },
-        ExecuteHelper::DrawListType::Actor);
+    // Data
+    auto* vtx = vtxData.getData();
+    mVertexNum = 0;
 
-    ExecutorListActorCollision::init();
+    for (const auto& model : mModelsData) {
+        for (s32 i = 0; i < getTriangleNum(&model); i++) {
+            const auto& data = getPrismData(i, &model);
+
+            sead::Vector3f positions[3];
+            calcPosLocal(&positions[0], &data, 0, &model);
+            calcPosLocal(&positions[1], &data, 1, &model);
+            calcPosLocal(&positions[2], &data, 2, &model);
+
+            sead::Vector3f faceNormal = getFaceNormal(&data, &model);
+
+            // Nudge slightly to avoid Z-fighting
+            constexpr f32 nudge = 1.0f;
+            positions[0] += faceNormal * nudge;
+            positions[1] += faceNormal * nudge;
+            positions[2] += faceNormal * nudge;
+
+            vtx[mVertexNum++] = Vertex(positions[0], faceNormal);
+            vtx[mVertexNum++] = Vertex(positions[1], faceNormal);
+            vtx[mVertexNum++] = Vertex(positions[2], faceNormal);
+        }
+    }
 }
 
-void CollisionDrawer::draw(agl::DrawContext* context, const al::Scene* scene) const {
+void RenderedKCollisionServer::draw(agl::DrawContext* context, const agl::ShaderProgram* shader, const al::CollisionParts* parts) const {
     {
         al::UniformBlockSetter ubs{mUniformBlock, 0};
-
-        const sead::Matrix34f viewMtx = al::getViewMtx(scene, 0);
-        const sead::Matrix44f projMtx = al::getProjectionMtx(scene, 0);
-        sead::Matrix44f projViewMtx;
-        projViewMtx.setMul(projMtx, viewMtx);
-        mUniformBlock->setData(0, projViewMtx);
+        mUniformBlock->setDataMat3x4(0, &parts->getBaseMtx());
     }
 
-    mProgram->activate(context, false);
-    mUniformBlock->setUniform(context, agl::UniformBlockLocation("Context", *mProgram));
-    mVertexAttribute.activate(context);
-    mIndexStream.drawElements(context);
+    shader->activate(context, false);
+    mUniformBlock->activate(context, agl::UniformBlockLocation("Mdl", *shader));
+    mVertexAttribute.drawArrays(context, VertexStreamTopology::Triangles, 0, mVertexNum);
 }
 
-void CollisionDrawer::genCube(const sead::Vector3f& pos, const f32 size) {
-    auto* vtx = mVertexData.data();
-    auto* idx = mIndexData.data();
+static void RenderedKCollisionServer_ctor(RenderedKCollisionServer* self) {
+    new (self) RenderedKCollisionServer();
+}
 
-    {
-        mVertexCount = 0;
+HkTrampoline hookKCollisionServerInit = [](TrampolineStatic(), RenderedKCollisionServer* self, void* kcl, const void* byml) -> void {
+    orig(self, kcl, byml);
+    self->initRender();
+};
 
-        // Front
-        vtx[mVertexCount++] = Vertex(pos + sead::Vector3f(+size, +size, +size));
-        vtx[mVertexCount++] = Vertex(pos + sead::Vector3f(+size, -size, +size));
-        vtx[mVertexCount++] = Vertex(pos + sead::Vector3f(-size, -size, +size));
-        vtx[mVertexCount++] = Vertex(pos + sead::Vector3f(-size, +size, +size));
-
-        // Back
-        vtx[mVertexCount++] = Vertex(pos + sead::Vector3f(+size, +size, -size));
-        vtx[mVertexCount++] = Vertex(pos + sead::Vector3f(+size, -size, -size));
-        vtx[mVertexCount++] = Vertex(pos + sead::Vector3f(-size, -size, -size));
-        vtx[mVertexCount++] = Vertex(pos + sead::Vector3f(-size, +size, -size));
-    }
-    {
-        mIndexCount = 0;
-
-        // Front
-        idx[mIndexCount++] = 0;
-        idx[mIndexCount++] = 1;
-        idx[mIndexCount++] = 2;
-
-        idx[mIndexCount++] = 2;
-        idx[mIndexCount++] = 3;
-        idx[mIndexCount++] = 0;
-
-        // Back
-        idx[mIndexCount++] = 7;
-        idx[mIndexCount++] = 6;
-        idx[mIndexCount++] = 5;
-
-        idx[mIndexCount++] = 5;
-        idx[mIndexCount++] = 4;
-        idx[mIndexCount++] = 7;
-
-        // Left
-        idx[mIndexCount++] = 4;
-        idx[mIndexCount++] = 5;
-        idx[mIndexCount++] = 1;
-
-        idx[mIndexCount++] = 1;
-        idx[mIndexCount++] = 0;
-        idx[mIndexCount++] = 4;
-
-        // Right
-        idx[mIndexCount++] = 3;
-        idx[mIndexCount++] = 2;
-        idx[mIndexCount++] = 6;
-
-        idx[mIndexCount++] = 6;
-        idx[mIndexCount++] = 7;
-        idx[mIndexCount++] = 3;
-
-        // Top
-        idx[mIndexCount++] = 4;
-        idx[mIndexCount++] = 0;
-        idx[mIndexCount++] = 3;
-
-        idx[mIndexCount++] = 3;
-        idx[mIndexCount++] = 7;
-        idx[mIndexCount++] = 4;
-
-        // Bottom
-        idx[mIndexCount++] = 6;
-        idx[mIndexCount++] = 2;
-        idx[mIndexCount++] = 1;
-
-        idx[mIndexCount++] = 1;
-        idx[mIndexCount++] = 5;
-        idx[mIndexCount++] = 6;
-
-        mIndexStream.setUpStream<u16>(mIndexData, mIndexCount);
-    }
+void RenderedKCollisionServer::installHooks() {
+    hk::hook::a64::assemble<"mov x0, {}">().arg(sizeof(RenderedKCollisionServer)).installAtSym<"$kCollisionServerSize">();
+    hk::hook::writeBranchLinkAtSym<"$kCollisionServerCtor">(&RenderedKCollisionServer_ctor);
+    hookKCollisionServerInit.installAtSym<"_ZN2al16KCollisionServer20initKCollisionServerEPvPKv">();
 }

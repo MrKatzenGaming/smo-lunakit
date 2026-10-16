@@ -1,5 +1,6 @@
 #pragma once
 
+#include "al/Library/Collision/KCollisionServer.h"
 #include "al/Library/Execute/ExecutorActorExecuteBase.h"
 #include "al/Library/Execute/ExecutorListActorExecute.h"
 #include "al/Library/Scene/Scene.h"
@@ -12,52 +13,51 @@
 #include "agl/common/aglVertexAttribute.h"
 #include "agl/common/aglVertexBuffer.h"
 
-class ExecutorListActorCollision : public al::ExecutorListActorExecuteBase {
-public:
-    ExecutorListActorCollision(const char* name, s32 size);
-    al::ExecutorActorExecuteBase* createExecutor(const char* name) const override;
-
-    static void init();
-};
-
-class ExecutorActorCollision : public al::ExecutorActorExecuteBase {
-public:
-    ExecutorActorCollision(const char* name);
-    void execute() const override;
-};
-
 class CollisionDrawer {
+    SEAD_SINGLETON_DISPOSER(CollisionDrawer)
+
 public:
-    struct Vertex {
-        static constexpr std::array<al::UniformBlockLayout, 1> sLayout = {{0, al::UniformBlock::Type::Vec4, 4}};
-
-        Vertex(sead::Vector3f position) : position(position) {}
-
-        sead::Vector3f position;
-    };
-
     CollisionDrawer();
+    ~CollisionDrawer();
 
-    void draw(agl::DrawContext* context, const al::Scene* scene) const;
+    void initScene(const al::LiveActorKit* actorKit);
 
-    void genCube(const sead::Vector3f& pos, f32 size);
+    void draw() const { drawImpl(false); }
+    void drawDepthOnly() const { drawImpl(true); }
 
 private:
-    static constexpr size_t sMaxVertices = 1024;
-    static constexpr size_t sMaxIndices = 1024 * 3;
+    void drawImpl(bool depthOnly) const;
 
-    agl::ShaderProgramArchive* mArchive;
-    agl::ShaderProgram* mProgram;
+    const agl::ShaderProgram* mShader;
+    const agl::ShaderProgram* mShaderDepthOnly;
 
+    const al::CollisionDirector* mCollisionDirector = nullptr;
+    agl::DrawContext* mDrawContext = nullptr;
+};
+
+class RenderedKCollisionServer : al::KCollisionServer {
+public:
+    struct Vertex {
+        explicit Vertex(const sead::Vector3f& position, const sead::Vector3f& normal) : position(position), normal(normal) {}
+
+        sead::Vector3f position;
+        sead::Vector3f normal;
+    };
+
+    static constexpr std::array<al::UniformBlockLayout, 1> sUniformLayout = {{0, al::UniformBlock::Type::Mat3x4, 1}};
+
+    RenderedKCollisionServer();
+
+    void initRender();
+    void draw(agl::DrawContext* context, const agl::ShaderProgram* shader, const al::CollisionParts* parts) const;
+
+    static void installHooks();
+
+private:
     agl::GPUMemBlock<Vertex> mVertexData;
     agl::VertexBuffer mVertexStream;
     agl::VertexAttribute mVertexAttribute;
-
-    agl::GPUMemBlock<u16> mIndexData;
-    agl::IndexStream mIndexStream;
+    u32 mVertexNum;
 
     al::UniformBlock* mUniformBlock;
-
-    u32 mVertexCount = 0;
-    u32 mIndexCount = 0;
 };

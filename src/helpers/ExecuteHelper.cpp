@@ -15,6 +15,8 @@ ExecuteHelper::ExecuteHelper() {
 
     mCustomDrawLists.allocBuffer(32, nullptr);
     mCustomUpdateLists.allocBuffer(32, nullptr);
+
+    installHooks();
 }
 
 ExecuteHelper::~ExecuteHelper() {

@@ -36,7 +36,7 @@
 #include "logger/Logger.hpp"
 
 WindowHitboxes::WindowHitboxes(DevGuiManager* parent, const char* winName, bool isActiveByDefault) : WindowBase(parent, winName, isActiveByDefault) {
-    mCollisionDrawer.genCube(sead::Vector3f(100.0f, 100.0f, 100.0f), 100.0f);
+    CollisionDrawer::createInstance(parent->getHeap());
 }
 
 static const al::Scene* getScene(GameSystem* system) {
