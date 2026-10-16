@@ -9,13 +9,9 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  group: release
-  cancel-in-progress: false
-
 jobs:
   build:
-    runs-on: alpine
+    runs-on: ubuntu-latest
     container:
       image: fruityloops1/alpine-hakkun
     steps:
@@ -25,7 +21,7 @@ jobs:
           submodules: "recursive"
 
       - name: Install dependencies
-        run: sudo apk add zip
+        run: apk add zip
 
       - name: Compile tools
         run: python sys/tools/setup_sail.py
