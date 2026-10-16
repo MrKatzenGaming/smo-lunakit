@@ -45,6 +45,7 @@ enum class CommandType : u16 {
     SPEEDUP = 0xc005,
     PAUSE = 0xc006,
     DEMO = 0xc007,
+    SECTION = 0xc008,
 
     INVALID = 0xffff
 };
@@ -122,6 +123,11 @@ struct CmdDemo {
     bool enable = false;
 };
 
+struct CmdSection {
+    u16 taserLen;
+    char* taser;
+};
+
 class Script {
 private:
 #pragma pack(push, 4)
@@ -170,6 +176,12 @@ public:
     }
 
     bool is2P() { return getPlayerCount() == 2; }
+
+    const char* getAuthor() { return mScriptHeader.author ? mScriptHeader.author : "- No Author -"; };
+
+    const char* getDesc() { return mScriptHeader.desc ? mScriptHeader.desc : "- No Description -"; };
+
+    const char* getTitle() { return mScriptHeader.title ? mScriptHeader.title : "- No Title -"; };
 
 private:
     template <typename T>

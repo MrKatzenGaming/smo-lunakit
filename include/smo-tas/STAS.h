@@ -51,6 +51,8 @@ public:
 
     bool hasScript() const { return mScript != nullptr; };
 
+    const char* getCurTASer() { return mCurTASer; };
+
 public:
     u32 mSpeed = 1;
     u32 mSpeedupFrame = 0;
@@ -61,6 +63,7 @@ public:
 private:
     s64 mCurFrame = -1;
     s64 mNextFrame = -1;
+    const char* mCurTASer = "?";
 
     sead::SafeArray<u64, 2> mPrevButtons = {0, 0};
 

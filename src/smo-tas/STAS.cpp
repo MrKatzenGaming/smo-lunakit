@@ -155,6 +155,7 @@ void STAS::endScript() {
     mNextFrame = -1;
     mPrevButtons.fill(0);
     mIsUseAbsJoystick = false;
+    mCurTASer = "?";
     delete mScript;
 }
 
@@ -382,6 +383,20 @@ void STAS::applyCommand(Command* cmd) {
             else
                 p->endDemoPuppetable();
         }
+        break;
+    }
+
+    case CommandType::SECTION: {
+        CmdSection c;
+        u8* data = cmd->data;
+        u64 cursor = 0;
+
+        c.taserLen = read<u16>(data, &cursor);
+        c.taser = (char*)&data[cursor];
+        cursor += c.taserLen;
+        cursor = hk::alignUp(cursor, 4);
+
+        mCurTASer = c.taser;
         break;
     }
 
