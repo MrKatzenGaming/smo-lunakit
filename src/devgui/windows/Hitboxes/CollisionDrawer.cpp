@@ -25,8 +25,8 @@
 
 #include "custom/al/Library/Collision/CustomKCollisionServer.h"
 
+#include "devgui/windows/WindowHitboxes.h"
 #include "helpers/ShaderHelper.h"
-#include "logger/Logger.hpp"
 
 SEAD_SINGLETON_DISPOSER_IMPL(CollisionDrawer);
 
@@ -98,10 +98,8 @@ static void drawNode(agl::DrawContext* drawCtx, const agl::ShaderProgram* shader
 }
 
 void CollisionDrawer::draw(al::RenderVariables& renderVars, agl::RenderBuffer* renderBuffer) {
-    if (!mCollisionDirector) {
-        Logger::log("skip");
+    if (!mCollisionDirector || !WindowHitboxes::shouldDrawCollision())
         return;
-    }
 
     al::FrustumRadar radar;
     radar.calcFrustumArea(renderVars.mCamera.getMatrix(), renderVars.mProjection.getMtxStd(), renderVars.mNear, renderVars.mFar);

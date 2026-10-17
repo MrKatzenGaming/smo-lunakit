@@ -30,7 +30,9 @@
 #include "devgui/windows/WindowDupHotkeys.h"
 #include "devgui/windows/WindowEditor.h"
 #include "devgui/windows/WindowFPS.h"
+#include "devgui/windows/WindowFreecam.h"
 #include "devgui/windows/WindowGroup.h"
+#include "devgui/windows/WindowHitboxes.h"
 #include "devgui/windows/WindowInfo.h"
 #include "devgui/windows/WindowInput.h"
 #include "devgui/windows/WindowMemoryManage.h"
@@ -38,8 +40,6 @@
 #include "devgui/windows/WindowStagePause.h"
 #include "devgui/windows/WindowTAS.h"
 #include "devgui/windows/WindowTASTools.h"
-#include "devgui/windows/WindowFreecam.h"
-#include "devgui/windows/WindowHitboxes.h"
 
 // All tabs on the bar the top of the screen
 #include "devgui/homemenu/HomeMenuCStages.h"
@@ -73,8 +73,8 @@ void DevGuiManager::createElements() {
     createWindow<WindowInput>(windowNameInput, false);
     createWindow<WindowStagePause>(windowNameStagePause, false);
     createWindow<WindowMemoryManage>(windowNameMemoryManage, true);
-    createWindow<WindowFreecam>(windowNameFreecam, true);
-    createWindow<WindowHitboxes>(windowNameHitboxes, true);
+    createWindow<WindowFreecam>(windowNameFreecam, false);
+    createWindow<WindowHitboxes>(windowNameHitboxes, false);
 
     // Create all home menu tabs
     Logger::log("Constructing all home menu items\n");
