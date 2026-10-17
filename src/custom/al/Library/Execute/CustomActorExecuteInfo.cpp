@@ -1,7 +1,6 @@
-#include "custom/al/Library/Execute/ActorExecuteInfo.h"
+#include "custom/al/Library/Execute/CustomActorExecuteInfo.h"
 
 #include "hk/hook/Replace.h"
-#include "hk/hook/a64/Assembler.h"
 
 #include "sead/math/seadMathCalcCommon.h"
 #include "sead/prim/seadMemUtil.h"

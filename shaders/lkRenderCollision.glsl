@@ -3,12 +3,9 @@
 #include "lkCommon.glsl"
 #include "lkModelBase.glsl"
 
-#define RENDER_TYPE (0)
-#define RENDER_TYPE_NORMAL (0)
-#define RENDER_TYPE_DEPTH (1)
-
-DECLARE_VARYING(vec4, vNormalDepth); // .xyz normal, .w depth
-DECLARE_VARYING(vec3, vViewPos);
+DECLARE_VARYING(vec3, vWorldPos);
+DECLARE_VARYING(vec3, vWorldNormal);
+DECLARE_VARYING(vec3, vEdgeDistance);
 
 #if VERTEX_SHADER
 
@@ -18,47 +15,60 @@ layout(std140, binding=0) uniform Mdl {
 
 layout (location=0) in vec3 aPosition;
 layout (location=1) in vec3 aNormal;
+layout (location=2) in float aEdgeDistance;
 
 void main() {
-    vec3 modelPos = vec4(aPosition, 1.0) * cTransform;
-    gl_Position   = vec4(modelPos, 1.0) * cViewProj;
+    vWorldPos = vec4(aPosition, 1.0) * cTransform;
+    gl_Position = vec4(vWorldPos, 1.0) * cViewProj;
 
-#if RENDER_TYPE == RENDER_TYPE_NORMAL
-    vViewPos      = vec4(modelPos, 1.0) * cView;
+    vWorldNormal = aNormal * mat3(cTransform);
 
-    vNormalDepth.xyz = aNormal;
-    vNormalDepth.w = (gl_Position.w - cNear) * cInvRange;
-#endif
+    int vtxID = gl_VertexID % 3;
+    vEdgeDistance = vec3(
+        vtxID == 0 ? aEdgeDistance : 0.0, 
+        vtxID == 1 ? aEdgeDistance : 0.0,
+        vtxID == 2 ? aEdgeDistance : 0.0);
 }
 
 #elif FRAGMENT_SHADER
 
+const float DiffuseMinLight = 0.3;
+const float DiffuseMaxLight = 0.8;
+
+const float OutlineThickness = 5.0;
+const float OutlineSmoothing = 1.0;
+const float OutlineDarkenFactor = 0.5;
+
+layout (location=0) out vec4 fColor;
+
+float edgeDistance(float bary, vec3 dPdx, vec3 dPdy, float dBdx, float dBdy) {
+    float g00 = dot(dPdx, dPdx);
+    float g01 = dot(dPdx, dPdy);
+    float g10 = dot(dPdy, dPdx);
+    float g11 = dot(dPdy, dPdy);
+    float det = g00 * g11 - g01 * g10;
+
+    float gradSq = (g00 * dBdy * dBdy
+                  - g01 * dBdx * dBdy 
+                  - g10 * dBdy * dBdx
+                  + g11 * dBdx * dBdx) / det;
+    return bary / sqrt(gradSq);
+}
+
 void main() {
-#if RENDER_TYPE == RENDER_TYPE_NORMAL
-    fBaseColor = vec4(1.0, 0.0, 0.0, 1.0);
+    // Use "Blender" shading, simulating a light from the camera
+    vec3 viewDir = normalize(vec4(vWorldPos, 1.0) * cView);
+    vec3 viewNormal = normalize(vWorldNormal * mat3(cView));
+    float diffuse = clamp(dot(viewNormal, -viewDir), DiffuseMinLight, DiffuseMaxLight);
 
-    float roughness = 0.0;
-    float metalness = 0.0;
+    // Use distance from edge to apply an outline
+    vec3 distDelta = fwidth(vEdgeDistance);
+    vec3 outlines = smoothstep(OutlineThickness - distDelta * OutlineSmoothing, OutlineThickness + distDelta * OutlineSmoothing, vEdgeDistance);
+    float outline = min(outlines.x, min(outlines.y, outlines.z));
 
-    vec3 viewNormal = normalize(vNormalDepth.xyz * mat3(cView));
-    vec3 viewDir = normalize(vViewPos);
+    vec3 color = vec3(1.0, 1.0, 1.0);
 
-    vec3 f0 = mix(vec3(0.04), fBaseColor.rgb, metalness);
-    vec3 brdf = CalculateBrdf(viewNormal, viewDir, roughness, f0);
-
-    vec4 irradiance = vec4(1.0) * uIrradianceScale;
-    vec3 diffuse  = saturate(fBaseColor.rgb);
-         diffuse *= vec3(1.0) - brdf;
-         diffuse *= irradiance.rgb;
-
-    fLightBuf.rgb = diffuse;
-    fLightBuf.a = fBaseColor.a;
-
-    fWorldNrm.xy = vNormalDepth.xy * 0.5 + 0.5;
-    fDepthView.x = vNormalDepth.w;
-#elif RENDER_TYPE == RENDER_TYPE_DEPTH
-    fLightBuf = vec4(0.0, 0.0, 0.0, 1.0);
-#endif
+    fColor = vec4(mix(color * OutlineDarkenFactor, color, outline) * diffuse, 1.0);
 }
 
 #endif // *_SHADER

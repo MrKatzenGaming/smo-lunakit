@@ -2,157 +2,111 @@
 
 #include "hk/hook/Trampoline.h"
 
+#include "sead/gfx/seadGraphicsContextMTR.h"
+#include "sead/heap/seadDisposer.h"
 #include "sead/prim/seadSafeString.h"
 
 #include "al/Library/Collision/CollisionDirector.h"
 #include "al/Library/Collision/CollisionPartsKeeperOctree.h"
 #include "al/Library/Collision/CollisionPartsKeeperUtil.h"
-#include "al/Library/Execute/ExecuteUtil.h"
+#include "al/Library/Draw/GraphicsSystemInfo.h"
 #include "al/Library/LiveActor/LiveActorKit.h"
+#include "al/Library/Model/SimpleModelEnv.h"
+#include "al/Library/Play/Draw/RenderVariables.h"
+#include "al/Library/Scene/Scene.h"
 #include "al/Library/Shader/Block/UniformBlock.h"
-#include "al/Library/Thread/FunctorV0M.h"
 
+#include "agl/common/aglDrawContext.h"
 #include "agl/common/aglShaderProgram.h"
 #include "agl/common/aglVertexBuffer.h"
 
-#include "helpers/ExecuteHelper.h"
+#include "custom/al/Library/Collision/CustomKCollisionServer.h"
+
 #include "helpers/ShaderHelper.h"
 #include "logger/Logger.hpp"
 
 SEAD_SINGLETON_DISPOSER_IMPL(CollisionDrawer);
-
-static constexpr al::ExecuteOrder collisionOrder = {"Collision[LunaKit]", "Functor", 1, "地形"};
-static constexpr al::ExecuteOrder collisionOrderDepthOnly = {"CollisionDepthOnly[LunaKit]", "Functor", 1, "地形"};
 
 HkTrampoline hookEndInit = [](TrampolineStatic(), al::LiveActorKit* self) -> void {
     SEAD_INSTANCE(CollisionDrawer)->initScene(self);
     orig(self);
 };
 
-CollisionDrawer::CollisionDrawer() {
-    ExecuteHelper::instance()->appendDrawTable("３Ｄ（ディファード地形）", &collisionOrder);
-    ExecuteHelper::instance()->appendDrawTable("３Ｄ（不透明Ｚプリパス）", &collisionOrderDepthOnly);
+static void drawCollision(al::RenderVariables& renderVars, agl::RenderBuffer* renderBuffer) {
+    SEAD_INSTANCE(CollisionDrawer)->draw(renderVars, renderBuffer);
+}
 
+static void drawCollisionWrapper() {
+    asm volatile("stp x29, x30, [sp, #-32]\n"
+                 "add x29, sp, #-32\n"
+                 "stp x0, x1, [sp, #16]\n"
+
+                 // Load al::RenderVariables* from stack
+                 "add x0, sp, #0x2, LSL #12\n"
+                 "add x0, x0, #0x328\n"
+                 // Load agl::RenderBuffer* from register
+                 "mov x1, x28\n"
+
+                 // Only offset stack now, such that the previous stack calculation matches vanilla
+                 "add sp, sp, #-32\n"
+
+                 "bl %0\n"
+
+                 "ldp x0, x1, [sp, #16]\n"
+                 "ldp x29, x30, [sp], #32\n"
+                 :
+                 : "X"(drawCollision));
+
+    // Overwitten instruction
+    asm volatile("ldur x1, [x29, #-0xa8]");
+}
+
+CollisionDrawer::CollisionDrawer() {
     mShader = SEAD_INSTANCE(ShaderHelper)->getShaderProgram("lkRenderCollision");
-    mShaderDepthOnly = SEAD_INSTANCE(ShaderHelper)->getShaderProgram("lkRenderCollisionDepthOnly");
 
     hookEndInit.installAtSym<"_ZN2al12LiveActorKit7endInitEv">();
-
-    RenderedKCollisionServer::installHooks();
+    hk::hook::writeBranchLinkAtSym<"$drawCollisionHook">(drawCollisionWrapper);
 }
 
 CollisionDrawer::~CollisionDrawer() = default;
 
 void CollisionDrawer::initScene(const al::LiveActorKit* actorKit) {
-    using CollisionDrawerFunctor = al::FunctorV0M<CollisionDrawer*, void (CollisionDrawer::*)() const>;
-
-    al::registerExecutorFunctor(collisionOrder.listName, actorKit->getExecuteDirector(), CollisionDrawerFunctor(this, &CollisionDrawer::draw));
-    al::registerExecutorFunctor(collisionOrderDepthOnly.listName, actorKit->getExecuteDirector(),
-                                CollisionDrawerFunctor(this, &CollisionDrawer::drawDepthOnly));
-
     mCollisionDirector = actorKit->getCollisionDirector();
-    mDrawContext = actorKit->getSceneDrawContext();
-    Logger::log("Initialized CollisionDrawer with '%p': %p / %p", actorKit, mCollisionDirector, mDrawContext);
 }
 
-static void drawNode(agl::DrawContext* context, const agl::ShaderProgram* shader, const al::CollisionPartsKeeperOctree::OctNode* node) {
+static void drawNode(agl::DrawContext* drawCtx, const agl::ShaderProgram* shader, const al::CollisionPartsKeeperOctree::OctNode* node) {
     for (const auto parts : node->collisionParts) {
         if (parts->mSpecialPurpose != nullptr)
             continue;
 
-        const auto server = reinterpret_cast<RenderedKCollisionServer*>(parts->getKCollisionServer());
-        server->draw(context, shader, parts);
+        const auto server = reinterpret_cast<al::CustomKCollisionServer*>(parts->getKCollisionServer());
+        server->draw(drawCtx, shader, parts);
     }
 
     for (s32 i = 0; i < 8; i++)
         if (node->octants[i])
-            drawNode(context, shader, node->octants[i]);
+            drawNode(drawCtx, shader, node->octants[i]);
 }
 
-void CollisionDrawer::drawImpl(const bool depthOnly) const {
-    if (!mCollisionDirector || !mDrawContext) {
-        Logger::log("Uninitialized skip");
+void CollisionDrawer::draw(al::RenderVariables& renderVars, agl::RenderBuffer* renderBuffer) {
+    if (!mCollisionDirector) {
+        Logger::log("skip");
         return;
     }
 
-    auto octree = mCollisionDirector->mRootOctree;
-    drawNode(mDrawContext, depthOnly ? mShaderDepthOnly : mShader, &octree->mRoot);
-}
+    auto drawContext = renderVars.mRenderInfo->drawContext;
+    renderVars.mSimpleModelEnv->prepareModelDraw(renderVars.mRenderInfo->getViewIndex());
 
-RenderedKCollisionServer::RenderedKCollisionServer() {}
+    // Render onto the LDR buffer, but with the HDR depth buffer
+    auto origDepth = renderBuffer->mRenderTargetDepth;
+    renderBuffer->mRenderTargetDepth = &renderVars.mDepthTarget;
+    renderBuffer->bind(drawContext);
+    renderVars.mViewport.apply(drawContext, *renderBuffer);
 
-void RenderedKCollisionServer::initRender() {
-    u32 vertexMaxNum = 0;
+    sead::GraphicsContextMRT gfxContext;
+    gfxContext.apply(drawContext);
 
-    for (const auto& model : mModelsData)
-        vertexMaxNum += getTriangleNum(&model) * 3;
+    drawNode(drawContext, mShader, &mCollisionDirector->mRootOctree->mRoot);
 
-    // Buffers
-    auto vtxData = mVertexData.alloc(vertexMaxNum, nullptr);
-
-    // Vertex Attribute
-    mVertexStream.setUpBuffer(mVertexData, sizeof(Vertex), sizeof(Vertex) * vertexMaxNum);
-    mVertexStream.setUpStream(0, agl::VertexStreamFormat::RGB32F, offsetof(Vertex, position));
-    mVertexStream.setUpStream(1, agl::VertexStreamFormat::RGB32F, offsetof(Vertex, normal));
-
-    mVertexAttribute.create(1, nullptr);
-    mVertexAttribute.setVertexStream(0, &mVertexStream, 0);
-    mVertexAttribute.setVertexStream(1, &mVertexStream, 1);
-    mVertexAttribute.setUp();
-
-    // Uniform Block
-    mUniformBlock = al::createUniformBlock(sUniformLayout.data(), sUniformLayout.size(), nullptr, 2);
-
-    // Data
-    auto* vtx = vtxData.getData();
-    mVertexNum = 0;
-
-    for (const auto& model : mModelsData) {
-        for (s32 i = 0; i < getTriangleNum(&model); i++) {
-            const auto& data = getPrismData(i, &model);
-
-            sead::Vector3f positions[3];
-            calcPosLocal(&positions[0], &data, 0, &model);
-            calcPosLocal(&positions[1], &data, 1, &model);
-            calcPosLocal(&positions[2], &data, 2, &model);
-
-            sead::Vector3f faceNormal = getFaceNormal(&data, &model);
-
-            // Nudge slightly to avoid Z-fighting
-            constexpr f32 nudge = 1.0f;
-            positions[0] += faceNormal * nudge;
-            positions[1] += faceNormal * nudge;
-            positions[2] += faceNormal * nudge;
-
-            vtx[mVertexNum++] = Vertex(positions[0], faceNormal);
-            vtx[mVertexNum++] = Vertex(positions[1], faceNormal);
-            vtx[mVertexNum++] = Vertex(positions[2], faceNormal);
-        }
-    }
-}
-
-void RenderedKCollisionServer::draw(agl::DrawContext* context, const agl::ShaderProgram* shader, const al::CollisionParts* parts) const {
-    {
-        al::UniformBlockSetter ubs{mUniformBlock, 0};
-        mUniformBlock->setDataMat3x4(0, &parts->getBaseMtx());
-    }
-
-    shader->activate(context, false);
-    mUniformBlock->activate(context, agl::UniformBlockLocation("Mdl", *shader));
-    mVertexAttribute.drawArrays(context, VertexStreamTopology::Triangles, 0, mVertexNum);
-}
-
-static void RenderedKCollisionServer_ctor(RenderedKCollisionServer* self) {
-    new (self) RenderedKCollisionServer();
-}
-
-HkTrampoline hookKCollisionServerInit = [](TrampolineStatic(), RenderedKCollisionServer* self, void* kcl, const void* byml) -> void {
-    orig(self, kcl, byml);
-    self->initRender();
-};
-
-void RenderedKCollisionServer::installHooks() {
-    hk::hook::a64::assemble<"mov x0, {}">().arg(sizeof(RenderedKCollisionServer)).installAtSym<"$kCollisionServerSize">();
-    hk::hook::writeBranchLinkAtSym<"$kCollisionServerCtor">(&RenderedKCollisionServer_ctor);
-    hookKCollisionServerInit.installAtSym<"_ZN2al16KCollisionServer20initKCollisionServerEPvPKv">();
+    renderBuffer->mRenderTargetDepth = origDepth;
 }

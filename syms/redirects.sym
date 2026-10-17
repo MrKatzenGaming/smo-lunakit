@@ -18,6 +18,7 @@ $actorExecuteInfoDrawers3 = 0x893ae0
 $kCollisionServerSize = _ZN2al14CollisionPartsC1EPvPKv + 0x34
 $kCollisionServerCtor = _ZN2al14CollisionPartsC1EPvPKv + 0x94
 $initActorImpl = 0x8dc12c
+$drawCollisionHook = _ZNK2al12ViewRenderer8drawViewERKNS_8ViewInfoEPNS_14DrawSystemInfoERKNS_10ProjectionERKN4sead6CameraEPKN3agl12RenderBufferERKNS9_8ViewportEbbb + 0x11a8
 
 @smo:101
 $SkyInitHook = _ZN2al3Sky14initFromPresetERKNS_13ActorInitInfoE + 0x50

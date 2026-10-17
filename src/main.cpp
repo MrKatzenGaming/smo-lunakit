@@ -41,7 +41,8 @@
 #include "game/System/GameSystem.h"
 #include "game/Util/DemoUtil.h"
 
-#include "custom/al/Library/Execute/ActorExecuteInfo.h"
+#include "custom/al/Library/Collision/CustomKCollisionServer.h"
+#include "custom/al/Library/Execute/CustomActorExecuteInfo.h"
 #include "custom/game/Scene/StageScene.h"
 
 #include <cstring>
@@ -211,6 +212,7 @@ HkTrampoline GameSystemInit = [](TrampolineStatic(), GameSystem* thisPtr) -> voi
     ShaderHelper::createInstance(lkHeap);
 
     al::CustomActorExecuteInfo::installHooks();
+    al::CustomKCollisionServer::installHooks();
 
     DevGuiManager::createInstance(lkHeap);
     DevGuiManager::instance()->init(lkHeap);

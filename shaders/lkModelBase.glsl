@@ -55,11 +55,6 @@ layout(std140, binding=7) uniform HDRTranslate {
 	float	uDynamicRange;
 };
 
-layout (location=0) out vec4 fLightBuf;
-layout (location=1) out vec4 fWorldNrm;
-layout (location=2) out vec4 fDepthView;
-layout (location=3) out vec4 fBaseColor;
-
 vec4 DecodeCubemap(samplerCube cube, vec3 n, float lod) {
     vec4 tex = textureLod(cube, n, lod);
 
