@@ -1,27 +1,24 @@
 #include "devgui/categories/info/CategoryInfInput.h"
 
 #include "sead/controller/seadControllerMgr.h"
-#include "sead/math/seadMathCalcCommon.h"
 
 #include "al/Library/Controller/InputFunction.h"
 #include "al/Library/Controller/JoyPadAccelerometerAddon.h"
 #include "al/Library/Controller/NpadController.h"
-
-#include "custom/al/Pad/PadGyroAddon.h"
+#include "al/Library/Controller/PadGyroAddon.h"
 
 #include <cstdio>
 
 #include "imgui.h"
 #define DEG(X) X * 180 / M_PI
 
-static void drawButton(const char *name, sead::Controller *controller, sead::Controller::PadIdx padIdx) {
-    if (controller->mPadTrig.isOnBit(padIdx)) {
+static void drawButton(const char* name, sead::Controller* controller, sead::Controller::PadIdx padIdx) {
+    if (controller->mPadTrig.isOnBit(padIdx))
         ImGui::Text("%s Button: %s (Triggered)", name, controller->mPadHold.isOnBit(padIdx) ? "true" : "false");
-    } else if (controller->mPadRelease.isOnBit(padIdx)) {
+    else if (controller->mPadRelease.isOnBit(padIdx))
         ImGui::Text("%s Button: %s (Released)", name, controller->mPadHold.isOnBit(padIdx) ? "true" : "false");
-    } else {
+    else
         ImGui::Text("%s Button: %s", name, controller->mPadHold.isOnBit(padIdx) ? "true" : "false");
-    }
 }
 
 CategoryInfInput::CategoryInfInput(const char* catName, const char* catDesc, sead::Heap* heap) : CategoryBase(catName, catDesc, heap) {}
@@ -40,11 +37,13 @@ void CategoryInfInput::updateCatDisplay() {
         if (ImGui::CollapsingHeader(textBuffer)) {
             float leftRadius = controller->mLeftStick.length();
             float leftAngle = DEG(atan2f(controller->mLeftStick.x, controller->mLeftStick.y));
-            ImGui::Text("Left Stick: X: %.3f Y: %.3f (Radius: %.3f Angle: %.3f)", controller->mLeftStick.x, controller->mLeftStick.y, leftRadius, leftAngle);
+            ImGui::Text("Left Stick: X: %.3f Y: %.3f (Radius: %.3f Angle: %.3f)", controller->mLeftStick.x, controller->mLeftStick.y, leftRadius,
+                        leftAngle);
 
             float rightRadius = controller->mRightStick.length();
             float rightAngle = DEG(atan2f(controller->mRightStick.x, controller->mRightStick.y));
-            ImGui::Text("Right Stick: X: %.3f Y: %.3f (Radius: %.3f Angle: %.3f)", controller->mRightStick.x, controller->mRightStick.y, rightRadius, rightAngle);
+            ImGui::Text("Right Stick: X: %.3f Y: %.3f (Radius: %.3f Angle: %.3f)", controller->mRightStick.x, controller->mRightStick.y, rightRadius,
+                        rightAngle);
 
             ImGui::Separator();
 
@@ -101,4 +100,3 @@ void CategoryInfInput::updateCatDisplay() {
 
     return;
 }
-

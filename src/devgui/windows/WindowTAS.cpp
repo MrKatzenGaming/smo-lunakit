@@ -3,6 +3,7 @@
 #include "devgui/DevGuiManager.h"
 #include "devgui/categories/tas/CategoryTASReplay.h"
 #include "devgui/categories/tas/CategoryTASScripts.h"
+#include "devgui/windows/WindowStagePause.h"
 #include "ghost/GhostManager.h"
 #include "helpers/ImGuiHelper.h"
 #include "imgui.h"

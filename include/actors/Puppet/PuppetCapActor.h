@@ -2,9 +2,8 @@
 
 #include "al/Library/LiveActor/LiveActor.h"
 
+#include "game/Player/HackCapJointControlKeeper.h"
 #include "game/Player/PlayerFunction.h"
-
-#include "custom/game/Player/HackCap/HackCapJointControlKeeper.h"
 
 class PuppetCapActor : public al::LiveActor {
     friend class Ghost;

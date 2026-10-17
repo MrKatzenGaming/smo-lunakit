@@ -3,6 +3,7 @@
 #include "hk/diag/diag.h"
 #include "hk/sail/detail.h"
 
+#include "al/Library/Action/ActorActionKeeper.h"
 #include "al/Library/Base/StringUtil.h"
 #include "al/Library/Effect/EffectSystemInfo.h"
 #include "al/Library/LiveActor/ActorActionFunction.h"
@@ -17,10 +18,9 @@
 #include "al/Library/LiveActor/LiveActor.h"
 #include "al/Library/LiveActor/LiveActorFunction.h"
 #include "al/Library/LiveActor/LiveActorKeeper.h"
+#include "al/Project/Action/ActionPadAndCameraCtrl.h"
 
 #include "game/Player/PlayerCostumeInfo.h"
-
-#include "custom/al/actor/ActorActionKeeper.h"
 
 #include <cstddef>
 
@@ -65,7 +65,7 @@ void PuppetActor::init(const al::ActorInitInfo& initInfo) {
 
     mCostumeInfo = initMario(normalModel, initInfo, bodyName, capName, 0, false, nullptr, false, false);
 
-    normalModel->mActionKeeper->mPadAndCamCtrl->mRumbleCount = 0;  // set rumble count to zero so that no rumble actions will run
+    normalModel->mActionKeeper->mPadAndCameraCtrl->setRumbleCount(0);  // set rumble count to zero so that no rumble actions will run
 
     mModelHolder->registerModel(normalModel, "Normal");
 

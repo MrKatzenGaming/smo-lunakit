@@ -9,6 +9,7 @@
 #include "al/Library/LiveActor/ActorPoseUtil.h"
 #include "al/Library/Math/MathUtil.h"
 
+#include "game/Layout/MapMini.h"
 #include "game/Layout/StageSceneLayout.h"
 #include "game/Player/HackCap.h"
 #include "game/Player/PlayerActorHakoniwa.h"
@@ -19,7 +20,6 @@
 #include "game/System/GameDataHolderWriter.h"
 #include "game/System/PlayerHitPointData.h"
 
-#include "custom/game/Layout/MapMini.h"
 #include "custom/game/Scene/StageScene.h"
 
 #include <cstring>

@@ -9,10 +9,9 @@
 #include "al/Library/Nerve/NerveStateCtrl.h"
 #include "al/Library/Nerve/NerveUtil.h"
 
+#include "game/Player/HackCap.h"
 #include "game/Player/PlayerActorBase.h"
 #include "game/Player/PlayerActorHakoniwa.h"
-
-#include "custom/game/Player/HackCap.h"
 
 #include <cstdio>
 #include <cxxabi.h>

@@ -10,14 +10,13 @@
 #include "al/Library/Nerve/NerveKeeper.h"
 #include "al/Library/Nerve/NerveStateCtrl.h"
 
+#include "game/Player/HackCap.h"
 #include "game/Player/PlayerActorBase.h"
 #include "game/Player/PlayerActorHakoniwa.h"
 #include "game/Player/PlayerAnimator.h"
 #include "game/Player/PlayerFunction.h"
 #include "game/Util/DemoUtil.h"
 #include "game/Util/PlayerUtil.h"
-
-#include "custom/game/Player/HackCap.h"
 
 #include <cstdio>
 #include <cxxabi.h>

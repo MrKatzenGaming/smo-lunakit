@@ -1,0 +1,82 @@
+#pragma once
+
+#include <nn/gfx/gfx_Types.h>
+
+#include <container/seadPtrArray.h>
+#include <heap/seadDisposer.h>
+#include <hostio/seadHostIONode.h>
+#include <math/seadMathCalcCommon.h>
+#include <prim/seadTypedBitFlag.h>
+#include <thread/seadCriticalSection.h>
+
+#include "common/aglGPUCommon.hpp"
+#include "common/aglGPUMemAddr.h"
+
+namespace agl {
+
+template <typename T>
+class GPUMemAddr;
+class GPUMemVoidAddr;
+
+namespace detail {
+class MemoryPool;
+class MemoryPoolHeap;
+}  // namespace detail
+
+class GPUMemBlockBase {
+public:
+    GPUMemBlockBase();
+    virtual ~GPUMemBlockBase();
+
+    void clear();
+    void freeBuffer();
+    void free();
+    void initializeGfxMemoryPool(nn::gfx::MemoryPool*) const;
+    void addList(GPUMemBlockBase*);
+    void setMemoryPool(void*, u64, detail::MemoryPool*);
+    void setMemoryPoolHeap(void*, u64, detail::MemoryPoolHeap*);
+    u64 getByteOffset() const;
+    u64 getMemoryPoolType() const;
+
+    // TODO: the rest of the methods...
+
+protected:
+    void allocBuffer_(size_t size, sead::Heap* heap, s32 alignment, MemoryAttribute attribute);
+    bool tryAllocBuffer_(size_t size, sead::Heap* heap, s32 alignment, MemoryAttribute attribute);
+    void setBuffer_(u64, void*, void*, MemoryAttribute);
+    void setVirtual_(u64, sead::Heap*, MemoryAttribute, GPUMemVoidAddr, s32);
+
+private:
+    void* mMemoryBuffer;
+    u64 mMemoryBufferSize;
+    detail::MemoryPool* mpMemoryPool;
+    detail::MemoryPoolHeap* mMemoryPoolHeap;
+    uint8_t mFlags;
+    GPUMemBlockBase* mpTail;
+};
+
+static_assert(sizeof(GPUMemBlockBase) == 0x38);
+
+// TODO
+template <typename T>
+class GPUMemBlockT : public GPUMemBlockBase {
+public:
+    ~GPUMemBlockT() override { ; }
+};
+
+// TODO
+template <typename T>
+class GPUMemBlock : public GPUMemBlockT<T> {
+public:
+    static GPUMemBlock<T>* create(size_t count, sead::Heap* heap, s32 alignment = alignof(T), MemoryAttribute attribute = MemoryAttribute::Default) {
+        GPUMemBlock<T>* memBlock = new (heap) GPUMemBlock<T>;
+        memBlock->allocBuffer_(count * sizeof(T), heap, alignment, attribute);
+        return memBlock;
+    }
+    GPUMemAddr<T> alloc(size_t count, sead::Heap* heap, s32 alignment = alignof(T), MemoryAttribute attribute = MemoryAttribute::Default) {
+        this->allocBuffer_(count * sizeof(T), heap, alignment, attribute);
+        return GPUMemAddr<T>(*this, 0);
+    }
+};
+
+}  // namespace agl

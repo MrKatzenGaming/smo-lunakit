@@ -3,16 +3,12 @@
 #include "hk/hook/Trampoline.h"
 
 #include "sead/gfx/seadCamera.h"
+#include "sead/math/seadVector.h"
 
 #include "al/Library/Camera/CameraDirector.h"
 #include "al/Library/Camera/CameraPoseUpdater.h"
-#include "al/Library/Camera/CameraPoserSceneInfo.h"
-#include "al/Library/Camera/CameraRequestParamHolder.h"
 #include "al/Library/Camera/CameraUtil.h"
 #include "al/Library/Camera/CameraViewInfo.h"
-#include "al/Library/Camera/ICameraInput.h"
-#include "al/Library/Camera/SceneCameraInfo.h"
-#include "al/Library/Controller/InputFunction.h"
 #include "al/Library/LiveActor/ActorPoseKeeper.h"
 #include "al/Library/LiveActor/LiveActorKit.h"
 #include "al/Library/Math/MathUtil.h"
@@ -27,11 +23,9 @@
 #include "game/System/GameSystem.h"
 
 #include "devgui/DevGuiManager.h"
-#include "helpers/GetHelper.h"
 #include "helpers/InputHelper.h"
 #include "imgui.h"
 #include "logger/Logger.hpp"
-#include "math/seadVector.h"
 
 WindowFreecam::WindowFreecam(DevGuiManager* parent, const char* winName, bool isActiveByDefault) : WindowBase(parent, winName, isActiveByDefault) {}
 

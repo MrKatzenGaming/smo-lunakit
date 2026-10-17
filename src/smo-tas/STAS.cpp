@@ -17,6 +17,7 @@
 #include "al/Library/Controller/InputFunction.h"
 #include "al/Library/Controller/JoyPadAccelerometerAddon.h"
 #include "al/Library/Controller/NpadController.h"
+#include "al/Library/Controller/PadGyroAddon.h"
 #include "al/Library/LiveActor/ActorPoseUtil.h"
 #include "al/Library/Nerve/NerveSetupUtil.h"
 #include "al/Library/Nerve/NerveUtil.h"
@@ -31,8 +32,6 @@
 #include "game/System/GameDataHolder.h"
 #include "game/System/GameDataHolderAccessor.h"
 #include "game/Util/StageInputFunction.h"
-
-#include "custom/al/Pad/PadGyroAddon.h"
 
 #include <cstring>
 

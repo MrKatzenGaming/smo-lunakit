@@ -1,5 +1,7 @@
 #include "stage-pause/StageSceneStateStagePause.h"
 
+#include "al/Library/Draw/GraphicsFunction.h"
+#include "al/Library/Effect/EffectSystem.h"
 #include "al/Library/LiveActor/LiveActorKit.h"
 #include "al/Library/Nerve/NerveSetupUtil.h"
 #include "al/Library/Nerve/NerveUtil.h"
@@ -7,9 +9,6 @@
 #include "al/Library/Scene/SceneUtil.h"
 
 #include "game/Scene/SceneAudioSystemPauseController.h"
-
-#include "custom/al/effect/EffectSystem.h"
-#include "custom/al/graphics/GraphicsFunction.h"
 
 #include "devgui/DevGuiManager.h"
 #include "devgui/windows/WindowStagePause.h"

@@ -1,10 +1,16 @@
 #pragma once
 
-#include "al/Library/Layout/LayoutActor.h"
+#include "Library/Layout/LayoutActor.h"
+
+namespace al {
+class LayoutInitInfo;
+class PlayerHolder;
+}  // namespace al
 
 class MapMini : public al::LayoutActor {
 public:
     MapMini(const al::LayoutInitInfo&, const al::PlayerHolder*);
+
     void appearSlideIn(void);
     void end(void);
     void calcNearHintTrans(void);
