@@ -3,9 +3,11 @@
 #include "hk/hook/Trampoline.h"
 
 #include "sead/gfx/seadGraphicsContextMTR.h"
+#include "sead/gfx/seadProjection.h"
 #include "sead/heap/seadDisposer.h"
 #include "sead/prim/seadSafeString.h"
 
+#include "al/Library/Clipping/FrustumRadar.h"
 #include "al/Library/Collision/CollisionDirector.h"
 #include "al/Library/Collision/CollisionPartsKeeperOctree.h"
 #include "al/Library/Collision/CollisionPartsKeeperUtil.h"
@@ -13,6 +15,7 @@
 #include "al/Library/LiveActor/LiveActorKit.h"
 #include "al/Library/Model/SimpleModelEnv.h"
 #include "al/Library/Play/Draw/RenderVariables.h"
+#include "al/Library/Projection/Projection.h"
 #include "al/Library/Scene/Scene.h"
 #include "al/Library/Shader/Block/UniformBlock.h"
 
@@ -74,18 +77,24 @@ void CollisionDrawer::initScene(const al::LiveActorKit* actorKit) {
     mCollisionDirector = actorKit->getCollisionDirector();
 }
 
-static void drawNode(agl::DrawContext* drawCtx, const agl::ShaderProgram* shader, const al::CollisionPartsKeeperOctree::OctNode* node) {
+static void drawNode(agl::DrawContext* drawCtx, const agl::ShaderProgram* shader, const al::FrustumRadar& radar,
+                     const al::CollisionPartsKeeperOctree::OctNode* node) {
     for (const auto parts : node->collisionParts) {
         if (parts->mSpecialPurpose != nullptr)
+            continue;
+
+        if (!radar.judgeInArea(parts->mBaseMtx.getTranslation(), parts->mBoundingSphereRange))
             continue;
 
         const auto server = reinterpret_cast<al::CustomKCollisionServer*>(parts->getKCollisionServer());
         server->draw(drawCtx, shader, parts);
     }
 
-    for (s32 i = 0; i < 8; i++)
-        if (node->octants[i])
-            drawNode(drawCtx, shader, node->octants[i]);
+    for (s32 i = 0; i < 8; i++) {
+        auto octant = node->octants[i];
+        if (octant && radar.judgeInAreaObb(&sead::Matrix34f::ident, octant->bounds))
+            drawNode(drawCtx, shader, radar, octant);
+    }
 }
 
 void CollisionDrawer::draw(al::RenderVariables& renderVars, agl::RenderBuffer* renderBuffer) {
@@ -93,6 +102,9 @@ void CollisionDrawer::draw(al::RenderVariables& renderVars, agl::RenderBuffer* r
         Logger::log("skip");
         return;
     }
+
+    al::FrustumRadar radar;
+    radar.calcFrustumArea(renderVars.mCamera.getMatrix(), renderVars.mProjection.getMtxStd(), renderVars.mNear, renderVars.mFar);
 
     auto drawContext = renderVars.mRenderInfo->drawContext;
     renderVars.mSimpleModelEnv->prepareModelDraw(renderVars.mRenderInfo->getViewIndex());
@@ -106,7 +118,7 @@ void CollisionDrawer::draw(al::RenderVariables& renderVars, agl::RenderBuffer* r
     sead::GraphicsContextMRT gfxContext;
     gfxContext.apply(drawContext);
 
-    drawNode(drawContext, mShader, &mCollisionDirector->mRootOctree->mRoot);
+    drawNode(drawContext, mShader, radar, &mCollisionDirector->mRootOctree->mRoot);
 
     renderBuffer->mRenderTargetDepth = origDepth;
 }
