@@ -1,5 +1,8 @@
 #include "devgui/categories/info/CategoryInfScene.h"
 
+#include "devgui/DevGuiManager.h"
+#include "devgui/windows/WindowStagePause.h"
+
 #include "al/Library/Nerve/Nerve.h"
 #include "al/Library/Nerve/NerveKeeper.h"
 #include "al/Library/Nerve/NerveStateCtrl.h"
@@ -17,6 +20,8 @@
 CategoryInfScene::CategoryInfScene(const char* catName, const char* catDesc, sead::Heap* heap) : CategoryBase(catName, catDesc, heap) {}
 
 void CategoryInfScene::updateCatDisplay() {
+    WindowStagePause* statePauserWin = DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause);
+
     HakoniwaSequence* seq = tryGetHakoniwaSequence();
     if (!seq) {
         ImGui::Text("Hakoniwa Sequence does not exist!");
@@ -39,7 +44,7 @@ void CategoryInfScene::updateCatDisplay() {
     ImGui::Text("Entrance: %s", holder->getGameDataFile()->getPlayerStartId());
 
     int status;
-    al::NerveKeeper* sceneNerveKeeper = scene->getNerveKeeper();
+    al::NerveKeeper* sceneNerveKeeper = statePauserWin->isPausing() ? statePauserWin->getPreviousNerveKeeper() : scene->getNerveKeeper();
     if (!sceneNerveKeeper)
         return;
 

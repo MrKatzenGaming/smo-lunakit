@@ -12,10 +12,10 @@
 #include "al/Library/Nerve/NerveSetupUtil.h"
 #include "al/Library/Nerve/NerveUtil.h"
 
+#include "game/Player/HackCap.h"
+#include "game/Player/HackCapJointControlKeeper.h"
 #include "game/Player/PlayerAnimator.h"
 #include "game/Util/PlayerUtil.h"
-
-#include "custom/game/Player/HackCap.h"
 
 #include "devgui/DevGuiManager.h"
 #include "helpers/GetHelper.h"
@@ -163,8 +163,8 @@ void GhostManager::exeRecord() {
     mFrames[step].pRotation = al::getQuat(mPlayer);
     mFrames[step].cTrans = al::getTrans(mPlayer->mHackCap);
     mFrames[step].cRotation = al::getQuat(mPlayer->mHackCap);
-    mFrames[step].cJoint = mPlayer->mHackCap->mJointKeeper->mJointRot;
-    mFrames[step].cSkew = mPlayer->mHackCap->mJointKeeper->mSkew;
+    mFrames[step].cJoint = mPlayer->mHackCap->mHackCapJointControlKeeper->mJointRot;
+    mFrames[step].cSkew = mPlayer->mHackCap->mHackCapJointControlKeeper->mSkew;
     mFrames[step].isCapVisible = !mPlayer->mHackCap->mFlags->isModelHidden;
     mFrames[step].is2D = rs::isPlayer2D(mPlayer);
     mFrames[step].isHack = false;

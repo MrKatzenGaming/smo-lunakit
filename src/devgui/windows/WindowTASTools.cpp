@@ -7,8 +7,6 @@
 
 #include "game/Player/PlayerActorHakoniwa.h"
 
-#include "custom/game/Player/HackCap.h"
-
 #include <cstdint>
 
 #include "devgui/DevGuiHooks.h"

@@ -8,9 +8,9 @@
 #include "al/Library/Controller/InputFunction.h"
 #include "al/Library/Controller/JoyPadAccelerometerAddon.h"
 #include "al/Library/Controller/NpadController.h"
+#include "al/Library/Controller/PadGyroAddon.h"
 #include "al/Library/Nerve/NerveUtil.h"
 
-#include "custom/al/Pad/PadGyroAddon.h"
 #include "custom/game/Scene/StageScene.h"
 
 #include "devgui/DevGuiHooks.h"

@@ -36,4 +36,7 @@ public:
     bool isCamDuringPause() { return mCamDuringPause; };
 
     void requestPause() { mShouldPause = true; };
+
+    al::NerveKeeper* getPreviousNerveKeeper() { return &mPreviousNerveKeeper; }
+    al::NerveStateCtrl::State* getPreviousState() { return mPreviousState; }
 };

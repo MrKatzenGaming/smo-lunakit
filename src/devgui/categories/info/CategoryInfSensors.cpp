@@ -7,9 +7,8 @@
 #include "al/Library/LiveActor/ActorSensorUtil.h"
 #include "al/Project/HitSensor/HitSensor.h"
 
+#include "game/Player/HackCap.h"
 #include "game/Player/PlayerActorHakoniwa.h"
-
-#include "custom/game/Player/HackCap.h"
 
 #include <cmath>
 #include <cstdio>

@@ -8,6 +8,17 @@ $isPatternReverseHook = 0x0b07a8
 $getMofumofuTargetHook = 0x0b07f8
 $loadCurrentFileHook = _ZN21StageSceneStateOption20exeLoadDataSelectingEv + 0x13c
 $initMarioModelCommon = 0x00444028
+$registerDrawListHook = _ZN2al22ExecuteTableHolderDraw4initEPKcRKNS_21ExecuteSystemInitInfoEPKNS_12ExecuteOrderEi + 0x29c
+$registerUpdateListHook = _ZN2al24ExecuteTableHolderUpdate4initEPKcRKNS_21ExecuteSystemInitInfoEPKNS_12ExecuteOrderEi + 0x22c
+$actorExecuteInfoUpdaters1 = _ZN2al20ExecuteRequestKeeper32executeRequestActorMovementAllOnEv + 0x44
+$actorExecuteInfoUpdaters2 = _ZN2al20ExecuteRequestKeeper33executeRequestActorMovementAllOffEv + 0x44
+$actorExecuteInfoDrawers1 = _ZN2al20ExecuteRequestKeeper28executeRequestActorDrawAllOnEv + 0x44
+$actorExecuteInfoDrawers2 = _ZN2al20ExecuteRequestKeeper29executeRequestActorDrawAllOffEv + 0x44
+$actorExecuteInfoDrawers3 = 0x893ae0
+$kCollisionServerSize = _ZN2al14CollisionPartsC1EPvPKv + 0x34
+$kCollisionServerCtor = _ZN2al14CollisionPartsC1EPvPKv + 0x94
+$initActorImpl = 0x8dc12c
+$drawCollisionHook = _ZNK2al12ViewRenderer8drawViewERKNS_8ViewInfoEPNS_14DrawSystemInfoERKNS_10ProjectionERKN4sead6CameraEPKN3agl12RenderBufferERKNS9_8ViewportEbbb + 0x11a8
 
 @smo:101
 $SkyInitHook = _ZN2al3Sky14initFromPresetERKNS_13ActorInitInfoE + 0x50

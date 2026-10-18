@@ -12,12 +12,16 @@ file(GLOB_RECURSE SOURCES_CXX ${PROJECT_SOURCE_DIR}/src/*.cpp)
 set(SOURCES ${SOURCES_ASM} ${SOURCES_C} ${SOURCES_CXX})
 add_executable(${PROJECT_NAME} ${SOURCES})
 
+include_directories(lib/vendor)
+include_directories(lib/vendor/agl)
+include_directories(lib/vendor/al)
+include_directories(lib/vendor/sead)
+
 include_directories(lib/OdysseyHeaders)
 add_subdirectory(lib/OdysseyHeaders)
 target_link_libraries(${PROJECT_NAME} PRIVATE OdysseyHeaders)
 
 include_directories(src)
-
 
 include(sys/cmake/module.cmake)
 include(sys/cmake/deploy.cmake)

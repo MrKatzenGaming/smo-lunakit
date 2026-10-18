@@ -41,6 +41,8 @@
 #include "game/System/GameSystem.h"
 #include "game/Util/DemoUtil.h"
 
+#include "custom/al/Library/Collision/CustomKCollisionServer.h"
+#include "custom/al/Library/Execute/CustomActorExecuteInfo.h"
 #include "custom/game/Scene/StageScene.h"
 
 #include <cstring>
@@ -49,11 +51,14 @@
 #include "Imgui.hpp"
 #include "devgui/DevGuiHooks.h"
 #include "devgui/DevGuiManager.h"
+#include "devgui/windows/WindowFreecam.h"
 #include "devgui/windows/WindowInput.h"
 #include "devgui/windows/WindowStagePause.h"
 #include "ghost/GhostManager.h"
+#include "helpers/ExecuteHelper.h"
 #include "helpers/GetHelper.h"
 #include "helpers/InputHelper.h"
+#include "helpers/ShaderHelper.h"
 #include "imgui.h"
 #include "logger/Logger.hpp"
 #include "smo-tas/STAS.h"
@@ -203,6 +208,12 @@ HkTrampoline GameSystemInit = [](TrampolineStatic(), GameSystem* thisPtr) -> voi
 
     imgui::setup(lkHeap);
 
+    ExecuteHelper::createInstance(lkHeap);
+    ShaderHelper::createInstance(lkHeap);
+
+    al::CustomActorExecuteInfo::installHooks();
+    al::CustomKCollisionServer::installHooks();
+
     DevGuiManager::createInstance(lkHeap);
     DevGuiManager::instance()->init(lkHeap);
 
@@ -275,6 +286,9 @@ extern "C" void hkMain() {
     RunTasHookScene.installAtSym<"_ZN2al5Scene8movementEv">();
     SceneEndInitHook.installAtSym<"_ZN2al5Scene7endInitERKNS_13ActorInitInfoE">();
     STAS::installHooks();
+
+    // Utilities
+    WindowFreecam::installHooks();
 
     // Debug Text Writer Drawing
     UpdateLunaKit.installAtSym<"_ZNK16HakoniwaSequence8drawMainEv">();
