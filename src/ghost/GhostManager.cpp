@@ -75,6 +75,8 @@ bool GhostManager::tryStartRecord() {
     Logger::log("%s\n", mReplayPath.cstr());
     // OScript* script = tas->getScript();
     // mFrameLength = script->mFrames[script->mFrameCount - 1].mStep;
+
+    delete[] mFrames;
     mFrames = new ReplayFrame[tas->getScript()->getFrames()];
     //    static const uint workBufSize = sizeof(ReplayFrame)* mFrameLength;
     //    mWorkBuf = new u8[workBufSize];
@@ -95,6 +97,7 @@ void GhostManager::recordEnd() {
     mFrameLength = 0;
     mPlayer = nullptr;
     delete[] mFrames;
+    mFrames = nullptr;
     //    delete[] mWorkBuf;
     //    delete mRamStream;
     //    delete mWriteStream;
@@ -107,13 +110,26 @@ void GhostManager::tryStartReplay() {
     for (int i = 0; i < mEntryCount; i++) {
         if (!mActiveReplays[i])
             continue;
+
+        if (ghostIdx >= ghosts.size()) {
+            Logger::log("Too many active replays, ignoring the rest\n");
+            break;
+        }
+
         nn::fs::DirectoryEntry& curEntry = mEntries[i];
         sead::FormatFixedSafeString<256> scriptPath(REPLAY_SAVEPATH "/%s", curEntry.mName);
         nn::fs::FileHandle handle;
         hk::Result r = nn::fs::OpenFile(&handle, scriptPath.cstr(), nn::fs::OpenMode::OpenMode_Read).GetInnerValueForDebug();
         if (r.failed())
             continue;
-        auto* frames = (ReplayFrame*)new u8[curEntry.mFileSize];
+
+        s32 frameCount = curEntry.mFileSize / sizeof(ReplayFrame);
+        if (frameCount <= 0) {
+            nn::fs::CloseFile(handle);
+            continue;
+        }
+
+        auto* frames = new ReplayFrame[frameCount];
         r = nn::fs::ReadFile(handle, 0, frames, curEntry.mFileSize).GetInnerValueForDebug();
         nn::fs::CloseFile(handle);
         if (r.failed()) {
@@ -122,7 +138,7 @@ void GhostManager::tryStartReplay() {
         }
         if (!ghosts.at(ghostIdx))
             Logger::log("Current Ghost is null!\n");
-        ghosts.at(ghostIdx++)->startReplay(frames, curEntry.mFileSize / sizeof(ReplayFrame));
+        ghosts.at(ghostIdx++)->startReplay(frames, frameCount);
     }
 }
 
@@ -203,6 +219,8 @@ void GhostManager::updateDir() {
     mEntries = entryBuffer;
     mEntryCount = entryCount;
     mActiveReplays = new bool[entryCount];
+    for (s64 i = 0; i < entryCount; i++)
+        mActiveReplays[i] = false;
 }
 
 hk::Result GhostManager::write() {

@@ -45,7 +45,7 @@ public:
 
     s64 getCurFrame() const { return mCurFrame; };
 
-    u32 getFrameCount() const { return mScript->getFrames(); };
+    u32 getFrameCount() const { return mScript ? mScript->getFrames() : 0; };
 
     Script* getScript() { return mScript; };
 

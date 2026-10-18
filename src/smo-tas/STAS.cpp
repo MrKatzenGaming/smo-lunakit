@@ -12,7 +12,6 @@
 #include "sead/heap/seadHeapMgr.h"
 #include "sead/math/seadQuat.h"
 
-#include "Library/Sequence/Sequence.h"
 #include "al/Library/Base/StringUtil.h"
 #include "al/Library/Controller/InputFunction.h"
 #include "al/Library/Controller/JoyPadAccelerometerAddon.h"
@@ -22,6 +21,7 @@
 #include "al/Library/Nerve/NerveSetupUtil.h"
 #include "al/Library/Nerve/NerveUtil.h"
 #include "al/Library/Scene/Scene.h"
+#include "al/Library/Sequence/Sequence.h"
 
 #include "game/MapObj/ChangeStageInfo.h"
 #include "game/Player/HackCap.h"
@@ -157,6 +157,7 @@ void STAS::endScript() {
     mCurMarTASer = "";
     mCurCapTASer = "";
     delete mScript;
+    mScript = nullptr;
 }
 
 sead::BitFlag32 convertButtonsSTASToSead(sead::BitFlag64 stasPad) {
@@ -416,6 +417,9 @@ void STAS::applyCommand(Command* cmd) {
 
 void STAS::exeUpdate() {
     sead::ScopedCurrentHeapSetter heapSetter(DevGuiManager::instance()->getHeap());
+
+    if (!mScript)
+        return;
 
     sead::ControllerMgr* controllerMgr = sead::ControllerMgr::instance();
     for (int player = 0; player < 2; player++) {

@@ -46,6 +46,7 @@ void Ghost::startReplay(ReplayFrame* frames, s32 frameCount) {
 
 void Ghost::endReplay() {
     delete[] mFrames;
+    mFrames = nullptr;
     mFrameCount = 0;
     al::setNerve(this, &NrvGhost.Wait);
     if (mPuppet) {

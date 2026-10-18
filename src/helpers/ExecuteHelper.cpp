@@ -20,6 +20,11 @@ ExecuteHelper::ExecuteHelper() {
 }
 
 ExecuteHelper::~ExecuteHelper() {
+    // freeBuffer() only releases the node buffer, so the TableOverride values have to go first.
+    auto deleteOverrides = [](const sead::SafeString&, TableOverride*& value) { delete value; };
+    mDrawTableOverrides.forEach(deleteOverrides);
+    mUpdateTableOverrides.forEach(deleteOverrides);
+
     mDrawTableOverrides.freeBuffer();
     mUpdateTableOverrides.freeBuffer();
 
@@ -304,7 +309,7 @@ HkTrampoline hookCalcUpdateListLayoutNumMax = [](TrampolineStatic(), const al::E
 
 void ExecuteHelper::installHooks() {
     hookDrawTableInit.installAtSym<"_ZN2al22ExecuteTableHolderDraw4initEPKcRKNS_21ExecuteSystemInitInfoEPKNS_12ExecuteOrderEi">();
-    hookUpdateTableInit.installAtSym<"_ZN2al22ExecuteTableHolderDraw4initEPKcRKNS_21ExecuteSystemInitInfoEPKNS_12ExecuteOrderEi">();
+    hookUpdateTableInit.installAtSym<"_ZN2al24ExecuteTableHolderUpdate4initEPKcRKNS_21ExecuteSystemInitInfoEPKNS_12ExecuteOrderEi">();
 
     hookCalcDrawListActorNumMax.installAtSym<"_ZN18alExecutorFunction23calcDrawListActorNumMaxEPKN2al12ExecuteOrderEi">();
     hookCalcDrawListActorModelNumMax.installAtSym<"_ZN18alExecutorFunction28calcDrawListActorModelNumMaxEPKN2al12ExecuteOrderEi">();

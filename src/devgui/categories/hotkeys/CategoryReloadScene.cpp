@@ -77,10 +77,20 @@ void CategoryReloadScene::hotkeyFunc() {
                     char* sceneNerveNameShort = sceneNerveName + prefixLen + strlen(sceneName) + strlen("nrv");
                     // strcmp(stateNrvName, "(anonymous namespace)::StageSceneStateTalkNrvSkipDemo")
 
-                    if (strcmp(stateNrvNameShort, "SkipDemo") == 0 || strcmp(stateNrvNameShort, "Skip") == 0 ||
-                        strcmp(sceneNerveNameShort, "Pause") == 0)
+                    bool skip = strcmp(stateNrvNameShort, "SkipDemo") == 0 || strcmp(stateNrvNameShort, "Skip") == 0 ||
+                                strcmp(sceneNerveNameShort, "Pause") == 0;
+
+                    free(stateNrvName);
+                    free(sceneNerveName);
+
+                    if (skip) {
+                        free(stateName);
+                        free(sceneName);
                         return;
+                    }
                 }
+                free(stateName);
+                free(sceneName);
             }
         }
         scene->kill();

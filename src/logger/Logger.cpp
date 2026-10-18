@@ -58,6 +58,7 @@ hk::Result Logger::init(sead::Heap* heap) {
 
     if (mIsDisabled) {
         mState = LoggerState::CONNECTED;
+        delete[] loadData.buffer;
         return 0;
     }
 
