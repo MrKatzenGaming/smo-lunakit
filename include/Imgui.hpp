@@ -82,9 +82,7 @@ static void updateImGuiInput() {
             io.AddMouseButtonEvent((ImGuiMouseButton)imguiBtn, false);
 
     // Mouse wheel
-    ImVec2 scrollDelta(0, 0);
-    InputHelper::getScrollDelta(&scrollDelta.x, &scrollDelta.y);
-    io.AddMouseWheelEvent(scrollDelta.x * 0.5f, scrollDelta.y * 0.5f);
+    io.AddMouseWheelEvent(mouseState.mWheelDeltaX * 0.5f, mouseState.mWheelDeltaY * 0.5f);
 
     // ----------------------------
     // Keyboard → ImGui

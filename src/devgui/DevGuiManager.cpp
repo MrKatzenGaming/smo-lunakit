@@ -27,6 +27,7 @@
 
 // All windows
 #include "devgui/windows/WindowActorBrowse.h"
+#include "devgui/windows/WindowActorBrowse2.h"
 #include "devgui/windows/WindowDupHotkeys.h"
 #include "devgui/windows/WindowEditor.h"
 #include "devgui/windows/WindowFPS.h"
@@ -65,6 +66,7 @@ void DevGuiManager::createElements() {
     createWindow<WindowEditor>(windowNameParamEditor, true);
     createWindow<WindowInfo>(windowNameInfo, true);
     createWindow<WindowActorBrowse>(windowNameactorBrowse, false);
+    createWindow<WindowActorBrowse2>(windowNameactorBrowse2, false);
     createWindow<WindowFPS>(windowNameFps, true);
     createWindow<WindowTAS>(windowNameTas, false);
     createWindow<WindowDupHotkeys>(windowNameDupHotkeys, false);
