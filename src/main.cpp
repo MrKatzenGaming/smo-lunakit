@@ -120,9 +120,12 @@ HkTrampoline RedirectFileDevice = [](TrampolineStatic(), sead::FileDeviceMgr* th
                                      sead::BufferedSafeString* pathNoDrive) -> sead::FileDevice* {
     sead::FixedSafeString<32> driveName;
     sead::FileDevice* device;
+
     if (!sead::Path::getDriveName(&driveName, path)) {
+        sead::FixedSafeString<0xff> nPath;
+        nPath.format("LunaKit/%s", path.cstr());
         device = thisPtr->findDevice("sd");
-        if (!(device && device->isExistFile(path))) {
+        if (!(device && device->isExistFile(nPath))) {
             device = thisPtr->getDefaultFileDevice();
             if (!device)
                 return nullptr;
@@ -144,26 +147,27 @@ HkTrampoline FileLoaderLoadArc = [](TrampolineStatic(), al::FileLoader* thisPtr,
                                     sead::FileDevice* device) -> sead::ArchiveRes* {
     sead::FileDevice* sdFileDevice = sead::FileDeviceMgr::instance()->findDevice("sd");
 
-    if (sdFileDevice && sdFileDevice->isExistFile(path))
+    sead::FixedSafeString<0xff> nPath;
+    nPath.format("LunaKit/%s", path.cstr());
+
+    if (sdFileDevice && sdFileDevice->isExistFile(nPath)) {
         device = sdFileDevice;
+        path = nPath;
+    }
 
     return orig(thisPtr, path, ext, device);
 };
 
-HkTrampoline FileLoaderIsExistFile = [](TrampolineStatic(), al::FileLoader* thisPtr, sead::SafeString& path, sead::FileDevice* device) -> bool {
+HkTrampoline FileLoaderIsExist = [](TrampolineStatic(), al::FileLoader* thisPtr, sead::SafeString& path, sead::FileDevice* device) -> bool {
     sead::FileDevice* sdFileDevice = sead::FileDeviceMgr::instance()->findDevice("sd");
 
-    if (sdFileDevice && sdFileDevice->isExistFile(path))
+    sead::FixedSafeString<0xff> nPath;
+    nPath.format("LunaKit/%s", path.cstr());
+
+    if (sdFileDevice && sdFileDevice->isExistFile(nPath)) {
         device = sdFileDevice;
-
-    return orig(thisPtr, path, device);
-};
-
-HkTrampoline FileLoaderIsExistArchive = [](TrampolineStatic(), al::FileLoader* thisPtr, sead::SafeString& path, sead::FileDevice* device) -> bool {
-    sead::FileDevice* sdFileDevice = sead::FileDeviceMgr::instance()->findDevice("sd");
-
-    if (sdFileDevice && sdFileDevice->isExistFile(path))
-        device = sdFileDevice;
+        path = nPath;
+    }
 
     return orig(thisPtr, path, device);
 };
@@ -278,8 +282,8 @@ extern "C" void hkMain() {
     RedirectFileDevice.installAtSym<"_ZNK4sead13FileDeviceMgr18findDeviceFromPathERKNS_14SafeStringBaseIcEEPNS_22BufferedSafeStringBaseIcEE">();
     FileLoaderLoadArc.installAtSym<"_ZN2al10FileLoader16loadArchiveLocalERKN4sead14SafeStringBaseIcEEPKcPNS1_10FileDeviceE">();
     CreateFileDeviceMgr.installAtSym<"_ZN4sead13FileDeviceMgrC2Ev">();
-    FileLoaderIsExistFile.installAtSym<"_ZNK2al10FileLoader11isExistFileERKN4sead14SafeStringBaseIcEEPNS1_10FileDeviceE">();
-    FileLoaderIsExistArchive.installAtSym<"_ZNK2al10FileLoader14isExistArchiveERKN4sead14SafeStringBaseIcEEPNS1_10FileDeviceE">();
+    FileLoaderIsExist.installAtSym<"_ZNK2al10FileLoader11isExistFileERKN4sead14SafeStringBaseIcEEPNS1_10FileDeviceE">();
+    FileLoaderIsExist.installAtSym<"_ZNK2al10FileLoader14isExistArchiveERKN4sead14SafeStringBaseIcEEPNS1_10FileDeviceE">();
 
     // TAS
     RunTasHook.installAtSym<"_ZN16HakoniwaSequence6updateEv">();
