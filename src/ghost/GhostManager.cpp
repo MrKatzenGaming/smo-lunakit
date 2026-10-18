@@ -130,7 +130,7 @@ void GhostManager::tryStartReplay() {
         }
 
         auto* frames = new ReplayFrame[frameCount];
-        r = nn::fs::ReadFile(handle, 0, frames, curEntry.mFileSize).GetInnerValueForDebug();
+        r = nn::fs::ReadFile(handle, 0, frames, frameCount * sizeof(ReplayFrame)).GetInnerValueForDebug();
         nn::fs::CloseFile(handle);
         if (r.failed()) {
             delete[] frames;
