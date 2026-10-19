@@ -3,7 +3,6 @@
 #include "devgui/DevGuiManager.h"
 #include "devgui/categories/tas/CategoryTASReplay.h"
 #include "devgui/categories/tas/CategoryTASScripts.h"
-#include "devgui/windows/WindowStagePause.h"
 #include "ghost/GhostManager.h"
 #include "helpers/ImGuiHelper.h"
 #include "imgui.h"
@@ -24,7 +23,7 @@ bool WindowTAS::tryUpdateWinDisplay() {
     if (!tas)
         return false;
     auto* ghostManager = GhostManager::instance();
-    ImGui::Text("Loaded Script: %s", tas->hasScript() ? tas->getScriptName() : "None.");
+    ImGui::Text("Loaded Script: %s", tas->getScriptName());
     ImGui::Checkbox("TAS", &isStartTAS);
     ImGui::SameLine();
     ImGui::Checkbox("Record", &isStartRecord);

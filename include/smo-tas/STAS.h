@@ -35,9 +35,12 @@ public:
 
     void setScene(al::Scene* scene) { mScene = scene; };
 
-    void setScript(nn::fs::DirectoryEntry entry) { mLoadedEntry = entry; };
+    void setScript(nn::fs::DirectoryEntry entry) {
+        mLoadedEntry = entry;
+        mEntryLoaded = true;
+    };
 
-    const char* getScriptName() const { return mLoadedEntry.mName; };
+    const char* getScriptName() const { return mEntryLoaded ? mLoadedEntry.mName : "None"; };
 
     nn::fs::DirectoryEntry* getScripts() const { return mEntries; };
 
@@ -72,6 +75,7 @@ private:
 
     s64 mEntryCount = 0;
     nn::fs::DirectoryEntry mLoadedEntry;
+    bool mEntryLoaded = false;
     nn::fs::DirectoryEntry* mEntries = nullptr;
 
     Script* mScript = nullptr;

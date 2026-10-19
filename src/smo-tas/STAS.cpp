@@ -125,6 +125,7 @@ hk::Result STAS::tryLoadScript() {
     for (int i = 0; i < mEntryCount; i++) {
         if (al::isEqualString(mEntries[i].mName, mLoadedEntry.mName)) {
             mLoadedEntry = mEntries[i];
+            mEntryLoaded = true;
             isEntryExist = true;
         }
     }
