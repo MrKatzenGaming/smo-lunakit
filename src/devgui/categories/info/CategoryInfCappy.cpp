@@ -112,7 +112,7 @@ void CategoryInfCappy::updateCatDisplay() {
     WindowStagePause* win = DevGuiManager::instance()->getWindow<WindowStagePause>(windowNameStagePause);
     if (win)
         prevCappyVel = win->getStagePaused() ? prevCappyVel : pose->getVelocity();
-    ImGuiHelper::Quat("Cappy Quaternion", pose->getQuatPtr());
+    ImGuiHelper::QuatDrag("Quat", "Cappy Quaternion", pose->getQuatPtr());
 
     sead::Vector3f cappyEulerAngles = MathHelper::QuatToEuler(pose->getQuatPtr());
     sead::Vector3f cappyRotDeg = sead::Vector3f(DEG(cappyEulerAngles.x), DEG(cappyEulerAngles.y), DEG(cappyEulerAngles.z));

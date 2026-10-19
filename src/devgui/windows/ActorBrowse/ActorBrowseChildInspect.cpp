@@ -101,7 +101,7 @@ inline void WindowActorBrowse::drawActorInspectorTreePose(al::ActorPoseKeeperBas
         ImGuiHelper::Vector3Slide("Up", "Pose Keeper Up", pose->getUpPtr(), 1.f, true);
         ImGuiHelper::Vector3Slide("Gravity", "Pose Keeper Gravity", pose->getGravityPtr(), 1.f, true);
         ImGuiHelper::Vector3Drag("Euler", "Pose Keeper Rotation", pose->getRotatePtr(), 1.f, 360.f);
-        ImGuiHelper::Quat("Pose Keeper Quaternion", pose->getQuatPtr());
+        ImGuiHelper::QuatDrag("Quat", "Pose Keeper Quaternion", pose->getQuatPtr());
 
         ImGui::TreePop();
     }
@@ -221,8 +221,8 @@ inline void WindowActorBrowse::drawActorInspectorTreeSubActor(al::SubActorKeeper
             bool isFalse = false;
 
             ImGui::Selectable(trimName.cstr(), &isFalse, 0, ImVec2(ImGui::GetWindowWidth(), mLineSize));
-            if (ImGui::IsItemHovered())
-                showActorTooltip(subActor);
+            // if (ImGui::IsItemHovered())
+            //     showActorTooltip(subActor);
 
             if (ImGui::IsItemClicked()) {
                 mSelectedActor = subActor;

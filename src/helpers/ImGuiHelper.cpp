@@ -27,11 +27,11 @@ void Vector3Slide(const char* prefixName, const char* tooltip, sead::Vector3f* v
         ImGui::SetTooltip("%s", tooltip);
 }
 
-void Quat(const char* tooltip, sead::Quatf* quat) {
+void QuatDrag(const char* prefixName, const char* tooltip, sead::Quatf* quat) {
     if (!quat)
         return;
 
-    ImGui::DragFloat4("Quat", &quat->x, 0.05f, -1.f, 1.f, "%.2f", ImGuiSliderFlags_NoRoundToFormat);
+    ImGui::DragFloat4(prefixName, &quat->x, 0.05f, -1.f, 1.f, "%.2f", ImGuiSliderFlags_NoRoundToFormat);
 
     if (ImGui::IsItemHovered())
         ImGui::SetTooltip("%s", tooltip);

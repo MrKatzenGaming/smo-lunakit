@@ -1,6 +1,9 @@
 #pragma once
 
+#include "Library/HitSensor/HitSensorKeeper.h"
 #include "Library/LiveActor/LiveActor.h"
+#include "Library/LiveActor/LiveActorFlag.h"
+#include "Library/Nerve/NerveKeeper.h"
 #include "al/Library/Camera/ActorCameraTarget.h"
 #include "al/Library/LiveActor/LiveActorGroup.h"
 
@@ -19,11 +22,18 @@ public:
 private:
     static constexpr f32 cHeaderSize = 0.0f;  // TODO
 
-    void drawActor(al::LiveActor* actor, ImGuiListClipper& clipper);
-    void drawActorList(al::LiveActorGroup* group);
-
+    void displayActorList(al::LiveActorGroup* group);
+    void displayActorListEntry(al::LiveActor* actor, ImGuiListClipper& clipper);
     void regenerateFilerActorGroup(const al::LiveActorGroup* group);
     bool checkActorMatchesFilter(const al::LiveActor* actor) const;
+
+    void displayActorInspector(al::LiveActor* actor);
+
+    void displayActorInspectorTreeName(al::LiveActor* actor);
+    void displayActorInspectorTreePose(al::ActorPoseKeeperBase* poseKeep);
+    void displayActorInspectorTreeFlags(al::LiveActorFlag* flags);
+    void displayActorInspectorTreeNrv(al::NerveKeeper* nrvKeep);
+    void displayActorInspectorTreeSensor(al::HitSensorKeeper* sensorKeep);
 
     al::LiveActor* mSelectedActor = nullptr;
 
