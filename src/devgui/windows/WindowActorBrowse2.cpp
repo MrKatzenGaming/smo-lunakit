@@ -1,20 +1,25 @@
 #include "devgui/windows/WindowActorBrowse2.h"
 
-#include "Library/LiveActor/ActorPoseKeeper.h"
-#include "Library/LiveActor/LiveActor.h"
-#include "Library/LiveActor/LiveActorGroup.h"
-#include "Library/Nerve/NerveStateCtrl.h"
-#include "al/Library/Base/StringUtil.h"
+#include "al/Library/Camera/CameraUtil.h"
+#include "al/Library/LiveActor/ActorPoseKeeper.h"
+#include "al/Library/LiveActor/ActorSensorUtil.h"
+#include "al/Library/LiveActor/LiveActor.h"
+#include "al/Library/LiveActor/LiveActorGroup.h"
 #include "al/Library/LiveActor/LiveActorInfo.h"
 #include "al/Library/LiveActor/LiveActorKeeper.h"
 #include "al/Library/LiveActor/LiveActorKit.h"
+#include "al/Library/Math/MathUtil.h"
 #include "al/Library/Model/ModelKeeper.h"
+#include "al/Library/Nerve/NerveStateCtrl.h"
 #include "al/Library/Scene/Scene.h"
 #include "al/Library/Scene/SceneUtil.h"
+#include "al/Library/Screen/ScreenFunction.h"
 #include "al/Library/Sequence/Sequence.h"
+#include "al/Project/HitSensor/HitSensor.h"
 
+#include "game/Player/HackCap.h"
+#include "game/Player/PlayerHackKeeper.h"
 #include "game/Sequence/HakoniwaSequence.h"
-#include "game/System/GameSystem.h"
 
 #include <cxxabi.h>
 #include <typeinfo>
@@ -23,6 +28,7 @@
 #include "devgui/popups/PopupKeyboard.h"
 #include "helpers/GetHelper.h"
 #include "helpers/ImGuiHelper.h"
+#include "helpers/InputHelper.h"
 #include "imgui.h"
 #include "logger/Logger.hpp"
 #include "primitives/PrimitiveQueue.h"
@@ -34,6 +40,23 @@ WindowActorBrowse2::WindowActorBrowse2(DevGuiManager* parent, const char* winNam
 
 void WindowActorBrowse2::updateWin() {
     WindowBase::updateWin();
+
+    // Reset scene, even when display is closed
+    al::Scene* scene = tryGetScene();
+    if (!scene) {
+        resetScene();
+        return;
+    }
+    al::LiveActorKit* kit = scene->mLiveActorKit;
+    if (!kit) {
+        resetScene();
+        return;
+    }
+    al::LiveActorGroup* group = kit->mLiveActorGroupAllActors;
+    if (!group) {
+        resetScene();
+        return;
+    }
 }
 
 bool WindowActorBrowse2::tryUpdateWinDisplay() {
@@ -43,29 +66,66 @@ bool WindowActorBrowse2::tryUpdateWinDisplay() {
     al::Scene* scene = tryGetScene();
     if (!scene) {
         ImGui::TextDisabled("No scene!");
-        mSelectedActor = nullptr;
+        resetScene();
         return true;
     }
 
     al::LiveActorKit* kit = scene->mLiveActorKit;
     if (!kit) {
         ImGui::TextDisabled("No LiveActorKit!");
-        mSelectedActor = nullptr;
+        resetScene();
         return true;
     }
 
     al::LiveActorGroup* group = kit->mLiveActorGroupAllActors;
     if (!group) {
         ImGui::TextDisabled("No LiveActorGroup!");
-        mSelectedActor = nullptr;
+        resetScene();
         return true;
     }
 
+    mHoveredSensor = nullptr;
+    mIsLayoutHorizontal = ImGui::GetWindowWidth() >= 600.0f;
+
     displayActorList(group);
-    ImGui::SameLine();
+    if (mIsLayoutHorizontal)
+        ImGui::SameLine();
     displayActorInspector(mSelectedActor);
 
+    if (mIsPickingActor) {
+        const auto& camera = al::getLookAtCamera(scene, 0);
+
+        sead::Vector3f worldDir;
+        sead::Vector2f screenPos;
+        InputHelper::getMouseCoords(&screenPos.x, &screenPos.y);
+
+        al::calcWorldPosFromScreenPos(&worldDir, scene, screenPos, 1.0f);
+
+        Logger::log("Screen Pos: %.3f %.3f World Pos: %.3f %.3f %.3f", screenPos.x, screenPos.y, worldDir.x, worldDir.y, worldDir.z);
+    }
+
+    if (mShouldRenderAllSensors && mSelectedActor)
+        mParent->getPrimitiveQueue()->pushHitSensorKeeper(mSelectedActor->getHitSensorKeeper(), HitSensorType_ALL, 0.4f);
+    else if (mHoveredSensor)
+        mParent->getPrimitiveQueue()->pushHitSensor(mHoveredSensor, 0.8f);
+
+    for (s32 idx = 0; idx < mRenderedSensors.size(); idx++) {
+        auto sensor = mRenderedSensors[idx];
+        if (mShouldRenderAllSensors && sensor->getParentActor() == mSelectedActor)
+            continue;
+        if (sensor == mHoveredSensor)
+            continue;
+
+        mParent->getPrimitiveQueue()->pushHitSensor(sensor, 0.4f);
+    }
+
     return true;
+}
+
+void WindowActorBrowse2::resetScene() {
+    mSelectedActor = nullptr;
+    mPinnedActors.clear();
+    mRenderedSensors.clear();
 }
 
 template <typename T>
@@ -82,7 +142,24 @@ static const char* getClassName(const T* t) {
 }
 
 void WindowActorBrowse2::displayActorList(al::LiveActorGroup* group) {
-    if (ImGui::BeginChild("##List", ImVec2(500, 0), ImGuiChildFlags_ResizeX | ImGuiChildFlags_Borders | ImGuiChildFlags_NavFlattened)) {
+    ImVec2 size = mIsLayoutHorizontal ? ImVec2(400.0f, 0.0f) : ImVec2(0.0f, 350.0f);
+    ImGuiChildFlags childFlags = ImGuiChildFlags_Borders | ImGuiChildFlags_NavFlattened;
+    if (mIsLayoutHorizontal)
+        childFlags |= ImGuiChildFlags_ResizeX;
+    else
+        childFlags |= ImGuiChildFlags_ResizeY;
+
+    if (mIsLayoutHorizontal)
+        ImGui::SetNextWindowSizeConstraints(ImVec2(200.0f, 0.0f), ImVec2(ImGui::GetContentRegionAvail().x - 200.0f, FLT_MAX));
+    else
+        ImGui::SetNextWindowSizeConstraints(ImVec2(0.0f, 150.0f), ImVec2(FLT_MAX, ImGui::GetContentRegionAvail().y - 150.0f));
+
+    // Separate IDs to retain user-edited sizes
+    const char* strID = mIsLayoutHorizontal ? "##ListHorizontal" : "##ListVertical";
+
+    if (ImGui::BeginChild(strID, size, childFlags)) {
+        // USB keyboard search
+        ImGui::SetNextItemWidth(300.0f);
         if (ImGui::InputTextWithHint("##Filter", "Search...", mSearchFilter.InputBuf, sizeof(mSearchFilter.InputBuf),
                                      ImGuiInputTextFlags_EscapeClearsAll)) {
             mSearchText = mSearchFilter.InputBuf;
@@ -91,21 +168,31 @@ void WindowActorBrowse2::displayActorList(al::LiveActorGroup* group) {
             regenerateFilerActorGroup(group);
         }
 
+        // Popup keyboard search
         ImGui::SameLine();
         if (mSearchFilter.IsActive()) {
             if (ImGui::Button("Clear")) {
                 mSearchText = nullptr;
                 mSearchFilter.Clear();
             }
-        } else if (ImGui::Button("Open Keyboard")) {
-            mParent->tryOpenKeyboard(sizeof(mSearchFilter.InputBuf), PopupKeyboardType::KEYTYPE_QWERTY, &mSearchText, &mKeyboardOpen);
+        } else if (ImGui::Button("Open Keyboard...")) {
+            mParent->tryOpenKeyboard(sizeof(mSearchFilter.InputBuf), PopupKeyboardType::KEYTYPE_QWERTY, &mSearchText, &mIsPopupKeyboardOpen);
         }
 
-        if (mKeyboardOpen && mSearchText != nullptr) {
+        if (mIsPopupKeyboardOpen && mSearchText != nullptr) {
             strncpy(mSearchFilter.InputBuf, mSearchText, sizeof(mSearchFilter.InputBuf));
             mSearchFilter.Build();
 
             regenerateFilerActorGroup(group);
+        }
+
+        // In-world selector
+        if (!mIsPickingActor) {
+            if (ImGui::Button("Pick Actor..."))
+                mIsPickingActor = true;
+        } else {
+            if (ImGui::Button("Stop Picking"))
+                mIsPickingActor = false;
         }
 
         auto shownGroup = mSearchFilter.IsActive() ? mFilterActorGroup : group;
@@ -114,8 +201,15 @@ void WindowActorBrowse2::displayActorList(al::LiveActorGroup* group) {
             ImGuiListClipper clipper;
             clipper.Begin(INT_MAX);
 
-            for (s32 idx = 0; idx < shownGroup->getActorCount(); idx++)
-                displayActorListEntry(shownGroup->getActor(idx), clipper);
+            for (s32 idx = 0; idx < mPinnedActors.size(); idx++)
+                displayActorListEntry(mPinnedActors[idx], clipper);
+
+            for (s32 idx = 0; idx < shownGroup->getActorCount(); idx++) {
+                auto actor = shownGroup->getActor(idx);
+                // Pinned actors have already been rendered, so don't render them again
+                if (mPinnedActors.indexOf(actor) == -1)
+                    displayActorListEntry(actor, clipper);
+            }
 
             clipper.SeekCursorForItem(clipper.UserIndex);
 
@@ -225,12 +319,28 @@ void WindowActorBrowse2::displayActorInspector(al::LiveActor* actor) {
         return;
     }
 
-    if (ImGui::BeginChild("##Inspector")) {
+    if (ImGui::BeginChild("##Inspector", ImVec2(0.0f, 0.0f), ImGuiChildFlags_Borders | ImGuiChildFlags_NavFlattened)) {
+        s32 pinIndex = mPinnedActors.indexOf(actor);
+        if (pinIndex >= 0) {
+            if (ImGui::Button("Unpin from top"))
+                mPinnedActors.erase(pinIndex);
+        } else {
+            ImGui::BeginDisabled(mPinnedActors.isFull());
+
+            if (ImGui::Button("Pin to top") && !mPinnedActors.isFull())
+                mPinnedActors.pushBack(actor);
+
+            if (mPinnedActors.isFull())
+                ImGui::SetTooltip("Reached maximum amount of %d pinned actors", mPinnedActors.capacity());
+
+            ImGui::EndDisabled();
+        }
+
         displayActorInspectorTreeName(mSelectedActor);
         displayActorInspectorTreePose(mSelectedActor->mPoseKeeper);
         displayActorInspectorTreeFlags(mSelectedActor->mFlags);
-        displayActorInspectorTreeNrv(mSelectedActor->getNerveKeeper());
-        displayActorInspectorTreeSensor(mSelectedActor->mHitSensorKeeper);
+        displayActorInspectorTreeNrvs(mSelectedActor->getNerveKeeper());
+        displayActorInspectorTreeSensors(mSelectedActor->mHitSensorKeeper);
     }
     ImGui::EndChild();
 }
@@ -238,7 +348,7 @@ void WindowActorBrowse2::displayActorInspector(al::LiveActor* actor) {
 void WindowActorBrowse2::displayActorInspectorTreeName(al::LiveActor* actor) {
     if (!actor)
         return;
-    if (!ImGui::TreeNode("Name"))
+    if (!ImGui::TreeNodeEx("Name", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DrawLinesFull))
         return;
 
     auto model = actor->getModelKeeper();
@@ -260,7 +370,7 @@ void WindowActorBrowse2::displayActorInspectorTreeName(al::LiveActor* actor) {
 void WindowActorBrowse2::displayActorInspectorTreePose(al::ActorPoseKeeperBase* poseKeep) {
     if (!poseKeep)
         return;
-    if (!ImGui::TreeNode("Pose"))
+    if (!ImGui::TreeNodeEx("Pose", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DrawLinesFull))
         return;
     defer {
         ImGui::TreePop();
@@ -279,7 +389,7 @@ void WindowActorBrowse2::displayActorInspectorTreePose(al::ActorPoseKeeperBase* 
 void WindowActorBrowse2::displayActorInspectorTreeFlags(al::LiveActorFlag* flags) {
     if (!flags)
         return;
-    if (!ImGui::TreeNode("Flags"))
+    if (!ImGui::TreeNodeEx("Flags", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DrawLinesFull))
         return;
     defer {
         ImGui::TreePop();
@@ -328,10 +438,10 @@ void WindowActorBrowse2::displayActorInspectorTreeFlags(al::LiveActorFlag* flags
     ImGui::Checkbox("Update Move FX Sensor", &flags->isUpdateMovementEffectAudioCollisionSensor);
 }
 
-void WindowActorBrowse2::displayActorInspectorTreeNrv(al::NerveKeeper* nrvKeep) {
+void WindowActorBrowse2::displayActorInspectorTreeNrvs(al::NerveKeeper* nrvKeep) {
     if (!nrvKeep)
         return;
-    if (!ImGui::TreeNode("Nerves"))
+    if (!ImGui::TreeNodeEx("Nerves", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DrawLinesFull))
         return;
     defer {
         ImGui::TreePop();
@@ -363,14 +473,115 @@ void WindowActorBrowse2::displayActorInspectorTreeNrv(al::NerveKeeper* nrvKeep) 
     if (!stateNrv)
         return;
 
-    const char* stateNrvName = getClassName(stateNrvKeep) + stateNameLen + strlen("nrv");
+    const char* stateNrvName = getClassName(stateNrvKeep->getCurrentNerve()) + stateNameLen + strlen("nrv");
     ImGui::Text("State Nerve: %s", stateNrvName);
 }
 
-void WindowActorBrowse2::displayActorInspectorTreeSensor(al::HitSensorKeeper* sensorKeep) {
+static const char* sensorTypeNames[] = {
+    "Eye",
+    "Player",
+    "PlayerAttack",
+    "PlayerFoot",
+    "PlayerDecoration",
+    "PlayerEye",
+    "Npc",
+    "Ride",
+    "Enemy",
+    "EnemyBody",
+    "EnemyAttack",
+    "EnemySimple",
+    "MapObj",
+    "MapObjSimple",
+    "Bindable",
+    "CollisionParts",
+    "PlayerFireBall",
+    "HoldObj",
+    "LookAt",
+    "BindableGoal",
+    "BindableAllPlayer",
+    "BindableBubbleOutScreen",
+    "BindableKoura",
+    "BindableRouteDokan",
+    "BindableBubblePadInput",
+};
+
+static void displaySensorComparison(const char* label, al::HitSensor* sensorA, al::HitSensor* sensorB) {
+    sead::Vector3f posDelta = sensorB->getPos() - sensorA->getPos();
+
+    f32 dist = posDelta.length() - sensorA->getRadius() - sensorB->getRadius();
+    f32 angle = al::wrapAngle(-sead::Mathf::atan2(posDelta.z, posDelta.x));
+
+    ImGui::Text("%s: %.2f (%.2f°)", label, dist, angle);
+}
+
+void WindowActorBrowse2::displayActorInspectorTreeSensors(al::HitSensorKeeper* sensorKeep) {
     if (!sensorKeep || !isInStageScene())
         return;
 
-    // TODO: Implement proper sensor viewer
-    mParent->getPrimitiveQueue()->pushHitSensor(mSelectedActor, HitSensorType_ALL, 0.4f);
+    if (!ImGui::TreeNodeEx("Sensors", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DrawLinesFull))
+        return;
+    defer {
+        ImGui::TreePop();
+    };
+
+    ImGui::Checkbox("Render all Sensors of selected Actor", &mShouldRenderAllSensors);
+
+    auto mario = tryGetPlayerActorHakoniwa();
+    auto cappy = mario ? mario->getPlayerHackKeeper()->getHackCap() : nullptr;
+
+    auto marioFoot = mario ? mario->getHitSensorKeeper()->getSensor("Foot") : nullptr;
+
+    auto cappyAttack = cappy ? cappy->getHitSensorKeeper()->getSensor("Attack") : nullptr;
+    auto cappyEye = cappy ? cappy->getHitSensorKeeper()->getSensor("Eye") : nullptr;
+
+    for (s32 idx = 0; idx < sensorKeep->getSensorNum(); idx++) {
+        auto sensor = sensorKeep->getSensor(idx);
+
+        ImVec2 nodeMin = ImGui::GetCursorScreenPos();
+
+        if (!ImGui::TreeNodeEx(sensor, ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DrawLinesFull, "%s", sensor->getName()))
+            continue;
+        defer {
+            ImGui::TreePop();
+        };
+
+        s32 renderIdx = mRenderedSensors.indexOf(sensor);
+        bool shouldRender = renderIdx >= 0;
+        ImGui::Checkbox("Always Render", &shouldRender);
+        if (shouldRender && renderIdx < 0)
+            mRenderedSensors.pushBack(sensor);
+        else if (!shouldRender && renderIdx >= 0)
+            mRenderedSensors.erase(renderIdx);
+
+        ImGui::Text("Type: %s", sensorTypeNames[(s32)sensor->mSensorType]);
+        ImGui::Spacing();
+
+        ImGui::Text("Position: %.2f, %.2f, %.2f", sensor->getPos().x, sensor->getPos().y, sensor->getPos().z);
+        ImGui::Text("Radius: %.2f", sensor->getRadius());
+        ImGui::Spacing();
+
+        if (sensor->mFollowPos) {
+            ImGui::Text("Follow Position: %.2f, %.2f, %.2f", sensor->mFollowPos->x, sensor->mFollowPos->y, sensor->mFollowPos->z);
+            ImGui::Text("Follow Offset: %.2f, %.2f, %.2f", sensor->mFollowPosOffset.x, sensor->mFollowPosOffset.y, sensor->mFollowPosOffset.z);
+            ImGui::Spacing();
+        }
+
+        if (mario && sensor->getParentActor() != mario) {
+            ImGui::SeparatorText("Mario Comparison");
+
+            displaySensorComparison("Foot", marioFoot, sensor);
+        }
+        if (cappy && sensor->getParentActor() != cappy) {
+            ImGui::SeparatorText("Cappy Comparison");
+
+            displaySensorComparison("Attack", cappyAttack, sensor);
+            displaySensorComparison("Homing", cappyEye, sensor);
+        }
+
+        ImVec2 nodeMax = ImGui::GetCursorScreenPos();
+        nodeMax.x += ImGui::GetContentRegionAvail().x;  // Span full width
+
+        if (ImGui::IsMouseHoveringRect(nodeMin, nodeMax))
+            mHoveredSensor = sensor;
+    }
 }

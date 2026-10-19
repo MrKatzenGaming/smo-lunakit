@@ -62,13 +62,18 @@ public:
         mRenderQueue.pushBack((PrimitiveTypeBase*)entry);
     }
 
-    void pushHitSensor(al::LiveActor* actor, HitSensorRenderTypes sensorTypes, float opacity) {
-        auto* entry = new (mHeap) PrimitiveTypeHitSensor(actor, sensorTypes, opacity, -1);
+    void pushHitSensor(al::HitSensor* sensor, float opacity) {
+        auto* entry = new (mHeap) PrimitiveTypeHitSensor(sensor, opacity);
         mRenderQueue.pushBack((PrimitiveTypeBase*)entry);
     }
 
-    void pushHitSensor(al::LiveActor* actor, HitSensorRenderTypes sensorTypes, float opacity, int sensorIdx) {
-        auto* entry = new (mHeap) PrimitiveTypeHitSensor(actor, sensorTypes, opacity, sensorIdx);
+    void pushHitSensorKeeper(al::HitSensorKeeper* sensorKeep, HitSensorRenderTypes sensorTypes, float opacity) {
+        auto* entry = new (mHeap) PrimitiveTypeHitSensorKeeper(sensorKeep, sensorTypes, opacity, -1);
+        mRenderQueue.pushBack((PrimitiveTypeBase*)entry);
+    }
+
+    void pushHitSensorKeeper(al::HitSensorKeeper* sensorKeep, HitSensorRenderTypes sensorTypes, float opacity, int sensorIdx) {
+        auto* entry = new (mHeap) PrimitiveTypeHitSensorKeeper(sensorKeep, sensorTypes, opacity, sensorIdx);
         mRenderQueue.pushBack((PrimitiveTypeBase*)entry);
     }
 

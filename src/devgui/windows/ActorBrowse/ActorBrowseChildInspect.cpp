@@ -199,7 +199,7 @@ inline void WindowActorBrowse::drawActorInspectorTreeSensor(al::HitSensorKeeper*
     if (!sensor || !isInStageScene())
         return;
 
-    mParent->getPrimitiveQueue()->pushHitSensor(mSelectedActor, mHitSensorTypes, 0.4f);
+    mParent->getPrimitiveQueue()->pushHitSensorKeeper(sensor, mHitSensorTypes, 0.4f);
 }
 
 inline void WindowActorBrowse::drawActorInspectorTreeSubActor(al::SubActorKeeper* subActorKeep) {

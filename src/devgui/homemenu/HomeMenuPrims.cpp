@@ -203,7 +203,7 @@ void HomeMenuPrims::renderHitSensorCategory(al::Scene* scene, PrimitiveQueue* qu
         float dist = al::calcDistance(playerBase, actor);
 
         if (dist < mMaxDist && isInStageScene())
-            queue->pushHitSensor(actor, hitSensorTypesEnum, (1.f - (dist / mMaxDist)) * 0.45f);
+            queue->pushHitSensorKeeper(actor->getHitSensorKeeper(), hitSensorTypesEnum, (1.f - (dist / mMaxDist)) * 0.45f);
     }
 }
 
