@@ -5,17 +5,18 @@
 #include "al/Library/Camera/ActorCameraTarget.h"
 #include "al/Library/HitSensor/HitSensorKeeper.h"
 #include "al/Library/LiveActor/LiveActor.h"
-#include "al/Library/LiveActor/LiveActorFlag.h"
 #include "al/Library/LiveActor/LiveActorGroup.h"
-#include "al/Library/Nerve/NerveKeeper.h"
 #include "al/Project/HitSensor/HitSensor.h"
 
+#include "devgui/windows/ActorBrowse2/ActorBrowseInspector.h"
 #include "devgui/windows/WindowBase.h"
 #include "imgui.h"
 
 __attribute__((used)) static const char* windowNameactorBrowse2 = "Actor Browser 2";
 
 class WindowActorBrowse2 : public WindowBase {
+    friend class ActorBrowseInspectorBase;
+
 public:
     WindowActorBrowse2(DevGuiManager* parent, const char* winName, bool isActiveByDefault);
 
@@ -34,12 +35,8 @@ private:
 
     void displayActorInspector(al::LiveActor* actor);
 
-    void displayActorInspectorTreeName(al::LiveActor* actor);
-    void displayActorInspectorTreePose(al::ActorPoseKeeperBase* poseKeep);
-    void displayActorInspectorTreeFlags(al::LiveActorFlag* flags);
-    void displayActorInspectorTreeNrvs(al::NerveKeeper* nrvKeep);
-    void displayActorInspectorTreeSensors(al::HitSensorKeeper* sensorKeep);
-    void displayActorInspectorTreeSensor(al::HitSensor* sensor);
+    ActorBrowseInspectorBase mActorInspectorDefault;
+    ActorBrowseInspectorGrowPlantSeed mActorInspectorGrowPlantSeed;
 
     al::LiveActor* mSelectedActor = nullptr;
     al::HitSensor* mHoveredSensor = nullptr;

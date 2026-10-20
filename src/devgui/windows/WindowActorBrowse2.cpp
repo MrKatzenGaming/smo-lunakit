@@ -4,6 +4,7 @@
 
 #include "sead/gfx/seadColor.h"
 
+#include "al/Library/Base/StringUtil.h"
 #include "al/Library/Camera/CameraUtil.h"
 #include "al/Library/Clipping/FrustumRadar.h"
 #include "al/Library/LiveActor/ActorPoseKeeper.h"
@@ -15,7 +16,6 @@
 #include "al/Library/LiveActor/LiveActorKit.h"
 #include "al/Library/Math/MathUtil.h"
 #include "al/Library/Model/ModelKeeper.h"
-#include "al/Library/Nerve/NerveStateCtrl.h"
 #include "al/Library/Projection/Projection.h"
 #include "al/Library/Scene/Scene.h"
 #include "al/Library/Scene/SceneUtil.h"
@@ -23,7 +23,7 @@
 #include "al/Library/Sequence/Sequence.h"
 #include "al/Project/HitSensor/HitSensor.h"
 
-#include "game/Player/HackCap.h"
+#include "game/MapObj/GrowPlantSeed.h"
 #include "game/Player/PlayerHackKeeper.h"
 #include "game/Sequence/HakoniwaSequence.h"
 
@@ -32,8 +32,8 @@
 
 #include "devgui/DevGuiManager.h"
 #include "devgui/popups/PopupKeyboard.h"
+#include "devgui/windows/ActorBrowse2/ActorBrowseInspector.h"
 #include "helpers/GetHelper.h"
-#include "helpers/ImGuiHelper.h"
 #include "helpers/InputHelper.h"
 #include "imgui.h"
 #include "imgui_internal.h"
@@ -108,8 +108,8 @@ bool WindowActorBrowse2::tryUpdateWinDisplay() {
     mIsLayoutHorizontal = ImGui::GetWindowWidth() >= 600.0f;
 
     // In-world selector
-    ImGui::SetNextItemWidth(300.0f);
-    ImGui::DragFloat("##PickRadius", &mPickRadius, 10.0f, 10.0f, 1000.0f, "Pick Radius: %.0f");
+    ImGui::SetNextItemWidth(200.0f);
+    ImGui::DragFloat("##PickRadius", &mPickRadius, 10.0f, 10.0f, 1000.0f, "Radius: %.0f");
 
     ImGui::SameLine();
     if (!mIsPickingActor) {
@@ -121,7 +121,7 @@ bool WindowActorBrowse2::tryUpdateWinDisplay() {
     }
 
     // USB keyboard search
-    ImGui::SetNextItemWidth(300.0f);
+    ImGui::SetNextItemWidth(200.0f);
     if (ImGui::InputTextWithHint("##Filter", "Search...", mSearchFilter.InputBuf, sizeof(mSearchFilter.InputBuf),
                                  ImGuiInputTextFlags_EscapeClearsAll)) {
         mSearchText = mSearchFilter.InputBuf;
@@ -448,252 +448,20 @@ void WindowActorBrowse2::displayActorInspector(al::LiveActor* actor) {
             ImGui::EndDisabled();
         }
 
-        displayActorInspectorTreeName(mSelectedActor);
-        displayActorInspectorTreePose(mSelectedActor->mPoseKeeper);
-        displayActorInspectorTreeFlags(mSelectedActor->mFlags);
-        displayActorInspectorTreeNrvs(mSelectedActor->getNerveKeeper());
-        displayActorInspectorTreeSensors(mSelectedActor->mHitSensorKeeper);
+        auto player = tryGetPlayerActor();
+        if (player && player->getPoseKeeper() && actor->getPoseKeeper()) {
+            ImGui::SameLine();
+            if (ImGui::Button("Teleport to Actor")) {
+                player->startDemoPuppetable();
+                player->getPoseKeeper()->mTrans = actor->getPoseKeeper()->mTrans;
+                player->endDemoPuppetable();
+            }
+        }
+
+        if (al::isEqualString(typeid(*actor).name(), typeid(GrowPlantSeed).name()))
+            mActorInspectorGrowPlantSeed.display(this, actor);
+        else
+            mActorInspectorDefault.display(this, actor);
     }
     ImGui::EndChild();
-}
-
-void WindowActorBrowse2::displayActorInspectorTreeName(al::LiveActor* actor) {
-    if (!actor)
-        return;
-    if (!ImGui::TreeNodeEx("Name", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DrawLinesFull))
-        return;
-
-    auto model = actor->getModelKeeper();
-
-    const char* className = getClassName(actor);
-    const char* actorName = actor->getName();
-    const char* modelName = model ? model->getName() : nullptr;
-
-    if (className)
-        ImGui::Text("Class: %s", className);
-    if (actorName)
-        ImGui::Text("Actor: %s", actorName);
-    if (modelName)
-        ImGui::Text("Model: %s", modelName);
-
-    ImGui::TreePop();
-}
-
-void WindowActorBrowse2::displayActorInspectorTreePose(al::ActorPoseKeeperBase* poseKeep) {
-    if (!poseKeep)
-        return;
-    if (!ImGui::TreeNodeEx("Pose", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DrawLinesFull))
-        return;
-    defer {
-        ImGui::TreePop();
-    };
-
-    ImGuiHelper::Vector3Drag("Translation", "Pose Keeper Translation", poseKeep->getTransPtr(), 50.f, 0.f);
-    ImGuiHelper::Vector3Drag("Scale", "Pose Keeper Scale", poseKeep->getScalePtr(), 0.05f, 0.f);
-    ImGuiHelper::Vector3Drag("Velocity", "Pose Keeper Velocity", poseKeep->getVelocityPtr(), 1.f, 0.f);
-    ImGuiHelper::Vector3Slide("Front", "Pose Keeper Front", poseKeep->getFrontPtr(), 1.f, true);
-    ImGuiHelper::Vector3Slide("Up", "Pose Keeper Up", poseKeep->getUpPtr(), 1.f, true);
-    ImGuiHelper::Vector3Slide("Gravity", "Pose Keeper Gravity", poseKeep->getGravityPtr(), 1.f, true);
-    ImGuiHelper::Vector3Drag("Rotation", "Pose Keeper Rotation", poseKeep->getRotatePtr(), 1.f, 360.f);
-    ImGuiHelper::QuatDrag("Quaternion", "Pose Keeper Quaternion", poseKeep->getQuatPtr());
-}
-
-void WindowActorBrowse2::displayActorInspectorTreeFlags(al::LiveActorFlag* flags) {
-    if (!flags)
-        return;
-    if (!ImGui::TreeNodeEx("Flags", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DrawLinesFull))
-        return;
-    defer {
-        ImGui::TreePop();
-    };
-
-    if (!ImGui::BeginTable("##Table", 2))
-        return;
-    defer {
-        ImGui::EndTable();
-    };
-
-    ImGui::TableNextColumn();
-    ImGui::Checkbox("Dead", &flags->isDead);
-
-    ImGui::TableNextColumn();
-    ImGui::Checkbox("Clipped", &flags->isClipped);
-
-    ImGui::TableNextColumn();
-    ImGui::Checkbox("Clipping Invalid", &flags->isClippingInvalid);
-
-    ImGui::TableNextColumn();
-    ImGui::Checkbox("Draw Clipped", &flags->isDrawClipped);
-
-    ImGui::TableNextColumn();
-    ImGui::Checkbox("Disable Calc Anim", &flags->isDisableCalcAnim);
-
-    ImGui::TableNextColumn();
-    ImGui::Checkbox("Model Hidden", &flags->isModelHidden);
-
-    ImGui::TableNextColumn();
-    ImGui::Checkbox("Collide Off", &flags->isCollideOff);
-
-    ImGui::TableNextColumn();
-    ImGui::Checkbox("Unknown 7", &flags->field_7);
-
-    ImGui::TableNextColumn();
-    ImGui::Checkbox("Material Code Valid", &flags->isMaterialCodeValid);
-
-    ImGui::TableNextColumn();
-    ImGui::Checkbox("Puddle Material Valid", &flags->isPuddleMaterialValid);
-
-    ImGui::TableNextColumn();
-    ImGui::Checkbox("Area Target On", &flags->isAreaTargetOn);
-
-    ImGui::TableNextColumn();
-    ImGui::Checkbox("Update Move FX Sensor", &flags->isUpdateMovementEffectAudioCollisionSensor);
-}
-
-void WindowActorBrowse2::displayActorInspectorTreeNrvs(al::NerveKeeper* nrvKeep) {
-    if (!nrvKeep)
-        return;
-    if (!ImGui::TreeNodeEx("Nerves", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DrawLinesFull))
-        return;
-    defer {
-        ImGui::TreePop();
-    };
-
-    auto nrv = nrvKeep->getCurrentNerve();
-    if (!nrv)
-        return;
-
-    const char* nrvName = getClassName(nrv) + strlen("(anonymous namespace)::");
-    ImGui::Text("Nerve: %s", nrvName);
-
-    if (!nrvKeep->mStateCtrl)
-        return;
-
-    auto state = nrvKeep->mStateCtrl->mCurrentState;
-    if (!state)
-        return;
-
-    const char* stateName = getClassName(state);
-    s32 stateNameLen = strlen(stateName);
-    ImGui::Text("State: %s", stateName);
-
-    auto stateNrvKeep = state->state->getNerveKeeper();
-    if (!stateNrvKeep)
-        return;
-
-    auto stateNrv = stateNrvKeep->getCurrentNerve();
-    if (!stateNrv)
-        return;
-
-    const char* stateNrvName = getClassName(stateNrvKeep->getCurrentNerve()) + stateNameLen + strlen("nrv");
-    ImGui::Text("State Nerve: %s", stateNrvName);
-}
-
-static const char* sensorTypeNames[] = {
-    "Eye",
-    "Player",
-    "PlayerAttack",
-    "PlayerFoot",
-    "PlayerDecoration",
-    "PlayerEye",
-    "Npc",
-    "Ride",
-    "Enemy",
-    "EnemyBody",
-    "EnemyAttack",
-    "EnemySimple",
-    "MapObj",
-    "MapObjSimple",
-    "Bindable",
-    "CollisionParts",
-    "PlayerFireBall",
-    "HoldObj",
-    "LookAt",
-    "BindableGoal",
-    "BindableAllPlayer",
-    "BindableBubbleOutScreen",
-    "BindableKoura",
-    "BindableRouteDokan",
-    "BindableBubblePadInput",
-};
-
-static void displaySensorComparison(const char* label, al::HitSensor* sensorA, al::HitSensor* sensorB) {
-    sead::Vector3f posDelta = sensorB->getPos() - sensorA->getPos();
-
-    f32 dist = posDelta.length() - sensorA->getRadius() - sensorB->getRadius();
-    f32 angle = al::wrapAngle(-sead::Mathf::atan2(posDelta.z, posDelta.x));
-
-    ImGui::Text("%s: %.2f (%.2f°)", label, dist, angle);
-}
-
-void WindowActorBrowse2::displayActorInspectorTreeSensors(al::HitSensorKeeper* sensorKeep) {
-    if (!sensorKeep || !isInStageScene())
-        return;
-
-    if (!ImGui::TreeNodeEx("Sensors", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DrawLinesFull))
-        return;
-    defer {
-        ImGui::TreePop();
-    };
-
-    ImGui::Checkbox("Render all Sensors of selected Actor", &mShouldRenderAllSensors);
-
-    auto mario = tryGetPlayerActorHakoniwa();
-    auto cappy = mario ? mario->getPlayerHackKeeper()->getHackCap() : nullptr;
-
-    auto marioFoot = mario ? mario->getHitSensorKeeper()->getSensor("Foot") : nullptr;
-
-    auto cappyAttack = cappy ? cappy->getHitSensorKeeper()->getSensor("Attack") : nullptr;
-    auto cappyEye = cappy ? cappy->getHitSensorKeeper()->getSensor("Eye") : nullptr;
-
-    for (s32 idx = 0; idx < sensorKeep->getSensorNum(); idx++) {
-        auto sensor = sensorKeep->getSensor(idx);
-
-        ImVec2 nodeMin = ImGui::GetCursorScreenPos();
-
-        if (!ImGui::TreeNodeEx(sensor, ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DrawLinesFull, "%s", sensor->getName()))
-            continue;
-        defer {
-            ImGui::TreePop();
-        };
-
-        s32 renderIdx = mRenderedSensors.indexOf(sensor);
-        bool shouldRender = renderIdx >= 0;
-        ImGui::Checkbox("Always Render", &shouldRender);
-        if (shouldRender && renderIdx < 0)
-            mRenderedSensors.pushBack(sensor);
-        else if (!shouldRender && renderIdx >= 0)
-            mRenderedSensors.erase(renderIdx);
-
-        ImGui::Text("Type: %s", sensorTypeNames[(s32)sensor->mSensorType]);
-        ImGui::Spacing();
-
-        ImGui::Text("Position: %.2f, %.2f, %.2f", sensor->getPos().x, sensor->getPos().y, sensor->getPos().z);
-        ImGui::Text("Radius: %.2f", sensor->getRadius());
-        ImGui::Spacing();
-
-        if (sensor->mFollowPos) {
-            ImGui::Text("Follow Position: %.2f, %.2f, %.2f", sensor->mFollowPos->x, sensor->mFollowPos->y, sensor->mFollowPos->z);
-            ImGui::Text("Follow Offset: %.2f, %.2f, %.2f", sensor->mFollowPosOffset.x, sensor->mFollowPosOffset.y, sensor->mFollowPosOffset.z);
-            ImGui::Spacing();
-        }
-
-        if (mario && sensor->getParentActor() != mario) {
-            ImGui::SeparatorText("Mario Comparison");
-
-            displaySensorComparison("Foot", marioFoot, sensor);
-        }
-        if (cappy && sensor->getParentActor() != cappy) {
-            ImGui::SeparatorText("Cappy Comparison");
-
-            displaySensorComparison("Attack", cappyAttack, sensor);
-            displaySensorComparison("Homing", cappyEye, sensor);
-        }
-
-        ImVec2 nodeMax = ImGui::GetCursorScreenPos();
-        nodeMax.x += ImGui::GetContentRegionAvail().x;  // Span full width
-
-        if (ImGui::IsMouseHoveringRect(nodeMin, nodeMax))
-            mHoveredSensor = sensor;
-    }
 }
