@@ -50,8 +50,15 @@ private:
     ImGuiTextFilter mSearchFilter;
     al::LiveActorGroup* mFilterActorGroup;
 
+    static constexpr f32 cMaxPickDistance = 10000.0f;
+    f32 mPickRadius = 100.0f;
+    s32 mPickHitNum = 0;
+    s32 mPickHitIdx = 0;
+
     bool mIsLayoutHorizontal;
     bool mIsPopupKeyboardOpen = false;
     bool mIsPickingActor = false;
     bool mShouldRenderAllSensors = true;
+    bool mShouldScrollToSelectedActor = false;
+    bool mDidChangePickIdx = false;
 };

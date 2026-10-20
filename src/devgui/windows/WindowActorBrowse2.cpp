@@ -1,6 +1,11 @@
 #include "devgui/windows/WindowActorBrowse2.h"
 
+#include "nn/hid.h"
+
+#include "sead/gfx/seadColor.h"
+
 #include "al/Library/Camera/CameraUtil.h"
+#include "al/Library/Clipping/FrustumRadar.h"
 #include "al/Library/LiveActor/ActorPoseKeeper.h"
 #include "al/Library/LiveActor/ActorSensorUtil.h"
 #include "al/Library/LiveActor/LiveActor.h"
@@ -11,6 +16,7 @@
 #include "al/Library/Math/MathUtil.h"
 #include "al/Library/Model/ModelKeeper.h"
 #include "al/Library/Nerve/NerveStateCtrl.h"
+#include "al/Library/Projection/Projection.h"
 #include "al/Library/Scene/Scene.h"
 #include "al/Library/Scene/SceneUtil.h"
 #include "al/Library/Screen/ScreenFunction.h"
@@ -30,6 +36,7 @@
 #include "helpers/ImGuiHelper.h"
 #include "helpers/InputHelper.h"
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "logger/Logger.hpp"
 #include "primitives/PrimitiveQueue.h"
 
@@ -57,6 +64,19 @@ void WindowActorBrowse2::updateWin() {
         resetScene();
         return;
     }
+}
+
+template <typename T>
+static const char* getClassName(const T* t) {
+    static size_t demangleOutputLength = 0;
+    static char* demangleOutputBuffer = nullptr;
+
+    s32 demangleStatus;
+    demangleOutputBuffer = abi::__cxa_demangle(typeid(*t).name(), demangleOutputBuffer, &demangleOutputLength, &demangleStatus);
+    if (demangleStatus != 0)
+        return nullptr;
+
+    return demangleOutputBuffer;
 }
 
 bool WindowActorBrowse2::tryUpdateWinDisplay() {
@@ -87,36 +107,169 @@ bool WindowActorBrowse2::tryUpdateWinDisplay() {
     mHoveredSensor = nullptr;
     mIsLayoutHorizontal = ImGui::GetWindowWidth() >= 600.0f;
 
+    // In-world selector
+    ImGui::SetNextItemWidth(300.0f);
+    ImGui::DragFloat("##PickRadius", &mPickRadius, 10.0f, 10.0f, 1000.0f, "Pick Radius: %.0f");
+
+    ImGui::SameLine();
+    if (!mIsPickingActor) {
+        if (ImGui::Button("Pick Actor..."))
+            mIsPickingActor = true;
+    } else {
+        if (ImGui::Button("Stop Picking"))
+            mIsPickingActor = false;
+    }
+
+    // USB keyboard search
+    ImGui::SetNextItemWidth(300.0f);
+    if (ImGui::InputTextWithHint("##Filter", "Search...", mSearchFilter.InputBuf, sizeof(mSearchFilter.InputBuf),
+                                 ImGuiInputTextFlags_EscapeClearsAll)) {
+        mSearchText = mSearchFilter.InputBuf;
+        mSearchFilter.Build();
+
+        regenerateFilerActorGroup(group);
+    }
+
+    // Popup keyboard search
+    ImGui::SameLine();
+    if (mSearchFilter.IsActive()) {
+        if (ImGui::Button("Clear")) {
+            mSearchText = nullptr;
+            mSearchFilter.Clear();
+        }
+    } else if (ImGui::Button("Open Keyboard...")) {
+        mParent->tryOpenKeyboard(sizeof(mSearchFilter.InputBuf), PopupKeyboardType::KEYTYPE_QWERTY, &mSearchText, &mIsPopupKeyboardOpen);
+    }
+
+    if (mIsPopupKeyboardOpen && mSearchText != nullptr) {
+        strncpy(mSearchFilter.InputBuf, mSearchText, sizeof(mSearchFilter.InputBuf));
+        mSearchFilter.Build();
+
+        regenerateFilerActorGroup(group);
+    }
+
     displayActorList(group);
     if (mIsLayoutHorizontal)
         ImGui::SameLine();
     displayActorInspector(mSelectedActor);
 
+    auto primQueue = mParent->getPrimitiveQueue();
+
     if (mIsPickingActor) {
+        // Draw actor positions
         const auto& camera = al::getLookAtCamera(scene, 0);
+        const auto& projection = al::getProjection(scene, 0);
+        al::FrustumRadar radar;
+        radar.calcFrustumArea(camera.getMatrix(), projection.getMtxStd(), al::getNear(scene, 0), al::getFar(scene, 0));
 
-        sead::Vector3f worldDir;
-        sead::Vector2f screenPos;
-        InputHelper::getMouseCoords(&screenPos.x, &screenPos.y);
+        sead::Vector2f targetScreenPos;
+        InputHelper::getMouseCoords(&targetScreenPos.x, &targetScreenPos.y);
+        sead::Vector3f targetWorldPos;
+        al::calcWorldPosFromScreenPos(&targetWorldPos, scene, targetScreenPos, 1.0f);
 
-        al::calcWorldPosFromScreenPos(&worldDir, scene, screenPos, 1.0f);
+        sead::Vector3f worldDir = camera.getPos() - targetWorldPos;
+        worldDir.normalize();
 
-        Logger::log("Screen Pos: %.3f %.3f World Pos: %.3f %.3f %.3f", screenPos.x, screenPos.y, worldDir.x, worldDir.y, worldDir.z);
-    }
+        s32 hitIdx = 0, pickIdx = mPickHitIdx;
 
-    if (mShouldRenderAllSensors && mSelectedActor)
-        mParent->getPrimitiveQueue()->pushHitSensorKeeper(mSelectedActor->getHitSensorKeeper(), HitSensorType_ALL, 0.4f);
-    else if (mHoveredSensor)
-        mParent->getPrimitiveQueue()->pushHitSensor(mHoveredSensor, 0.8f);
+        for (s32 idx = 0; idx < group->getActorCount(); idx++) {
+            auto actor = group->getActor(idx);
+            auto pose = actor->getPoseKeeper();
+            if (!pose)
+                continue;
+            if (!radar.judgeInArea(pose->getTrans(), mPickRadius))
+                continue;
 
-    for (s32 idx = 0; idx < mRenderedSensors.size(); idx++) {
-        auto sensor = mRenderedSensors[idx];
-        if (mShouldRenderAllSensors && sensor->getParentActor() == mSelectedActor)
-            continue;
-        if (sensor == mHoveredSensor)
-            continue;
+            sead::Vector3f camDelta = pose->getTrans() - camera.getPos();
+            if (camDelta.squaredLength() <= mPickRadius * mPickRadius)
+                continue;
+            if (camDelta.squaredLength() >= cMaxPickDistance * cMaxPickDistance)
+                continue;
 
-        mParent->getPrimitiveQueue()->pushHitSensor(sensor, 0.4f);
+            // Ray/Sphere intersection
+            sead::Vector3f rayDelta;
+            rayDelta.setCross(camDelta, worldDir);
+
+            bool hover = rayDelta.squaredLength() <= mPickRadius * mPickRadius;
+            if (!primQueue->isFull())
+                primQueue->pushPoint(pose->getTrans(), mPickRadius,
+                                     (hover && hitIdx == mPickHitIdx) ? sead::Color4f(0.0f, 1.0f, 0.0f, 0.25f) :
+                                                                        sead::Color4f(1.0f, 0.0f, 0.0f, 0.25f));
+
+            if (hover) {
+                if (hitIdx == mPickHitIdx && ImGui::BeginTooltip()) {
+                    auto model = actor->getModelKeeper();
+
+                    const char* className = getClassName(actor);
+                    const char* actorName = actor->getName();
+                    const char* modelName = model ? model->getName() : nullptr;
+
+                    if (mPickHitNum > 1) {
+                        ImGui::Text("Use the scroll wheel to cycle through overlapping actors");
+                        ImGui::Text("Currently selected: %d / %d", mPickHitIdx + 1, mPickHitNum);
+                        ImGui::Separator();
+
+                        f32 scrollX, scrollY;
+                        InputHelper::getScrollDelta(&scrollX, &scrollY);
+
+                        if (scrollY > 0.0f) {
+                            if (!mDidChangePickIdx)
+                                pickIdx = al::wrapValue(mPickHitIdx + 1, mPickHitNum);
+                            mDidChangePickIdx = true;
+                        } else if (scrollY < 0.0f) {
+                            if (!mDidChangePickIdx)
+                                pickIdx = al::wrapValue(mPickHitIdx - 1, mPickHitNum);
+                            mDidChangePickIdx = true;
+                        } else {
+                            mDidChangePickIdx = false;
+                        }
+                    }
+
+                    if (className)
+                        ImGui::Text("Class: %s", className);
+                    if (actorName)
+                        ImGui::Text("Actor: %s", actorName);
+                    if (modelName)
+                        ImGui::Text("Model: %s", modelName);
+
+                    ImGui::EndTooltip();
+                }
+
+                hitIdx++;
+
+                if (InputHelper::isMousePress(nn::hid::MouseButton::Left) && !ImGui::GetIO().WantCaptureMouse) {
+                    mSelectedActor = actor;
+                    mIsPickingActor = false;
+                    mShouldScrollToSelectedActor = true;
+                    break;
+                }
+            }
+        }
+
+        mPickHitNum = hitIdx;
+        mPickHitIdx = al::wrapValue(pickIdx, mPickHitNum);
+
+    } else {
+        // Draw selected position
+        auto pose = mSelectedActor ? mSelectedActor->getPoseKeeper() : nullptr;
+        if (pose)
+            primQueue->pushPoint(pose->getTrans(), 10.0f, sead::Color4f(0.25f, 0.5f, 0.5f, 0.25f));
+
+        // Draw sensors
+        if (mShouldRenderAllSensors && mSelectedActor)
+            primQueue->pushHitSensorKeeper(mSelectedActor->getHitSensorKeeper(), HitSensorType_ALL, 0.4f);
+        else if (mHoveredSensor)
+            primQueue->pushHitSensor(mHoveredSensor, 0.8f);
+
+        for (s32 idx = 0; idx < mRenderedSensors.size(); idx++) {
+            auto sensor = mRenderedSensors[idx];
+            if (mShouldRenderAllSensors && sensor->getParentActor() == mSelectedActor)
+                continue;
+            if (sensor == mHoveredSensor)
+                continue;
+
+            primQueue->pushHitSensor(sensor, 0.4f);
+        }
     }
 
     return true;
@@ -124,21 +277,11 @@ bool WindowActorBrowse2::tryUpdateWinDisplay() {
 
 void WindowActorBrowse2::resetScene() {
     mSelectedActor = nullptr;
+    mHoveredSensor = nullptr;
     mPinnedActors.clear();
     mRenderedSensors.clear();
-}
 
-template <typename T>
-static const char* getClassName(const T* t) {
-    static size_t demangleOutputLength = 0;
-    static char* demangleOutputBuffer = nullptr;
-
-    s32 demangleStatus;
-    demangleOutputBuffer = abi::__cxa_demangle(typeid(*t).name(), demangleOutputBuffer, &demangleOutputLength, &demangleStatus);
-    if (demangleStatus != 0)
-        return nullptr;
-
-    return demangleOutputBuffer;
+    mIsPickingActor = false;
 }
 
 void WindowActorBrowse2::displayActorList(al::LiveActorGroup* group) {
@@ -158,43 +301,6 @@ void WindowActorBrowse2::displayActorList(al::LiveActorGroup* group) {
     const char* strID = mIsLayoutHorizontal ? "##ListHorizontal" : "##ListVertical";
 
     if (ImGui::BeginChild(strID, size, childFlags)) {
-        // USB keyboard search
-        ImGui::SetNextItemWidth(300.0f);
-        if (ImGui::InputTextWithHint("##Filter", "Search...", mSearchFilter.InputBuf, sizeof(mSearchFilter.InputBuf),
-                                     ImGuiInputTextFlags_EscapeClearsAll)) {
-            mSearchText = mSearchFilter.InputBuf;
-            mSearchFilter.Build();
-
-            regenerateFilerActorGroup(group);
-        }
-
-        // Popup keyboard search
-        ImGui::SameLine();
-        if (mSearchFilter.IsActive()) {
-            if (ImGui::Button("Clear")) {
-                mSearchText = nullptr;
-                mSearchFilter.Clear();
-            }
-        } else if (ImGui::Button("Open Keyboard...")) {
-            mParent->tryOpenKeyboard(sizeof(mSearchFilter.InputBuf), PopupKeyboardType::KEYTYPE_QWERTY, &mSearchText, &mIsPopupKeyboardOpen);
-        }
-
-        if (mIsPopupKeyboardOpen && mSearchText != nullptr) {
-            strncpy(mSearchFilter.InputBuf, mSearchText, sizeof(mSearchFilter.InputBuf));
-            mSearchFilter.Build();
-
-            regenerateFilerActorGroup(group);
-        }
-
-        // In-world selector
-        if (!mIsPickingActor) {
-            if (ImGui::Button("Pick Actor..."))
-                mIsPickingActor = true;
-        } else {
-            if (ImGui::Button("Stop Picking"))
-                mIsPickingActor = false;
-        }
-
         auto shownGroup = mSearchFilter.IsActive() ? mFilterActorGroup : group;
 
         if (ImGui::BeginTable("##Table", 1, ImGuiTableFlags_RowBg)) {
@@ -231,7 +337,7 @@ void WindowActorBrowse2::displayActorListEntry(al::LiveActor* actor, ImGuiListCl
     ImGuiID uid = (ImGuiID)(uintptr_t)actor;
 
     bool drawSubActors = false;
-    if (clipper.UserIndex >= clipper.DisplayStart && clipper.UserIndex < clipper.DisplayEnd) {
+    if ((clipper.UserIndex >= clipper.DisplayStart && clipper.UserIndex < clipper.DisplayEnd) || mShouldScrollToSelectedActor) {
         ImGui::TableNextRow();
         ImGui::TableNextColumn();
 
@@ -264,6 +370,12 @@ void WindowActorBrowse2::displayActorListEntry(al::LiveActor* actor, ImGuiListCl
 
         if (!subActors || subActors->getCurActorCount() == 0)
             drawSubActors = false;
+
+        if (mShouldScrollToSelectedActor && actor == mSelectedActor) {
+            Logger::log("Scrolling to %p at %.1f, %.1f", actor, ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y);
+            ImGui::ScrollToItem(ImGuiScrollFlags_AlwaysCenterY);
+            mShouldScrollToSelectedActor = false;
+        }
 
         if (ImGui::IsItemFocused())
             mSelectedActor = actor;

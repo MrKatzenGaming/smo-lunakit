@@ -22,6 +22,8 @@ public:
 
     void render();
 
+    bool isFull() const { return mRenderQueue.isFull(); }
+
     void pushPoint(sead::Vector3f trans, float size, sead::Color4f col) {
         auto* entry = new (mHeap) PrimitiveTypePoint(trans, size, col);
         mRenderQueue.pushBack((PrimitiveTypeBase*)entry);
