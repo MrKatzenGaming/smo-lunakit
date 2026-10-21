@@ -33,9 +33,11 @@ private:
     void regenerateFilerActorGroup(const al::LiveActorGroup* group);
     bool checkActorMatchesFilter(const al::LiveActor* actor) const;
 
-    void displayActorInspector(al::LiveActor* actor);
+    void displayActorInspector(al::Scene* scene, al::LiveActor* actor);
 
     ActorBrowseInspectorBase mActorInspectorDefault;
+    ActorBrowseInspectorFukuwaraiFaceParts mActorInspectorFukuwaraiFaceParts;
+    ActorBrowseInspectorFukuwaraiWatcher mActorInspectorFukuwaraiWatcher;
     ActorBrowseInspectorGrowPlantSeed mActorInspectorGrowPlantSeed;
 
     al::LiveActor* mSelectedActor = nullptr;

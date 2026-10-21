@@ -2,6 +2,7 @@
 
 #include "al/Library/HitSensor/HitSensorKeeper.h"
 #include "al/Library/LiveActor/ActorPoseKeeper.h"
+#include "al/Library/LiveActor/ActorSensorUtil.h"
 #include "al/Library/LiveActor/LiveActorFlag.h"
 #include "al/Library/Math/MathUtil.h"
 #include "al/Library/Model/ModelKeeper.h"
@@ -18,7 +19,7 @@
 #include "helpers/ImGuiHelper.h"
 #include "imgui.h"
 
-void ActorBrowseInspectorBase::display(WindowActorBrowse2* window, al::LiveActor* actor) {
+void ActorBrowseInspectorBase::display(WindowActorBrowse2* window, al::Scene* scene, al::LiveActor* actor) {
     auto poseKeep = actor->getPoseKeeper();
     auto flags = actor->getFlags();
     auto nrvKeep = actor->getNerveKeeper();
@@ -181,6 +182,9 @@ static const char* sensorTypeNames[] = {
 };
 
 static void displaySensorComparison(const char* label, al::HitSensor* sensorA, al::HitSensor* sensorB) {
+    if (!sensorA || !sensorB)
+        return;
+
     sead::Vector3f posDelta = sensorB->getPos() - sensorA->getPos();
 
     f32 dist = posDelta.length() - sensorA->getRadius() - sensorB->getRadius();
@@ -192,25 +196,19 @@ static void displaySensorComparison(const char* label, al::HitSensor* sensorA, a
 void ActorBrowseInspectorBase::displaySensors(WindowActorBrowse2* window, al::HitSensorKeeper* sensorKeep) {
     ImGui::Checkbox("Render all Sensors of selected Actor", &window->mShouldRenderAllSensors);
 
-    auto mario = tryGetPlayerActorHakoniwa();
-    auto cappy = mario ? mario->getPlayerHackKeeper()->getHackCap() : nullptr;
+    for (s32 idx = 0; idx < sensorKeep->getSensorNum(); idx++)
+        displaySensor(window, sensorKeep->getSensor(idx), nullptr);
+}
 
-    auto marioFoot = mario ? mario->getHitSensorKeeper()->getSensor("Foot") : nullptr;
+void ActorBrowseInspectorBase::displaySensor(WindowActorBrowse2* window, al::HitSensor* sensor, al::HitSensor* collidingSensor) {
+    ImVec2 nodeMin = ImGui::GetCursorScreenPos();
 
-    auto cappyAttack = cappy ? cappy->getHitSensorKeeper()->getSensor("Attack") : nullptr;
-    auto cappyEye = cappy ? cappy->getHitSensorKeeper()->getSensor("Eye") : nullptr;
+    bool openNode = collidingSensor ?
+                        ImGui::TreeNodeEx(sensor, ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DrawLinesFull, "%s (Depth: %.2f)", sensor->getName(),
+                                          -(al::calcDistance(sensor, collidingSensor) - sensor->getRadius() - collidingSensor->getRadius())) :
+                        ImGui::TreeNodeEx(sensor, ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DrawLinesFull, "%s", sensor->getName());
 
-    for (s32 idx = 0; idx < sensorKeep->getSensorNum(); idx++) {
-        auto sensor = sensorKeep->getSensor(idx);
-
-        ImVec2 nodeMin = ImGui::GetCursorScreenPos();
-
-        if (!ImGui::TreeNodeEx(sensor, ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DrawLinesFull, "%s", sensor->getName()))
-            continue;
-        defer {
-            ImGui::TreePop();
-        };
-
+    if (openNode) {
         s32 renderIdx = window->mRenderedSensors.indexOf(sensor);
         bool shouldRender = renderIdx >= 0;
         ImGui::Checkbox("Always Render", &shouldRender);
@@ -218,6 +216,18 @@ void ActorBrowseInspectorBase::displaySensors(WindowActorBrowse2* window, al::Hi
             window->mRenderedSensors.pushBack(sensor);
         else if (!shouldRender && renderIdx >= 0)
             window->mRenderedSensors.erase(renderIdx);
+
+        ImGui::SameLine();
+        if (sensor->getParentActor() && window->mSelectedActor != sensor->getParentActor()) {
+            if (ImGui::Button("Select parent Actor"))
+                window->mSelectedActor = sensor->getParentActor();
+
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip)) {
+                ImGui::BeginTooltip();
+                displayName(sensor->getParentActor());
+                ImGui::EndTooltip();
+            }
+        }
 
         ImGui::Text("Type: %s", sensorTypeNames[(s32)sensor->mSensorType]);
         ImGui::Spacing();
@@ -232,22 +242,35 @@ void ActorBrowseInspectorBase::displaySensors(WindowActorBrowse2* window, al::Hi
             ImGui::Spacing();
         }
 
-        if (mario && sensor->getParentActor() != mario) {
-            ImGui::SeparatorText("Mario Comparison");
+        auto mario = tryGetPlayerActorHakoniwa();
+        if (mario && sensor->getParentActor() != mario && ImGui::TreeNode("Mario Comparison")) {
+            displaySensorComparison("Foot", mario->getHitSensorKeeper()->getSensor("Foot"), sensor);
 
-            displaySensorComparison("Foot", marioFoot, sensor);
-        }
-        if (cappy && sensor->getParentActor() != cappy) {
-            ImGui::SeparatorText("Cappy Comparison");
-
-            displaySensorComparison("Attack", cappyAttack, sensor);
-            displaySensorComparison("Homing", cappyEye, sensor);
+            ImGui::TreePop();
         }
 
-        ImVec2 nodeMax = ImGui::GetCursorScreenPos();
-        nodeMax.x += ImGui::GetContentRegionAvail().x;  // Span full width
+        auto cappy = mario ? mario->getPlayerHackKeeper()->getHackCap() : nullptr;
+        if (cappy && sensor->getParentActor() != cappy && ImGui::TreeNode("Cappy Comparison")) {
+            displaySensorComparison("Attack", cappy->getHitSensorKeeper()->getSensor("Attack"), sensor);
+            displaySensorComparison("Homing", cappy->getHitSensorKeeper()->getSensor("Eye"), sensor);
 
-        if (ImGui::IsMouseHoveringRect(nodeMin, nodeMax))
-            window->mHoveredSensor = sensor;
+            ImGui::TreePop();
+        }
+
+        // Avoid infinite recursion
+        if (collidingSensor == nullptr && sensor->mSensorCount > 0 && ImGui::TreeNode("Collisions")) {
+            for (s32 idx = 0; idx < sensor->mSensorCount; idx++)
+                displaySensor(window, sensor->mSensors[idx], sensor);
+
+            ImGui::TreePop();
+        }
+
+        ImGui::TreePop();
     }
+
+    ImVec2 nodeMax = ImGui::GetCursorScreenPos();
+    nodeMax.x += ImGui::GetContentRegionAvail().x;  // Span full width
+
+    if (!window->mHoveredSensor && ImGui::IsMouseHoveringRect(nodeMin, nodeMax))
+        window->mHoveredSensor = sensor;
 }

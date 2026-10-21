@@ -1,6 +1,7 @@
 #pragma once
 
 #include "al/Library/LiveActor/LiveActor.h"
+#include "al/Library/Scene/Scene.h"
 
 #include <cxxabi.h>
 #include <typeinfo>
@@ -11,7 +12,7 @@ class WindowActorBrowse2;
 
 class ActorBrowseInspectorBase {
 public:
-    virtual void display(WindowActorBrowse2* window, al::LiveActor* actor);
+    virtual void display(WindowActorBrowse2* window, al::Scene* scene, al::LiveActor* actor);
 
 protected:
     static constexpr ImGuiTreeNodeFlags cTreeFlags = ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DrawLinesFull;
@@ -34,9 +35,20 @@ protected:
     virtual void displayFlags(al::LiveActorFlag* flags);
     virtual void displayNerves(al::NerveKeeper* nrvKeep, s32 prefixLen);
     virtual void displaySensors(WindowActorBrowse2* window, al::HitSensorKeeper* sensorKeep);
+    virtual void displaySensor(WindowActorBrowse2* window, al::HitSensor* sensor, al::HitSensor* collidingSensor);
 };
 
 class ActorBrowseInspectorGrowPlantSeed : public ActorBrowseInspectorBase {
 public:
-    void display(WindowActorBrowse2* window, al::LiveActor* actor) override;
+    void display(WindowActorBrowse2* window, al::Scene* scene, al::LiveActor* actor) override;
+};
+
+class ActorBrowseInspectorFukuwaraiFaceParts : public ActorBrowseInspectorBase {
+public:
+    void display(WindowActorBrowse2* window, al::Scene* scene, al::LiveActor* actor) override;
+};
+
+class ActorBrowseInspectorFukuwaraiWatcher : public ActorBrowseInspectorBase {
+public:
+    void display(WindowActorBrowse2* window, al::Scene* scene, al::LiveActor* actor) override;
 };

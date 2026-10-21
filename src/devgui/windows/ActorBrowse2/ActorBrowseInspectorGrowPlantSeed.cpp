@@ -9,8 +9,8 @@
 #include "devgui/windows/ActorBrowse2/ActorBrowseInspector.h"
 #include "imgui.h"
 
-void ActorBrowseInspectorGrowPlantSeed::display(WindowActorBrowse2* window, al::LiveActor* actor) {
-    ActorBrowseInspectorBase::display(window, actor);
+void ActorBrowseInspectorGrowPlantSeed::display(WindowActorBrowse2* window, al::Scene* scene, al::LiveActor* actor) {
+    ActorBrowseInspectorBase::display(window, scene, actor);
 
     auto seed = reinterpret_cast<GrowPlantSeed*>(actor);
 

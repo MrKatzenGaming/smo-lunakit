@@ -24,6 +24,8 @@
 #include "al/Project/HitSensor/HitSensor.h"
 
 #include "game/MapObj/GrowPlantSeed.h"
+#include "game/Npc/FukuwaraiFaceParts.h"
+#include "game/Npc/FukuwaraiWatcher.h"
 #include "game/Player/PlayerHackKeeper.h"
 #include "game/Sequence/HakoniwaSequence.h"
 
@@ -151,7 +153,7 @@ bool WindowActorBrowse2::tryUpdateWinDisplay() {
     displayActorList(group);
     if (mIsLayoutHorizontal)
         ImGui::SameLine();
-    displayActorInspector(mSelectedActor);
+    displayActorInspector(scene, mSelectedActor);
 
     auto primQueue = mParent->getPrimitiveQueue();
 
@@ -191,13 +193,14 @@ bool WindowActorBrowse2::tryUpdateWinDisplay() {
             rayDelta.setCross(camDelta, worldDir);
 
             bool hover = rayDelta.squaredLength() <= mPickRadius * mPickRadius;
+            bool target = hitIdx == mPickHitIdx;
+
             if (!primQueue->isFull())
                 primQueue->pushPoint(pose->getTrans(), mPickRadius,
-                                     (hover && hitIdx == mPickHitIdx) ? sead::Color4f(0.0f, 1.0f, 0.0f, 0.25f) :
-                                                                        sead::Color4f(1.0f, 0.0f, 0.0f, 0.25f));
+                                     (hover && target) ? sead::Color4f(0.0f, 1.0f, 0.0f, 0.25f) : sead::Color4f(1.0f, 0.0f, 0.0f, 0.25f));
 
             if (hover) {
-                if (hitIdx == mPickHitIdx && ImGui::BeginTooltip()) {
+                if (target && ImGui::BeginTooltip()) {
                     auto model = actor->getModelKeeper();
 
                     const char* className = getClassName(actor);
@@ -234,15 +237,14 @@ bool WindowActorBrowse2::tryUpdateWinDisplay() {
 
                     ImGui::EndTooltip();
                 }
-
-                hitIdx++;
-
-                if (InputHelper::isMousePress(nn::hid::MouseButton::Left) && !ImGui::GetIO().WantCaptureMouse) {
+                if (target && InputHelper::isMousePress(nn::hid::MouseButton::Left) && !ImGui::GetIO().WantCaptureMouse) {
                     mSelectedActor = actor;
                     mIsPickingActor = false;
                     mShouldScrollToSelectedActor = true;
                     break;
                 }
+
+                hitIdx++;
             }
         }
 
@@ -425,7 +427,7 @@ bool WindowActorBrowse2::checkActorMatchesFilter(const al::LiveActor* actor) con
     return false;
 }
 
-void WindowActorBrowse2::displayActorInspector(al::LiveActor* actor) {
+void WindowActorBrowse2::displayActorInspector(al::Scene* scene, al::LiveActor* actor) {
     if (!actor) {
         ImGui::TextDisabled("No Actor selected!");
         return;
@@ -458,10 +460,14 @@ void WindowActorBrowse2::displayActorInspector(al::LiveActor* actor) {
             }
         }
 
-        if (al::isEqualString(typeid(*actor).name(), typeid(GrowPlantSeed).name()))
-            mActorInspectorGrowPlantSeed.display(this, actor);
+        if (al::isEqualString(typeid(*actor).name(), typeid(FukuwaraiFaceParts).name()))
+            mActorInspectorFukuwaraiFaceParts.display(this, scene, actor);
+        else if (al::isEqualString(typeid(*actor).name(), typeid(FukuwaraiWatcher).name()))
+            mActorInspectorFukuwaraiWatcher.display(this, scene, actor);
+        else if (al::isEqualString(typeid(*actor).name(), typeid(GrowPlantSeed).name()))
+            mActorInspectorGrowPlantSeed.display(this, scene, actor);
         else
-            mActorInspectorDefault.display(this, actor);
+            mActorInspectorDefault.display(this, scene, actor);
     }
     ImGui::EndChild();
 }
