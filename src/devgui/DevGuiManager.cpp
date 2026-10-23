@@ -191,7 +191,7 @@ void DevGuiManager::updateDisplay() {
 
     // Load and draw all home menu tabs
     if (ImGui::BeginMainMenuBar()) {
-        ImGui::SetWindowFontScale(1.5f);
+        ImGui::SetWindowFontScale(cMenuBarFontScale);
 
         for (int i = 0; i < mHomeMenuTabs.size(); i++) {
             auto* entry = mHomeMenuTabs.at(i);

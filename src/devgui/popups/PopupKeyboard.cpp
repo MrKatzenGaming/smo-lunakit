@@ -4,6 +4,7 @@
 
 #include <cctype>
 
+#include "devgui/DevGuiManager.h"
 #include "imgui.h"
 #include "logger/Logger.hpp"
 
@@ -28,7 +29,7 @@ void PopupKeyboard::update() {
         endKeyboard();
 
     if (isPopupOpen) {
-        ImGui::SetWindowFontScale(2.f);
+        ImGui::SetWindowFontScale(DevGuiManager::cKeyboardFontScale);
 
         if (mBuffer.isEmpty())
             ImGui::TextDisabled("Use keyboard\n");

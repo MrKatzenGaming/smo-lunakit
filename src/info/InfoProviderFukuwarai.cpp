@@ -1,21 +1,20 @@
+#include "info/InfoProviderFukuwarai.h"
 
-#include "al/Library/Base/StringUtil.h"
-#include "al/Library/HitSensor/HitSensorKeeper.h"
-#include "al/Library/LiveActor/ActorModelFunction.h"
-#include "al/Library/LiveActor/ActorPoseUtil.h"
-#include "al/Library/LiveActor/LiveActorGroup.h"
-#include "al/Library/LiveActor/LiveActorKit.h"
-#include "al/Library/Math/MathUtil.h"
-#include "al/Project/HitSensor/HitSensor.h"
+#include "hk/ro/RoUtil.h"
 
-#include "game/Npc/FukuwaraiFaceParts.h"
-#include "game/Npc/FukuwaraiWatcher.h"
-#include "game/Player/PlayerHackKeeper.h"
+#include "Library/LiveActor/ActorModelFunction.h"
+#include "Library/LiveActor/ActorMovementFunction.h"
+#include "Library/LiveActor/ActorPoseUtil.h"
+#include "Library/Math/MathUtil.h"
 
-#include "devgui/windows/ActorBrowse2/ActorBrowseInspector.h"
-#include "devgui/windows/WindowActorBrowse2.h"
+#include "game/MapObj/GrowSeedStateWait.h"
+
+#include "Npc/FukuwaraiFaceParts.h"
+#include "Npc/FukuwaraiWatcher.h"
+#include "helpers/NrvHelper.h"
 #include "imgui.h"
-#include "imgui_internal.h"
+#include "info/InfoProviderActor.h"
+#include "math/seadVectorFwd.h"
 
 FukuwaraiPart KuriboEyebrowLeftPart = {"FukuwaraiKuriboEyebrowLeft", 4.0f, 12.0f, 4.0f};
 FukuwaraiPart KuriboEyebrowRightPart = {"FukuwaraiKuriboEyebrowRight", 4.0f, 12.0f, 4.0f};
@@ -31,7 +30,11 @@ FukuwaraiPart MarioMouthPart = {"FukuwaraiMarioMouth", 3.0f, 9.0f, 3.0f};
 FukuwaraiPart MarioMustachePart = {"FukuwaraiMarioMustache", 3.0f, 9.0f, 3.0f};
 FukuwaraiPart MarioNosePart = {"FukuwaraiMarioNose", 2.0f, 6.0f, 2.0f};
 
-static void displayParts(FukuwaraiFaceParts* parts) {
+void InfoProviderFukuwaraiFaceParts::displayImpl() {
+    InfoProviderActor::displayImpl();
+
+    auto parts = reinterpret_cast<FukuwaraiFaceParts*>(mActor);
+
     const char* name = al::getModelName(parts);
     FukuwaraiPart* part = nullptr;
 
@@ -115,44 +118,37 @@ static void displayParts(FukuwaraiFaceParts* parts) {
 
     ImGui::Text("Score: %.3f", part->basePoints + part->distancePoints * distRate + part->anglePoints * angleRate);
 }
+void InfoProviderFukuwaraiFaceParts::renderImpl() {
+    InfoProviderActor::renderImpl();
 
-void ActorBrowseInspectorFukuwaraiFaceParts::display(WindowActorBrowse2* window, al::Scene* scene, al::LiveActor* actor) {
-    ActorBrowseInspectorBase::display(window, scene, actor);
+    auto parts = reinterpret_cast<FukuwaraiFaceParts*>(mActor);
+    auto primQueue = getPrimitiveQueue();
 
-    FukuwaraiFaceParts* parts = reinterpret_cast<FukuwaraiFaceParts*>(actor);
-    // FukuwaraiWatcher* watcher = nullptr;
+    constexpr f32 rotationLineLength = 200.0f;
+    f32 currAngle = sead::Mathf::deg2rad(al::getRotate(parts).y);
+    f32 targetAngle = sead::Mathf::deg2rad(parts->mTargetAngle);
+    auto& trans = al::getTrans(parts);
 
-    // auto allActorGroup = scene->getLiveActorKit()->getLiveActorGroupAllActors();
-    // for (s32 idx = 0; idx < allActorGroup->getActorCount(); idx++) {
-    //     auto actor = allActorGroup->getActor(idx);
-    //     if (al::isEqualString("FukuwaraiWatcher", actor->getName())) {
-    //         watcher = reinterpret_cast<FukuwaraiWatcher*>(actor);
-    //         break;
-    //     }
-    // }
-
-    // if (watcher) {
-    //     ImGui::Text("Total Score: %d", watcher->calcTotalScore());
-    //     ImGui::Separator();
-    // }
-
-    displayParts(parts);
+    primQueue->pushPoint(parts->mTargetPos, 20.0f, sead::Color4f(0.0f, 1.0f, 0.0f, 0.75f));
+    primQueue->pushLine(
+        trans, trans + sead::Vector3f(sead::Mathf::cos(currAngle) * rotationLineLength, 0.0f, sead::Mathf::sin(currAngle) * rotationLineLength),
+        sead::Color4f(1.0f, 0.0f, 1.0f, 0.75f));
+    primQueue->pushLine(parts->mTargetPos,
+                        parts->mTargetPos + sead::Vector3f(sead::Mathf::cos(targetAngle) * rotationLineLength, 0.0f,
+                                                           sead::Mathf::sin(targetAngle) * rotationLineLength),
+                        sead::Color4f(1.0f, 0.0f, 0.0f, 0.75f));
 }
 
-void ActorBrowseInspectorFukuwaraiWatcher::display(WindowActorBrowse2* window, al::Scene* scene, al::LiveActor* actor) {
-    ActorBrowseInspectorBase::display(window, scene, actor);
+void InfoProviderFukuwaraiWatcher::displayImpl() {
+    InfoProviderActor::displayImpl();
 
-    auto watcher = reinterpret_cast<FukuwaraiWatcher*>(actor);
+    auto watcher = reinterpret_cast<FukuwaraiWatcher*>(mActor);
 
     ImGui::Text("Total Score: %d", watcher->calcTotalScore());
 
     ImGui::SeparatorText("Placed Parts");
     for (s32 idx = 0; idx < watcher->mPlacedParts.size(); idx++) {
         auto parts = watcher->mPlacedParts.at(idx);
-
-        if (ImGui::TreeNode(parts, "%s", parts->getName())) {
-            displayParts(parts);
-            ImGui::TreePop();
-        }
+        ImGui::BulletText("%s: %.3f", parts->getName(), parts->calcScore(watcher->mIsMario));
     }
 }

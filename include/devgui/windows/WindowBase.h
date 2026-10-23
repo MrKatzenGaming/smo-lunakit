@@ -13,6 +13,8 @@
 
 #include "sead/container/seadPtrArray.h"
 
+#include "Library/Base/StringUtil.h"
+
 #include "devgui/categories/CategoryBase.h"
 
 class DevGuiManager;  // Forward declaration (include is in cpp file)
@@ -36,9 +38,10 @@ public:
 
     // https://github.com/Amethyst-szs/smo-lunakit/wiki/Code-Documentation#categories
     template <class T>  // Template function to create and add category to list
-    void createCategory(const char* catName, const char* catDesc) {
+    T* createCategory(const char* catName, const char* catDesc) {
         T* cat = new (mHeap) T(catName, catDesc, mHeap);
         mCategories.pushBack(cat);
+        return cat;
     }
 
     // Generic getter functions, can be accessed from anywhere

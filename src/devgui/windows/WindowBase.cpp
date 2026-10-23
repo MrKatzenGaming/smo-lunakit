@@ -42,7 +42,7 @@ void WindowBase::updateWin() {
 }
 
 bool WindowBase::tryUpdateWinDisplay() {
-    ImGui::SetWindowFontScale(1.33f);
+    ImGui::SetWindowFontScale(DevGuiManager::cWindowFontScale);
 
     // If this window contains categories, load in the tabs
     if (mCategories.size() > 0) {

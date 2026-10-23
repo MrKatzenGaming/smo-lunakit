@@ -42,6 +42,8 @@ static const al::Scene* getScene(GameSystem* system) {
 }
 
 void WindowFreecam::updateWin() {
+    WindowBase::updateWin();
+
     if (!mEnabled)
         return;
 
