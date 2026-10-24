@@ -1,0 +1,45 @@
+#pragma once
+
+#include "Library/Event/IUseEventFlowData.h"
+#include "Library/HostIO/HioNode.h"
+
+namespace al {
+class EventFlowChart;
+class EventFlowDataHolder;
+class EventFlowMovement;
+class EventFlowNode;
+class EventFlowScareCtrlBase;
+class HitSensor;
+class LiveActor;
+
+class EventFlowExecutor : public HioNode, public IUseEventFlowData {
+public:
+    EventFlowExecutor();
+
+    void init(LiveActor*, EventFlowChart*, EventFlowDataHolder*);
+    void initMovement(EventFlowMovement*);
+    void initScareCtrl(EventFlowScareCtrlBase*);
+    void initAfterPlacement();
+    void start(const char*);
+    void execute();
+    void attackSensor(HitSensor* self, HitSensor* other);
+    void stopMovement();
+    void restartMovement();
+    bool isExistEntry(const char*) const;
+    bool isWaitAtPointMovement() const;
+    EventFlowDataHolder* getEventFlowDataHolder() const override;
+
+    LiveActor* getActor() const { return mActor; }
+
+public:
+    LiveActor* mActor;
+    EventFlowChart* mChart;
+    const char* mName;
+
+    EventFlowDataHolder* mDataHolder;
+    EventFlowNode* mCurrentNode;
+    EventFlowMovement* mMovement;
+    void* _38;
+    EventFlowScareCtrlBase* mScareCtrl;
+};
+}  // namespace al

@@ -15,6 +15,19 @@ protected:
     InfoProviderBase* clone(sead::Heap* heap) const override { return new (heap) InfoProviderFukuwaraiFaceParts(mActor); }
 };
 
+class InfoProviderFukuwaraiNpc : public InfoProviderActor {
+public:
+    static constexpr const char* cClassName = "12FukuwaraiNpc";
+
+    InfoProviderFukuwaraiNpc(al::LiveActor* actor) : InfoProviderActor(actor) {}
+
+protected:
+    void displayImpl() override;
+    void renderImpl() override;
+
+    InfoProviderBase* clone(sead::Heap* heap) const override { return new (heap) InfoProviderFukuwaraiNpc(mActor); }
+};
+
 class InfoProviderFukuwaraiWatcher : public InfoProviderActor {
 public:
     static constexpr const char* cClassName = "16FukuwaraiWatcher";

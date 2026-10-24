@@ -4,16 +4,13 @@
 
 #include "sead/prim/seadSafeString.h"
 
-#include "Library/Base/StringUtil.h"
+#include "al/Library/Base/StringUtil.h"
 #include "al/Library/HitSensor/HitSensorKeeper.h"
 #include "al/Library/LiveActor/ActorPoseKeeper.h"
 #include "al/Library/LiveActor/ActorSensorUtil.h"
 #include "al/Library/LiveActor/LiveActorFlag.h"
 #include "al/Library/Math/MathUtil.h"
 #include "al/Library/Model/ModelKeeper.h"
-#include "al/Library/Nerve/Nerve.h"
-#include "al/Library/Nerve/NerveKeeper.h"
-#include "al/Library/Nerve/NerveStateCtrl.h"
 #include "al/Project/HitSensor/HitSensor.h"
 
 #include "game/Player/PlayerHackKeeper.h"
@@ -22,7 +19,7 @@
 #include "imgui.h"
 #include "info/InfoProviderFukuwarai.h"
 #include "info/InfoProviderGrowSeed.h"
-#include "info/InfoProviderNerveState.h"
+#include "info/InfoProviderNerve.h"
 #include "info/InfoProviderSensor.h"
 
 void InfoProviderActor::displayImpl() {
@@ -44,7 +41,7 @@ void InfoProviderActor::displayImpl() {
         ImGui::TreePop();
     }
     if (nrvKeep && ImGui::TreeNodeEx("Nerves", cFramedNode)) {
-        displayNerves();
+        InfoProviderNerveKeeper(nrvKeep).display();
         ImGui::TreePop();
     }
     if (sensorKeep && ImGui::TreeNodeEx("Sensors", cFramedNode)) {
@@ -53,8 +50,11 @@ void InfoProviderActor::displayImpl() {
     }
 }
 void InfoProviderActor::renderImpl() {
+    auto nrvKeep = mActor->getNerveKeeper();
+
     renderPose();
-    renderNerves();
+    if (nrvKeep)
+        InfoProviderNerveKeeper(nrvKeep).render();
     renderSensors();
 }
 
@@ -69,6 +69,8 @@ void InfoProviderActor::displayActor(al::LiveActor* actor) {
         InfoProviderGrowPlantSeed(actor).display();
     } else if (al::isEqualString(name, InfoProviderFukuwaraiFaceParts::cClassName)) {
         InfoProviderFukuwaraiFaceParts(actor).display();
+    } else if (al::isEqualString(name, InfoProviderFukuwaraiNpc::cClassName)) {
+        InfoProviderFukuwaraiNpc(actor).display();
     } else if (al::isEqualString(name, InfoProviderFukuwaraiWatcher::cClassName)) {
         InfoProviderFukuwaraiWatcher(actor).display();
     } else {
@@ -82,6 +84,8 @@ void InfoProviderActor::renderActor(al::LiveActor* actor) {
         InfoProviderGrowPlantSeed(actor).render();
     } else if (al::isEqualString(name, InfoProviderFukuwaraiFaceParts::cClassName)) {
         InfoProviderFukuwaraiFaceParts(actor).render();
+    } else if (al::isEqualString(name, InfoProviderFukuwaraiNpc::cClassName)) {
+        InfoProviderFukuwaraiNpc(actor).render();
     } else {
         InfoProviderActor(actor).render();
     }
@@ -166,57 +170,6 @@ void InfoProviderActor::displayFlags() {
 
     ImGui::TableNextColumn();
     ImGui::Checkbox("Update Move FX Sensor", &flags->isUpdateMovementEffectAudioCollisionSensor);
-}
-
-void InfoProviderActor::displayNerves() {
-    auto nrvKeep = mActor->getNerveKeeper();
-
-    auto nrv = nrvKeep->getCurrentNerve();
-    if (!nrv)
-        return;
-
-    s32 classNameLen = strlen(demangleTypeName(typeid(*mActor).name()));
-    const char* nrvName = demangleTypeName(typeid(*nrv).name()) + strlen("(anonymous namespace)::") + classNameLen + strlen("Nrv");
-    ImGui::Text("Nerve: %s", nrvName);
-    ImGui::Text("Step: %d", nrvKeep->getCurrentStep());
-
-    if (!nrvKeep->mStateCtrl || nrvKeep->mStateCtrl->mStateCount == 0)
-        return;
-
-    auto currState = nrvKeep->mStateCtrl->mCurrentState;
-    if (currState)
-        ImGui::Text("State: %s", demangleTypeName(typeid(*currState->state).name()));
-
-    ImGui::Separator();
-
-    for (s32 idx = 0; idx < nrvKeep->mStateCtrl->mStateCount; idx++) {
-        auto state = &nrvKeep->mStateCtrl->mStates[idx];
-        auto stateNrvKeep = state->state->getNerveKeeper();
-
-        ImGuiTreeNodeFlags treeFlags = ImGuiTreeNodeFlags_DrawLinesFull;
-        if (!stateNrvKeep)
-            treeFlags |= ImGuiTreeNodeFlags_Leaf;
-
-        const char* stateName = demangleTypeName(typeid(*state->state).name());
-
-        if (ImGui::TreeNodeEx(state, treeFlags, "%s (%s)", stateName, state->name)) {
-            InfoProviderNerveState::displayState(state->state);
-            ImGui::TreePop();
-        }
-    }
-}
-void InfoProviderActor::renderNerves() {
-    auto nrvKeep = mActor->getNerveKeeper();
-    if (!nrvKeep)
-        return;
-
-    if (!nrvKeep->mStateCtrl || nrvKeep->mStateCtrl->mStateCount == 0)
-        return;
-
-    for (s32 idx = 0; idx < nrvKeep->mStateCtrl->mStateCount; idx++) {
-        auto state = &nrvKeep->mStateCtrl->mStates[idx];
-        InfoProviderNerveState::renderState(state->state);
-    }
 }
 
 static const char* sensorTypeNames[] = {

@@ -1,20 +1,20 @@
 #include "info/InfoProviderFukuwarai.h"
 
-#include "hk/ro/RoUtil.h"
+#include "sead/math/seadVector.h"
 
-#include "Library/LiveActor/ActorModelFunction.h"
-#include "Library/LiveActor/ActorMovementFunction.h"
-#include "Library/LiveActor/ActorPoseUtil.h"
-#include "Library/Math/MathUtil.h"
+#include "al/Library/LiveActor/ActorModelFunction.h"
+#include "al/Library/LiveActor/ActorPoseUtil.h"
+#include "al/Library/Math/MathUtil.h"
 
 #include "game/MapObj/GrowSeedStateWait.h"
+#include "game/Npc/FukuwaraiFaceParts.h"
+#include "game/Npc/FukuwaraiNpc.h"
+#include "game/Npc/FukuwaraiWatcher.h"
 
-#include "Npc/FukuwaraiFaceParts.h"
-#include "Npc/FukuwaraiWatcher.h"
 #include "helpers/NrvHelper.h"
 #include "imgui.h"
 #include "info/InfoProviderActor.h"
-#include "math/seadVectorFwd.h"
+#include "info/InfoProviderEventFlow.h"
 
 FukuwaraiPart KuriboEyebrowLeftPart = {"FukuwaraiKuriboEyebrowLeft", 4.0f, 12.0f, 4.0f};
 FukuwaraiPart KuriboEyebrowRightPart = {"FukuwaraiKuriboEyebrowRight", 4.0f, 12.0f, 4.0f};
@@ -122,14 +122,14 @@ void InfoProviderFukuwaraiFaceParts::renderImpl() {
     InfoProviderActor::renderImpl();
 
     auto parts = reinterpret_cast<FukuwaraiFaceParts*>(mActor);
-    auto primQueue = getPrimitiveQueue();
 
     constexpr f32 rotationLineLength = 200.0f;
     f32 currAngle = sead::Mathf::deg2rad(al::getRotate(parts).y);
     f32 targetAngle = sead::Mathf::deg2rad(parts->mTargetAngle);
     auto& trans = al::getTrans(parts);
 
-    primQueue->pushPoint(parts->mTargetPos, 20.0f, sead::Color4f(0.0f, 1.0f, 0.0f, 0.75f));
+    auto primQueue = getPrimitiveQueue();
+    primQueue->pushPoint(parts->mTargetPos, 15.0f, sead::Color4f(0.0f, 1.0f, 0.0f, 0.5f));
     primQueue->pushLine(
         trans, trans + sead::Vector3f(sead::Mathf::cos(currAngle) * rotationLineLength, 0.0f, sead::Mathf::sin(currAngle) * rotationLineLength),
         sead::Color4f(1.0f, 0.0f, 1.0f, 0.75f));
@@ -139,11 +139,29 @@ void InfoProviderFukuwaraiFaceParts::renderImpl() {
                         sead::Color4f(1.0f, 0.0f, 0.0f, 0.75f));
 }
 
+void InfoProviderFukuwaraiNpc::displayImpl() {
+    InfoProviderActor::displayImpl();
+
+    auto npc = reinterpret_cast<FukuwaraiNpc*>(mActor);
+    ImGui::Text("Score: %d", npc->mScore);
+    ImGui::Text("Success Score: %d", npc->mSuccessScore);
+
+    if (ImGui::TreeNodeEx("Event Flow", cFramedNode)) {
+        InfoProviderEventFlow(npc->mEventFlow).display();
+        ImGui::TreePop();
+    }
+}
+void InfoProviderFukuwaraiNpc::renderImpl() {
+    InfoProviderActor::renderImpl();
+
+    auto npc = reinterpret_cast<FukuwaraiNpc*>(mActor);
+    InfoProviderEventFlow(npc->mEventFlow).render();
+}
+
 void InfoProviderFukuwaraiWatcher::displayImpl() {
     InfoProviderActor::displayImpl();
 
     auto watcher = reinterpret_cast<FukuwaraiWatcher*>(mActor);
-
     ImGui::Text("Total Score: %d", watcher->calcTotalScore());
 
     ImGui::SeparatorText("Placed Parts");
