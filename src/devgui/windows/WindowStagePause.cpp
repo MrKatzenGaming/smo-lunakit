@@ -117,6 +117,11 @@ bool WindowStagePause::tryPauseScene() {
         return false;
     }
 
+    if (!stage->mStatePause) {
+        mIsStagePaused = false;
+        return false;
+    }
+
     mPreviousNerveKeeper = *stage->getNerveKeeper();
     auto state = stage->getNerveKeeper()->mStateCtrl;
     mPreviousState = state->mCurrentState;
@@ -138,6 +143,10 @@ bool WindowStagePause::tryUnpauseScene() {
 
     if (!stage->getNerveKeeper())
         return false;
+
+    if (!stage->mStatePause)
+        return false;
+
     stage->mStatePause->mIsPaused = false;
     stage->getNerveKeeper()->mStateCtrl->tryEndCurrentState();
     *stage->getNerveKeeper() = mPreviousNerveKeeper;

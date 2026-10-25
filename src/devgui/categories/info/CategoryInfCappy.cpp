@@ -91,8 +91,13 @@ void CategoryInfCappy::updateCatDisplay() {
     al::ActorPoseKeeperBase* pose = cappy->mPoseKeeper;
     StageScene* stageScene = tryGetStageScene();
 
-    if (!pose)
+    if (!pose) {
+        free(stateName);
+        free(stateNrvName);
+        stateName = nullptr;
+        stateNrvName = nullptr;
         return;
+    }
 
     float hSpeed = al::calcSpeedH(cappy), vSpeed = al::calcSpeedV(cappy), speed = al::calcSpeed(cappy);
     float hSpeedAngle = atan2f(pose->getVelocityPtr()->z, pose->getVelocityPtr()->x);

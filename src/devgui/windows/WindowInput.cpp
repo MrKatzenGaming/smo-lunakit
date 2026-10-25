@@ -3,6 +3,7 @@
 #include "sead/controller/seadControllerMgr.h"
 #include "sead/prim/seadBitFlag.h"
 
+#include "Library/Controller/NpadController.h"
 #include "al/Library/Controller/InputFunction.h"
 
 #include "devgui/DevGuiManager.h"
@@ -10,6 +11,7 @@
 #include "devgui/windows/WindowBase.h"
 #include "devgui/windows/WindowStagePause.h"
 #include "imgui.h"
+#include "smo-tas/STAS.h"
 
 WindowInput::WindowInput(DevGuiManager* parent, const char* winName, bool isActiveByDefault) : WindowBase(parent, winName, isActiveByDefault) {}
 
@@ -27,136 +29,89 @@ void WindowInput::drawButtonRect(const ImVec2& pos, InputCallback callback, ImU3
     ImGui::GetForegroundDrawList()->AddRectFilled(min, max, col, 10.0f);
 }
 
+void WindowInput::drawDisplay(ImVec2 posIn, sead::BitFlag<u32> padHold, sead::Vector2f lStick, sead::Vector2f rStick, const char* player,
+                              const char* taser) {
+    ImVec2 pos = posIn;
+    pos.x -= 200;
+    pos.y -= 100;
+
+    ImVec4 color = getInputDisplayColor(InputDisplayColor::Black);
+    color.w = 128;
+    ImGui::GetForegroundDrawList()->AddRectFilled({pos.x - 50, pos.y - (mIs2P ? 150 : 120)}, {pos.x + 200, pos.y + 90}, makeColor(color), 20.0f);
+
+    float fontSize = 30.f;
+    ImVec2 textSizePlayer = ImGui::GetFont()->CalcTextSizeA(fontSize, 500, 500, player);
+    if (mIs2P) {
+        ImGui::GetForegroundDrawList()->AddText(ImGui::GetFont(), fontSize, {pos.x + 80 - (textSizePlayer[0] / 2), pos.y - 120 - textSizePlayer[1]},
+                                                makeColor(getInputDisplayColor(InputDisplayColor::White)), player);
+    }
+    if (STAS* tas = STAS::instance(); tas && tas->hasScript() && tas->isRunning()) {
+        ImVec2 textSizeTASer = ImGui::GetFont()->CalcTextSizeA(fontSize, 500, 500, taser);
+        ImGui::GetForegroundDrawList()->AddText(ImGui::GetFont(), fontSize, {pos.x + 80 - (textSizeTASer[0] / 2), pos.y - 120},
+                                                makeColor(getInputDisplayColor(InputDisplayColor::White)), taser);
+    }
+
+    ImGui::GetForegroundDrawList()->AddCircle(pos, 25, makeColor(getInputDisplayColor(InputDisplayColor::Gray)), 0, 2);
+    ImVec2 leftPos = {pos.x + lStick.x * 30, pos.y - lStick.y * 30};
+    drawButton(leftPos, padHold.isOnBit(al::NpadController::cPadIdx_1), 16, makeColor(getInputDisplayColor(InputDisplayColor::White)));
+
+    pos.x += 40;
+    pos.y += 30;
+    drawButton(pos, padHold.isOnBit(al::NpadController::cPadIdx_Up));
+    pos.y += 30;
+    drawButton(pos, padHold.isOnBit(al::NpadController::cPadIdx_Down));
+    pos.x -= 15;
+    pos.y -= 15;
+    drawButton(pos, padHold.isOnBit(al::NpadController::cPadIdx_Left));
+    pos.x += 30;
+    drawButton(pos, padHold.isOnBit(al::NpadController::cPadIdx_Right));
+
+    pos.x += 60;
+    ImGui::GetForegroundDrawList()->AddCircle(pos, 25, makeColor(getInputDisplayColor(InputDisplayColor::Gray)), 0, 2);
+    ImVec2 rightPos = {pos.x + rStick.x * 30, pos.y - rStick.y * 30};
+    drawButton(rightPos, padHold.isOnBit(al::NpadController::cPadIdx_2), 16, makeColor(getInputDisplayColor(InputDisplayColor::White)));
+
+    pos.x += 40;
+    pos.y -= 60;
+    drawButton(pos, padHold.isOnBit(al::NpadController::cPadIdx_X));
+    pos.y += 30;
+    drawButton(pos, padHold.isOnBit(al::NpadController::cPadIdx_B));
+    pos.x -= 15;
+    pos.y -= 15;
+    drawButton(pos, padHold.isOnBit(al::NpadController::cPadIdx_Y));
+    pos.x += 30;
+    drawButton(pos, padHold.isOnBit(al::NpadController::cPadIdx_A));
+
+    pos.y -= 10;
+    pos.x -= 75;
+    drawButton(pos, padHold.isOnBit(al::NpadController::cPadIdx_Plus), 5);
+    pos.x -= 40;
+    drawButton(pos, padHold.isOnBit(al::NpadController::cPadIdx_Minus), 5);
+
+    pos = posIn;
+    pos.x -= 200;
+    pos.y -= 160;
+    drawButtonRect(pos, padHold.isOnBit(al::NpadController::cPadIdx_L));
+    pos.y -= 16;
+    drawButtonRect(pos, padHold.isOnBit(al::NpadController::cPadIdx_ZL));
+    pos.x += 155;
+    drawButtonRect(pos, padHold.isOnBit(al::NpadController::cPadIdx_ZR));
+    pos.y += 16;
+    drawButtonRect(pos, padHold.isOnBit(al::NpadController::cPadIdx_R));
+}
+
 void WindowInput::drawInputDisplay() {
     if (!mIsEnabled)
         return;
 
-    ImVec2 pos = mPos;
-    pos.x -= 200;
-    pos.y -= 100;
-
-    if (true) {
-        ImVec4 color = getInputDisplayColor(InputDisplayColor::Black);
-        color.w = 128;
-        ImGui::GetForegroundDrawList()->AddRectFilled({pos.x - 50, pos.y - 100}, {pos.x + 200, pos.y + 100}, makeColor(color), 20.0f);
-    }
-
-    if (mIs2P)
-        ImGui::GetForegroundDrawList()->AddText(ImGui::GetFont(), 30.f, {pos.x + 20, pos.y - 100},
-                                                makeColor(getInputDisplayColor(InputDisplayColor::White)), "Player 1");
-
-    ImGui::GetForegroundDrawList()->AddCircle(pos, 25, makeColor(getInputDisplayColor(InputDisplayColor::Gray)), 0, 2);
-    ImVec2 leftPos = {pos.x + mLStick.x * 30, pos.y - mLStick.y * 30};
-    drawButton(leftPos, padHold.isOnBit(controller->cPadIdx_1), 16, makeColor(getInputDisplayColor(InputDisplayColor::White)));
-
-    pos.x += 40;
-    pos.y += 30;
-    drawButton(pos, padHold.isOnBit(controller->cPadIdx_Up));
-    pos.y += 30;
-    drawButton(pos, padHold.isOnBit(controller->cPadIdx_Down));
-    pos.x -= 15;
-    pos.y -= 15;
-    drawButton(pos, padHold.isOnBit(controller->cPadIdx_Left));
-    pos.x += 30;
-    drawButton(pos, padHold.isOnBit(controller->cPadIdx_Right));
-
-    pos.x += 60;
-    ImGui::GetForegroundDrawList()->AddCircle(pos, 25, makeColor(getInputDisplayColor(InputDisplayColor::Gray)), 0, 2);
-    ImVec2 rightPos = {pos.x + mRStick.x * 30, pos.y - mRStick.y * 30};
-    drawButton(rightPos, padHold.isOnBit(controller->cPadIdx_2), 16, makeColor(getInputDisplayColor(InputDisplayColor::White)));
-
-    pos.x += 40;
-    pos.y -= 60;
-    drawButton(pos, padHold.isOnBit(controller->cPadIdx_X));
-    pos.y += 30;
-    drawButton(pos, padHold.isOnBit(controller->cPadIdx_B));
-    pos.x -= 15;
-    pos.y -= 15;
-    drawButton(pos, padHold.isOnBit(controller->cPadIdx_Y));
-    pos.x += 30;
-    drawButton(pos, padHold.isOnBit(controller->cPadIdx_A));
-
-    pos.y -= 10;
-    pos.x -= 75;
-    drawButton(pos, padHold.isOnBit(controller->cPadIdx_Plus), 5);
-    pos.x -= 40;
-    drawButton(pos, padHold.isOnBit(controller->cPadIdx_Minus), 5);
-
-    pos = mPos;
-    pos.x -= 200;
-    pos.y -= 160;
-    drawButtonRect(pos, padHold.isOnBit(controller->cPadIdx_L));
-    pos.y -= 16;
-    drawButtonRect(pos, padHold.isOnBit(controller->cPadIdx_ZL));
-    pos.x += 155;
-    drawButtonRect(pos, padHold.isOnBit(controller->cPadIdx_ZR));
-    pos.y += 16;
-    drawButtonRect(pos, padHold.isOnBit(controller->cPadIdx_R));
+    drawDisplay(mPos, padHold, mLStick, mRStick, "Mario", STAS::instance()->getCurMarTASer());
 }
 
 void WindowInput::drawInputDisplayP2() {
     if (!mIsEnabled || !mIs2P)
         return;
 
-    ImVec2 pos = mPos2;
-    pos.x -= 200;
-    pos.y -= 100;
-
-    if (true) {
-        ImVec4 color = getInputDisplayColor(InputDisplayColor::Black);
-        color.w = 128;
-        ImGui::GetForegroundDrawList()->AddRectFilled({pos.x - 50, pos.y - 100}, {pos.x + 200, pos.y + 100}, makeColor(color), 20.0f);
-    }
-    ImGui::GetForegroundDrawList()->AddText(ImGui::GetFont(), 30.f, {pos.x + 20, pos.y - 100},
-                                            makeColor(getInputDisplayColor(InputDisplayColor::White)), "Player 2");
-
-    ImGui::GetForegroundDrawList()->AddCircle(pos, 25, makeColor(getInputDisplayColor(InputDisplayColor::Gray)), 0, 2);
-    ImVec2 leftPos = {pos.x + mLStick2.x * 30, pos.y - mLStick2.y * 30};
-    drawButton(leftPos, padHold2.isOnBit(controller->cPadIdx_1), 16, makeColor(getInputDisplayColor(InputDisplayColor::White)));
-
-    pos.x += 40;
-    pos.y += 30;
-    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_Up));
-    pos.y += 30;
-    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_Down));
-    pos.x -= 15;
-    pos.y -= 15;
-    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_Left));
-    pos.x += 30;
-    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_Right));
-
-    pos.x += 60;
-    ImGui::GetForegroundDrawList()->AddCircle(pos, 25, makeColor(getInputDisplayColor(InputDisplayColor::Gray)), 0, 2);
-    ImVec2 rightPos = {pos.x + mRStick2.x * 30, pos.y - mRStick2.y * 30};
-    drawButton(rightPos, padHold2.isOnBit(controller->cPadIdx_2), 16, makeColor(getInputDisplayColor(InputDisplayColor::White)));
-
-    pos.x += 40;
-    pos.y -= 60;
-    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_X));
-    pos.y += 30;
-    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_B));
-    pos.x -= 15;
-    pos.y -= 15;
-    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_Y));
-    pos.x += 30;
-    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_A));
-
-    pos.y -= 10;
-    pos.x -= 75;
-    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_Plus), 5);
-    pos.x -= 40;
-    drawButton(pos, padHold2.isOnBit(controller2->cPadIdx_Minus), 5);
-
-    pos = mPos2;
-    pos.x -= 200;
-    pos.y -= 160;
-    drawButtonRect(pos, padHold2.isOnBit(controller2->cPadIdx_L));
-    pos.y -= 16;
-    drawButtonRect(pos, padHold2.isOnBit(controller2->cPadIdx_ZL));
-    pos.x += 155;
-    drawButtonRect(pos, padHold2.isOnBit(controller2->cPadIdx_ZR));
-    pos.y += 16;
-    drawButtonRect(pos, padHold2.isOnBit(controller2->cPadIdx_R));
+    drawDisplay(mPos2, padHold2, mLStick2, mRStick2, "Cappy", STAS::instance()->getCurCapTASer());
 }
 
 void WindowInput::updateWin() {
@@ -179,35 +134,6 @@ void WindowInput::updateWin() {
         mLStick2 = controller2->mLeftStick;
         mRStick2 = controller2->mRightStick;
     }
-
-    // if (controller && tas && win) {
-    //     padHold = win->getStagePaused() ? (tas->isRunning() && !tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer ?
-    //                                            (sead::BitFlag<u32>)tas->getScript()->mFrames[tas->getFrameIndex()].mButtons :
-    //                                            padHold) :
-    //                                       controller->mPadHold;
-    //     mLStick = win->getStagePaused() ? (tas->isRunning() && !tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer ?
-    //                                            tas->getScript()->mFrames[tas->getFrameIndex()].mLeftStick :
-    //                                            mLStick) :
-    //                                       controller->mLeftStick;
-    //     mRStick = win->getStagePaused() ? (tas->isRunning() && !tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer ?
-    //                                            tas->getScript()->mFrames[tas->getFrameIndex()].mRightStick :
-    //                                            mRStick) :
-    //                                       controller->mRightStick;
-    // }
-    // if (controller2 && tas && win) {
-    //     padHold2 = win->getStagePaused() ? (tas->isRunning() && tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer ?
-    //                                             (sead::BitFlag<u32>)tas->getScript()->mFrames[tas->getFrameIndex()].mButtons :
-    //                                             padHold2) :
-    //                                        controller2->mPadHold;
-    //     mLStick2 = win->getStagePaused() ? (tas->isRunning() && tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer ?
-    //                                             tas->getScript()->mFrames[tas->getFrameIndex()].mLeftStick :
-    //                                             mLStick2) :
-    //                                        controller2->mLeftStick;
-    //     mRStick2 = win->getStagePaused() ? (tas->isRunning() && tas->getScript()->mFrames[tas->getFrameIndex()].mSecondPlayer ?
-    //                                             tas->getScript()->mFrames[tas->getFrameIndex()].mRightStick :
-    //                                             mRStick2) :
-    //                                        controller2->mRightStick;
-    // }
 }
 
 bool WindowInput::tryUpdateWinDisplay() {
@@ -225,7 +151,7 @@ bool WindowInput::tryUpdateWinDisplay() {
     ImGui::PushID("1P2aaaaaaaaaa");
 
     ImGui::SameLine();
-    if (ImGui::DragFloat("Position", &mPos.y, 1, 200, 900, "%.1f"))
+    if (ImGui::DragFloat("Position", &mPos.y, 1, 200, 910, "%.1f"))
         saveData->queueSaveWrite();
     ImGui::PopID();
     ImGui::PopItemWidth();
@@ -240,7 +166,7 @@ bool WindowInput::tryUpdateWinDisplay() {
         ImGui::PopID();
         ImGui::PushID("2P2aaaaaaaaaa");
         ImGui::SameLine();
-        if (ImGui::DragFloat("Position P2", &mPos2.y, 1, 200, 900, "%.1f"))
+        if (ImGui::DragFloat("Position P2", &mPos2.y, 1, 200, 910, "%.1f"))
             saveData->queueSaveWrite();
         ImGui::PopID();
         ImGui::PopItemWidth();

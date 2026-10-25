@@ -53,7 +53,7 @@ public:
 
 private:
     hk::Result write();
-    s64 mEntryCount;
+    s64 mEntryCount = 0;
     nn::fs::DirectoryEntry* mEntries = nullptr;
     bool* mActiveReplays = nullptr;
     int mMaxGhostNum = 1;
@@ -65,5 +65,5 @@ private:
     u8* mWorkBuf = nullptr;
     sead::RamStreamSrc* mRamStream = nullptr;
     DevGuiWriteStream* mWriteStream = nullptr;
-    ReplayFrame* mFrames;
+    ReplayFrame* mFrames = nullptr;
 };

@@ -1,0 +1,62 @@
+name: build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - hakkun
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: fruityloops1/alpine-hakkun
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          submodules: "recursive"
+
+      - name: Install dependencies
+        run: apk add zip
+
+      - name: Compile tools
+        run: python sys/tools/setup_sail.py
+
+      - name: Build
+        run: |
+          cmake -B build -DCMAKE_C_COMPILER_FORCED=TRUE -DCMAKE_CXX_COMPILER_FORCED=TRUE -DCMAKE_BUILD_TYPE="Debug"
+          cmake --build build -j "$(nproc)"
+
+      - name: Create Zip File
+        run: |
+          mkdir -p atmosphere/contents/0100000000010000/exefs
+          mv build/main.npdm atmosphere/contents/0100000000010000/exefs/
+          mv build/smo-lunakit.nso atmosphere/contents/0100000000010000/exefs/subsdk4
+          zip -r SMO-LK.zip atmosphere/contents/0100000000010000/exefs LunaKit
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: build
+          path: SMO-LK.zip
+
+      - name: Bump Version and Push Tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v7
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          default_bump: patch
+          release_branches: hakkun
+
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          files: |
+            SMO-LK.zip
+            build/smo-lunakit.nss

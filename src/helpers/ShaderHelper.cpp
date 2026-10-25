@@ -45,7 +45,7 @@ void ShaderHelper::loadResource(const al::Resource* res) {
 
             sead::Graphics::instance()->unlockDrawContext();
 
-            Logger::log("Loaded custom shader archive '%s'", entryName.cstr());
+            Logger::log("Loaded custom shader archive '%s'\n", entryName.cstr());
         }
     }
 }

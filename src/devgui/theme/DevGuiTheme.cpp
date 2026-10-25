@@ -143,9 +143,9 @@ void DevGuiTheme::tryUpdateTheme() {
 
     style.Colors[ImGuiCol_Tab] = Primary;
     style.Colors[ImGuiCol_TabHovered] = Highlight;
-    style.Colors[ImGuiCol_TabActive] = PrimaryHover;
-    style.Colors[ImGuiCol_TabUnfocused] = BackgroundPopup;
-    style.Colors[ImGuiCol_TabUnfocusedActive] = BackgroundMain;
+    style.Colors[ImGuiCol_TabSelected] = PrimaryHover;
+    style.Colors[ImGuiCol_TabDimmed] = BackgroundPopup;
+    style.Colors[ImGuiCol_TabDimmedSelected] = BackgroundMain;
 
     style.Colors[ImGuiCol_DockingPreview] = Highlight;
     style.Colors[ImGuiCol_DockingEmptyBg] = PrimaryHover;

@@ -7,7 +7,7 @@ public:
     CategoryInfInput(const char* catName, const char* catDesc, sead::Heap* heap);
 
     void updateCatDisplay() override;
-private:   
+
+private:
     char textBuffer[64];
 };
-

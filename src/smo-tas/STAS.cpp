@@ -12,7 +12,6 @@
 #include "sead/heap/seadHeapMgr.h"
 #include "sead/math/seadQuat.h"
 
-#include "Library/Sequence/Sequence.h"
 #include "al/Library/Base/StringUtil.h"
 #include "al/Library/Controller/InputFunction.h"
 #include "al/Library/Controller/JoyPadAccelerometerAddon.h"
@@ -22,6 +21,7 @@
 #include "al/Library/Nerve/NerveSetupUtil.h"
 #include "al/Library/Nerve/NerveUtil.h"
 #include "al/Library/Scene/Scene.h"
+#include "al/Library/Sequence/Sequence.h"
 
 #include "game/MapObj/ChangeStageInfo.h"
 #include "game/Player/HackCap.h"
@@ -125,6 +125,7 @@ hk::Result STAS::tryLoadScript() {
     for (int i = 0; i < mEntryCount; i++) {
         if (al::isEqualString(mEntries[i].mName, mLoadedEntry.mName)) {
             mLoadedEntry = mEntries[i];
+            mEntryLoaded = true;
             isEntryExist = true;
         }
     }
@@ -154,7 +155,10 @@ void STAS::endScript() {
     mNextFrame = -1;
     mPrevButtons.fill(0);
     mIsUseAbsJoystick = false;
+    mCurMarTASer = "";
+    mCurCapTASer = "";
     delete mScript;
+    mScript = nullptr;
 }
 
 sead::BitFlag32 convertButtonsSTASToSead(sead::BitFlag64 stasPad) {
@@ -207,8 +211,88 @@ T read(u8* src, u64* cursor) {
     return data;
 }
 
+inline bool invalidCmd(const char* name, u64 need, u64 has) {
+    Logger::log("Invalid %s command: needs %llu bytes, has %llu\n", name, need, has);
+    return false;
+};
+
+static bool isValidCmd(CommandType type, u64 size) {
+    switch (type) {
+    case CommandType::FRAME:
+        if (size < sizeof(CmdFrame))
+            return invalidCmd("FRAME", sizeof(CmdFrame), size);
+        break;
+
+    case CommandType::CONTROLLER:
+        if (size < sizeof(CmdController))
+            return invalidCmd("CONTROLLER", sizeof(CmdController), size);
+        break;
+
+    case CommandType::MOTION:
+        if (size < sizeof(CmdMotion))
+            return invalidCmd("MOTION", sizeof(CmdMotion), size);
+        break;
+
+    case CommandType::SAVEFILE:
+        if (size < sizeof(CmdSaveFile))
+            return invalidCmd("SAVEFILE", sizeof(CmdSaveFile), size);
+        break;
+
+    case CommandType::GO:
+        // scenario(1) + subScenario(1) + returnPrev(1) + pad(1) + stageLen(2)
+        if (size < 6)
+            return invalidCmd("GO", 6, size);
+        break;
+
+    case CommandType::TPMARIO:
+        if (size < sizeof(CmdTpMarCap))
+            return invalidCmd("TPMARIO", sizeof(CmdTpMarCap), size);
+        break;
+
+    case CommandType::TPCAP:
+        if (size < sizeof(CmdTpMarCap))
+            return invalidCmd("TPCAP", sizeof(CmdTpMarCap), size);
+        break;
+
+    case CommandType::ABSSTICK:
+        if (size < sizeof(CmdAbsStick))
+            return invalidCmd("ABSSTICK", sizeof(CmdAbsStick), size);
+        break;
+
+    case CommandType::SPEEDUP:
+        if (size < sizeof(CmdSpeedup))
+            return invalidCmd("SPEEDUP", sizeof(CmdSpeedup), size);
+        break;
+
+    case CommandType::DEMO:
+        if (size < sizeof(CmdDemo))
+            return invalidCmd("DEMO", sizeof(CmdDemo), size);
+        break;
+
+    case CommandType::SECTION:
+        // player(1) + taserLen(2)
+        if (size < 3)
+            return invalidCmd("SECTION", 3, size);
+        break;
+
+    // PAUSE carries no payload, and the rest are never executed.
+    case CommandType::PAUSE:
+    case CommandType::AMIIBO:
+    case CommandType::TOUCH:
+    case CommandType::COMMENT:
+    case CommandType::INVALID:
+        break;
+    }
+    return true;
+}
+
 void STAS::applyCommand(Command* cmd) {
     sead::ScopedCurrentHeapSetter heapSetter(DevGuiManager::instance()->getHeap());
+
+    if (!isValidCmd(cmd->type, cmd->size)) {
+        delete cmd;
+        return;
+    }
 
     switch (cmd->type) {
     case CommandType::FRAME: {
@@ -268,6 +352,9 @@ void STAS::applyCommand(Command* cmd) {
         switch (c.conId) {
         case 0:
         case 2:
+            if (!accelLeft || !gyroLeft)
+                break;
+
             accelLeft->mAcceleration = c.accel;
             gyroLeft->mAngularVelocity = c.gyro;
 
@@ -279,6 +366,9 @@ void STAS::applyCommand(Command* cmd) {
                 break;
             [[fallthrough]];
         case 1:
+            if (!accelRight || !gyroRight)
+                break;
+
             accelRight->mAcceleration = c.accel;
             gyroRight->mAngularVelocity = c.gyro;
 
@@ -307,18 +397,31 @@ void STAS::applyCommand(Command* cmd) {
         CmdGo c;
         u8* data = cmd->data;
         u64 cursor = 0;
+
         c.scenario = read<s8>(data, &cursor);
         c.subScenario = read<s8>(data, &cursor);
         c.returnPrev = read<bool>(data, &cursor);
         cursor++;
         c.stageLen = read<u16>(data, &cursor);
+        if (cursor + c.stageLen > cmd->size) {
+            Logger::log("Invalid GO stage name length");
+            break;
+        }
+
         c.stageName = (char*)&data[cursor];
         cursor += c.stageLen;
         cursor = hk::alignUp(cursor, 4);
         c.entrLen = read<u16>(data, &cursor);
+        if (cursor + c.entrLen > cmd->size) {
+            Logger::log("Invalid GO entrance id length");
+            break;
+        }
         c.entrId = (char*)&data[cursor];
 
         GameDataHolder* holder = tryGetGameDataHolder();
+        if (!holder)
+            break;
+
         ChangeStageInfo info(holder, c.entrId, c.stageName, c.returnPrev, c.scenario, (ChangeStageInfo::SubScenarioType)c.subScenario);
         holder->changeNextStage(&info);
 
@@ -368,6 +471,8 @@ void STAS::applyCommand(Command* cmd) {
 
     case CommandType::PAUSE: {
         WindowStagePause* win = (WindowStagePause*)DevGuiManager::instance()->getWindow(windowNameStagePause);
+        if (!win)
+            break;
         win->requestPause();
         break;
     }
@@ -381,6 +486,27 @@ void STAS::applyCommand(Command* cmd) {
             else
                 p->endDemoPuppetable();
         }
+        break;
+    }
+
+    case CommandType::SECTION: {
+        CmdSection c;
+        u8* data = cmd->data;
+        u64 cursor = 0;
+
+        c.player = read<bool>(data, &cursor);
+        c.taserLen = read<u16>(data, &cursor);
+
+        if (cursor + c.taserLen > cmd->size) {
+            Logger::log("Invalid SECTION taser length");
+            break;
+        }
+        c.taser = (char*)&data[cursor];
+
+        if (c.player)
+            mCurCapTASer = c.taser;
+        else
+            mCurMarTASer = c.taser;
         break;
     }
 
@@ -399,6 +525,9 @@ void STAS::applyCommand(Command* cmd) {
 void STAS::exeUpdate() {
     sead::ScopedCurrentHeapSetter heapSetter(DevGuiManager::instance()->getHeap());
 
+    if (!mScript)
+        return;
+
     sead::ControllerMgr* controllerMgr = sead::ControllerMgr::instance();
     for (int player = 0; player < 2; player++) {
         auto* controller = (al::NpadController*)controllerMgr->getController(al::getPlayerControllerPort(player));
@@ -413,7 +542,7 @@ void STAS::exeUpdate() {
         hk::ValueOrResult<Command*> cmd = mScript->tryReadCommand();
         if (!cmd.hasValue())
             break;
-        applyCommand(cmd.getInnerValue());
+        applyCommand(cmd);
     }
 
     if (mCurFrame >= mScript->getFrames()) {

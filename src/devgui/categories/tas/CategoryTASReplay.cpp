@@ -25,6 +25,7 @@ void CategoryTASReplay::updateCatDisplay() {
         tryReloadStage();
         for (int i = 0; i < entryCount; i++)
             activeReplays[i] = false;
+        mSelectedReplays = 0;
     }
     ImGui::Text("\n");
     CategoryBase::updateCatDisplay();

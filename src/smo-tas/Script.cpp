@@ -118,7 +118,7 @@ void Script::unload() {
 hk::ValueOrResult<Command*> Script::tryReadCommand() {
     sead::ScopedCurrentHeapSetter s(DevGuiManager::instance()->getHeap());
 
-    if (mCursor >= mFileSize)
+    if (mCursor >= mFileSize && sizeof(CommandType) + sizeof(u64) + mCursor >= mFileSize)
         return hk::ResultOutOfRange();
 
     CommandType type = read<CommandType>();
@@ -127,6 +127,9 @@ hk::ValueOrResult<Command*> Script::tryReadCommand() {
     mCursor -= 2;
 
     if (size == 0 && type != CommandType::PAUSE)
+        return hk::ResultOutOfRange();
+
+    if (mCursor >= mFileSize && size + mCursor >= mFileSize)
         return hk::ResultOutOfRange();
 
     Command* c = new Command{.type = type, .size = size, .data = &mData[mCursor]};

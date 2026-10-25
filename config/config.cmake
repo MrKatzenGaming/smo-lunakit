@@ -3,7 +3,7 @@ set(LLDFLAGS --no-demangle --gc-sections --error-limit=0)
 
 set(OPTIMIZE_OPTIONS_DEBUG -O2 -gdwarf-4)
 set(OPTIMIZE_OPTIONS_RELEASE -O3 -ffast-math -flto)
-set(WARN_OPTIONS -Werror=return-type -Wno-invalid-offsetof -Wno-main -Wno-unqualified-std-cast-call -Wno-macro-redefined -Wno-deprecated-declarations)
+set(WARN_OPTIONS -Werror=return-type -Wno-underlying-cv-qualifier-ignored -Wno-invalid-offsetof -Wno-main -Wno-unqualified-std-cast-call -Wno-macro-redefined -Wno-deprecated-declarations)
 
 set(INCLUDES lib lib/imgui include)
 set(EXCEPTION_FLAGS -fno-exceptions)

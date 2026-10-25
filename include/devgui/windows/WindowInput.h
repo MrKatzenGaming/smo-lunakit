@@ -62,6 +62,8 @@ private:
     void drawButtonRect(const ImVec2& pos, bool callback, ImU32 color = makeColor(getInputDisplayColor(InputDisplayColor::White)),
                         ImU32 pressedColor = makeColor(getInputDisplayColor(InputDisplayColor::Pink)));
 
+    void drawDisplay(ImVec2 posIn, sead::BitFlag<u32> padHold, sead::Vector2f lStick, sead::Vector2f rStick, const char* player, const char* taser);
+
     ImVec2 mPos = ImVec2(1000, 500);
     ImVec2 mPos2 = ImVec2(1000, 800);
     bool mIsEnabled = false;

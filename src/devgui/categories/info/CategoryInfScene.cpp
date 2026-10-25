@@ -1,8 +1,5 @@
 #include "devgui/categories/info/CategoryInfScene.h"
 
-#include "devgui/DevGuiManager.h"
-#include "devgui/windows/WindowStagePause.h"
-
 #include "al/Library/Nerve/Nerve.h"
 #include "al/Library/Nerve/NerveKeeper.h"
 #include "al/Library/Nerve/NerveStateCtrl.h"
@@ -14,6 +11,8 @@
 #include <cxxabi.h>
 #include <typeinfo>
 
+#include "devgui/DevGuiManager.h"
+#include "devgui/windows/WindowStagePause.h"
 #include "helpers/GetHelper.h"
 #include "imgui.h"
 

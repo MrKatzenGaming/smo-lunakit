@@ -35,9 +35,12 @@ public:
 
     void setScene(al::Scene* scene) { mScene = scene; };
 
-    void setScript(nn::fs::DirectoryEntry entry) { mLoadedEntry = entry; };
+    void setScript(nn::fs::DirectoryEntry entry) {
+        mLoadedEntry = entry;
+        mEntryLoaded = true;
+    };
 
-    const char* getScriptName() const { return mLoadedEntry.mName; };
+    const char* getScriptName() const { return mEntryLoaded ? mLoadedEntry.mName : "None"; };
 
     nn::fs::DirectoryEntry* getScripts() const { return mEntries; };
 
@@ -45,11 +48,15 @@ public:
 
     s64 getCurFrame() const { return mCurFrame; };
 
-    u32 getFrameCount() const { return mScript->getFrames(); };
+    u32 getFrameCount() const { return mScript ? mScript->getFrames() : 0; };
 
     Script* getScript() { return mScript; };
 
     bool hasScript() const { return mScript != nullptr; };
+
+    const char* getCurMarTASer() { return mCurMarTASer; };
+
+    const char* getCurCapTASer() { return mCurCapTASer; };
 
 public:
     u32 mSpeed = 1;
@@ -61,11 +68,14 @@ public:
 private:
     s64 mCurFrame = -1;
     s64 mNextFrame = -1;
+    const char* mCurMarTASer = "";
+    const char* mCurCapTASer = "";
 
     sead::SafeArray<u64, 2> mPrevButtons = {0, 0};
 
     s64 mEntryCount = 0;
     nn::fs::DirectoryEntry mLoadedEntry;
+    bool mEntryLoaded = false;
     nn::fs::DirectoryEntry* mEntries = nullptr;
 
     Script* mScript = nullptr;
