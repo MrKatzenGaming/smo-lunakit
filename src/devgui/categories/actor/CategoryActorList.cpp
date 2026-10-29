@@ -44,15 +44,8 @@ CategoryActorList::CategoryActorList(const char* catName, const char* catDesc, s
 }
 
 void CategoryActorList::updateCat() {
-    if (mSelectedActor && !mIsPickingActor) {
-        auto window = SEAD_INSTANCE(DevGuiManager)->getWindow<WindowActorBrowse2>(windowNameactorBrowse2);
-        auto inspectors = window->getInspectorsCategory();
-
-        // Avoid rendering selected actor twice
-        if (inspectors->getProvider(mSelectedActor) == nullptr) {
-            InfoProviderActor::renderActor(mSelectedActor);
-        }
-    }
+    if (mSelectedActor && !mIsPickingActor)
+        InfoProviderActor::renderActor(InfoProviderBase::RenderInfo{.renderSelf = true, .forceRenderChildren = false}, mSelectedActor);
 }
 
 void CategoryActorList::updateCatDisplay() {

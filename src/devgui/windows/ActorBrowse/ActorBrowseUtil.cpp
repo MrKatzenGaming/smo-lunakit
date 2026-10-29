@@ -212,7 +212,7 @@ void WindowActorBrowse::showActorTooltip(al::LiveActor* actor) {
         mParent->getPrimitiveQueue()->pushAxis(actor->mPoseKeeper->mTrans, 400.f);
 
     if (actor->mHitSensorKeeper && isInStageScene())
-        mParent->getPrimitiveQueue()->pushHitSensor(actor, mHitSensorTypes, 0.15f);
+        mParent->getPrimitiveQueue()->pushHitSensorKeeper(actor->mHitSensorKeeper, mHitSensorTypes, 0.15f);
 }
 
 int WindowActorBrowse::calcRoundedNum(int numToRound, int multiple) {

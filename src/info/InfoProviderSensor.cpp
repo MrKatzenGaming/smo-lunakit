@@ -56,38 +56,40 @@ static void displaySensorComparison(const char* label, al::HitSensor* sensorA, a
 }
 
 void InfoProviderSensor::displayImpl() {
-    ImGui::Text("Type: %s", sensorTypeNames[(s32)mSensor->mSensorType]);
+    auto sensor = getKey<Key>();
+
+    ImGui::Text("Type: %s", sensorTypeNames[(s32)sensor->mSensorType]);
     ImGui::Spacing();
 
-    ImGui::Text("Position: %.2f, %.2f, %.2f", mSensor->getPos().x, mSensor->getPos().y, mSensor->getPos().z);
-    ImGui::Text("Radius: %.2f", mSensor->getRadius());
+    ImGui::Text("Position: %.2f, %.2f, %.2f", sensor->getPos().x, sensor->getPos().y, sensor->getPos().z);
+    ImGui::Text("Radius: %.2f", sensor->getRadius());
     ImGui::Spacing();
 
-    if (mSensor->mFollowPos) {
-        ImGui::Text("Follow Position: %.2f, %.2f, %.2f", mSensor->mFollowPos->x, mSensor->mFollowPos->y, mSensor->mFollowPos->z);
-        ImGui::Text("Follow Offset: %.2f, %.2f, %.2f", mSensor->mFollowPosOffset.x, mSensor->mFollowPosOffset.y, mSensor->mFollowPosOffset.z);
+    if (sensor->mFollowPos) {
+        ImGui::Text("Follow Position: %.2f, %.2f, %.2f", sensor->mFollowPos->x, sensor->mFollowPos->y, sensor->mFollowPos->z);
+        ImGui::Text("Follow Offset: %.2f, %.2f, %.2f", sensor->mFollowPosOffset.x, sensor->mFollowPosOffset.y, sensor->mFollowPosOffset.z);
         ImGui::Spacing();
     }
 
     auto mario = tryGetPlayerActorHakoniwa();
-    if (mario && mSensor->getParentActor() != mario && ImGui::TreeNode("Mario Comparison")) {
-        displaySensorComparison("Foot", mario->getHitSensorKeeper()->getSensor("Foot"), mSensor);
+    if (mario && sensor->getParentActor() != mario && ImGui::TreeNode("Mario Comparison")) {
+        displaySensorComparison("Foot", mario->getHitSensorKeeper()->getSensor("Foot"), sensor);
 
         ImGui::TreePop();
     }
 
     auto cappy = mario ? mario->getPlayerHackKeeper()->getHackCap() : nullptr;
-    if (cappy && mSensor->getParentActor() != cappy && ImGui::TreeNode("Cappy Comparison")) {
-        displaySensorComparison("Attack", cappy->getHitSensorKeeper()->getSensor("Attack"), mSensor);
-        displaySensorComparison("Homing", cappy->getHitSensorKeeper()->getSensor("Eye"), mSensor);
+    if (cappy && sensor->getParentActor() != cappy && ImGui::TreeNode("Cappy Comparison")) {
+        displaySensorComparison("Attack", cappy->getHitSensorKeeper()->getSensor("Attack"), sensor);
+        displaySensorComparison("Homing", cappy->getHitSensorKeeper()->getSensor("Eye"), sensor);
 
         ImGui::TreePop();
     }
 
-    if (mSensor->mSensorCount > 0 && ImGui::TreeNode("Collisions")) {
-        for (s32 idx = 0; idx < mSensor->mSensorCount; idx++) {
-            auto collidingSensor = mSensor->mSensors[idx];
-            f32 depth = -(al::calcDistance(mSensor, collidingSensor) - mSensor->getRadius() - collidingSensor->getRadius());
+    if (sensor->mSensorCount > 0 && ImGui::TreeNode("Collisions")) {
+        for (s32 idx = 0; idx < sensor->mSensorCount; idx++) {
+            auto collidingSensor = sensor->mSensors[idx];
+            f32 depth = -(al::calcDistance(sensor, collidingSensor) - sensor->getRadius() - collidingSensor->getRadius());
 
             ImGui::BulletText("%s (Depth: %.2f)", collidingSensor->getName(), depth);
 
@@ -107,10 +109,13 @@ void InfoProviderSensor::displayImpl() {
         ImGui::TreePop();
     }
 }
-void InfoProviderSensor::renderImpl() {
-    getPrimitiveQueue()->pushHitSensor(mSensor, 0.8f);
+void InfoProviderSensor::renderImpl(RenderInfo info) {
+    auto sensor = getKey<Key>();
+    if (info.renderSelf && al::isSensorValid(sensor))
+        getPrimitiveQueue()->pushHitSensor(sensor, 0.8f);
 }
 
 void InfoProviderSensor::getNameImpl(sead::BufferedSafeString* buffer) const {
-    buffer->format("Sensor ('%s' of '%s')", mSensor->getName(), demangleTypeName(typeid(*mSensor->mParentActor).name()));
+    auto sensor = getKey<Key>();
+    buffer->format("Sensor ('%s' of '%s')", sensor->getName(), demangleTypeName(typeid(*sensor->mParentActor).name()));
 }

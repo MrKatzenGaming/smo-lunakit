@@ -1,67 +1,49 @@
 #include "info/InfoProviderBase.h"
 
 #include "sead/basis/seadTypes.h"
+#include "sead/heap/seadDisposer.h"
+#include "sead/prim/seadSafeString.h"
 
 #include <cxxabi.h>
 
 #include "devgui/DevGuiManager.h"
 #include "devgui/categories/actor/CategoryActorInspectors.h"
 #include "devgui/windows/WindowActorBrowse2.h"
-#include "heap/seadDisposer.h"
 #include "imgui.h"
-#include "prim/seadSafeString.h"
 #include "primitives/PrimitiveQueue.h"
 
 void InfoProviderBase::display() {
-    auto key = getKey();
-
     auto window = getWindow();
     auto inspectors = window->getInspectorsCategory();
 
     ImVec2 posMin = ImGui::GetCursorScreenPos();
 
-    auto provider = inspectors->getProvider(key);
-    if (provider) {
-        if (ImGui::Button("Remove from Inspector List")) {
-            provider = this;
-            inspectors->removeProvider(key);
-        }
+    if (!inspectors->hasProvider(mKey)) {
+        if (ImGui::Button("Add to Inspector List"))
+            inspectors->addProvider(mKey, this);
     } else {
-        if (ImGui::Button("Add to Inspector List")) {
-            provider = clone(getHeap());
-            provider->mCanSaveData = true;
-            inspectors->addProvider(key, provider);
-        } else {
-            provider = this;
-        }
+        if (ImGui::Button("Remove from Inspector List"))
+            inspectors->removeProvider(mKey);
     }
 
-    if (provider->mHasVisuals && provider->mCanSaveData) {
+    if (mHasVisuals) {
         ImGui::SameLine();
-        ImGui::Checkbox("Always Show Visuals", &provider->mAlwaysShowVisuals);
+        ImGui::Checkbox("Always Show Visuals", &mIsAlwaysShowVisuals);
     }
 
-    provider->displayImpl();
+    displayImpl();
 
     ImVec2 posMax = ImGui::GetCursorScreenPos();
     posMax.x += ImGui::GetContentRegionAvail().x;  // Span full width
 
-    provider->mIsHovered = ImGui::IsMouseHoveringRect(posMin, posMax);
+    mIsHovered = ImGui::IsMouseHoveringRect(posMin, posMax);
 }
-void InfoProviderBase::render() {
-    auto key = getKey();
 
-    auto window = getWindow();
-    auto inspectors = window->getInspectorsCategory();
-
-    auto provider = inspectors->getProvider(key);
-    if (!provider)
-        provider = this;
-
-    if (!provider->mHasVisuals || !(provider->mAlwaysShowVisuals || provider->mIsHovered))
-        return;
-
-    provider->renderImpl();
+void InfoProviderBase::render(RenderInfo info) {
+    renderImpl(RenderInfo{
+        .renderSelf = mHasVisuals && (info.forceRenderChildren || mIsAlwaysShowVisuals || (mIsHovered && mIsShowVisualsOnHover)),
+        .forceRenderChildren = info.forceRenderChildren || (mIsAlwaysShowVisuals && mIsForceShowChildren),
+    });
 }
 
 const char* InfoProviderBase::getName() const {
@@ -83,7 +65,7 @@ const char* InfoProviderBase::demangleTypeName(const char* mangledName) {
 }
 
 WindowActorBrowse2* InfoProviderBase::getWindow() {
-    return SEAD_INSTANCE(DevGuiManager)->getWindow<WindowActorBrowse2>(windowNameactorBrowse2);
+    return SEAD_INSTANCE(DevGuiManager)->getWindow<WindowActorBrowse2>(windowNameActorBrowse2);
 }
 
 PrimitiveQueue* InfoProviderBase::getPrimitiveQueue() {

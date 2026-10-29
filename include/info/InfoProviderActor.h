@@ -6,10 +6,15 @@
 
 class InfoProviderActor : public InfoProviderBase {
 public:
-    InfoProviderActor(al::LiveActor* actor, bool hasVisuals = true) : mActor(actor), InfoProviderBase(hasVisuals) {}
+    using Key = al::LiveActor;
+
+    InfoProviderActor(Key* actor) : InfoProviderBase(actor, true) {
+        mIsAlwaysShowVisuals = true;
+        mIsShowVisualsOnHover = false;
+    }
 
     static void displayActor(al::LiveActor* actor);
-    static void renderActor(al::LiveActor* actor);
+    static void renderActor(RenderInfo info, al::LiveActor* actor);
 
     void displayName();
     void displayPose();
@@ -19,15 +24,10 @@ public:
 
     void renderPose();
     void renderNerves();
-    void renderSensors();
+    void renderSensors(RenderInfo info);
 
 protected:
     void displayImpl() override;
-    void renderImpl() override;
+    void renderImpl(RenderInfo info) override;
     void getNameImpl(sead::BufferedSafeString* buffer) const override;
-
-    const void* getKey() const override { return mActor; }
-    InfoProviderBase* clone(sead::Heap* heap) const override { return new (heap) InfoProviderActor(mActor); }
-
-    al::LiveActor* mActor;
 };

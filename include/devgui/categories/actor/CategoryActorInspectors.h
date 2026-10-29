@@ -16,7 +16,7 @@ public:
 
     void addProvider(const void* key, InfoProviderBase* provider);
     void removeProvider(const void* key);
-    InfoProviderBase* getProvider(const void* key) const;
+    bool hasProvider(const void* key) const;
 
 private:
     sead::FixedTreeMap<const void*, InfoProviderBase*, 128> mProviders;

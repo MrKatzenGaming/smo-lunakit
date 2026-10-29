@@ -6,16 +6,12 @@
 
 class InfoProviderSensor : public InfoProviderBase {
 public:
-    InfoProviderSensor(al::HitSensor* sensor, bool hasVisuals = true) : mSensor(sensor), InfoProviderBase(hasVisuals) {}
+    using Key = al::HitSensor;
+
+    InfoProviderSensor(Key* sensor, bool hasVisuals = true) : InfoProviderBase(sensor, hasVisuals) {}
 
 private:
     void displayImpl() override;
-    void renderImpl() override;
+    void renderImpl(RenderInfo info) override;
     void getNameImpl(sead::BufferedSafeString* buffer) const override;
-
-    const void* getKey() const override { return mSensor; }
-    InfoProviderBase* clone(sead::Heap* heap) const override { return new (heap) InfoProviderSensor(mSensor); }
-
-    al::HitSensor* mSensor;
-    bool mShowVisuals = true;
 };

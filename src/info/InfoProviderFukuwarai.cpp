@@ -33,7 +33,7 @@ FukuwaraiPart MarioNosePart = {"FukuwaraiMarioNose", 2.0f, 6.0f, 2.0f};
 void InfoProviderFukuwaraiFaceParts::displayImpl() {
     InfoProviderActor::displayImpl();
 
-    auto parts = reinterpret_cast<FukuwaraiFaceParts*>(mActor);
+    auto parts = getKey<FukuwaraiFaceParts>();
 
     const char* name = al::getModelName(parts);
     FukuwaraiPart* part = nullptr;
@@ -118,50 +118,52 @@ void InfoProviderFukuwaraiFaceParts::displayImpl() {
 
     ImGui::Text("Score: %.3f", part->basePoints + part->distancePoints * distRate + part->anglePoints * angleRate);
 }
-void InfoProviderFukuwaraiFaceParts::renderImpl() {
-    InfoProviderActor::renderImpl();
+void InfoProviderFukuwaraiFaceParts::renderImpl(RenderInfo info) {
+    InfoProviderActor::renderImpl(info);
 
-    auto parts = reinterpret_cast<FukuwaraiFaceParts*>(mActor);
+    auto parts = getKey<FukuwaraiFaceParts>();
 
     constexpr f32 rotationLineLength = 200.0f;
     f32 currAngle = sead::Mathf::deg2rad(al::getRotate(parts).y);
     f32 targetAngle = sead::Mathf::deg2rad(parts->mTargetAngle);
     auto& trans = al::getTrans(parts);
 
-    auto primQueue = getPrimitiveQueue();
-    primQueue->pushPoint(parts->mTargetPos, 15.0f, sead::Color4f(0.0f, 1.0f, 0.0f, 0.5f));
-    primQueue->pushLine(
-        trans, trans + sead::Vector3f(sead::Mathf::cos(currAngle) * rotationLineLength, 0.0f, sead::Mathf::sin(currAngle) * rotationLineLength),
-        sead::Color4f(1.0f, 0.0f, 1.0f, 0.75f));
-    primQueue->pushLine(parts->mTargetPos,
-                        parts->mTargetPos + sead::Vector3f(sead::Mathf::cos(targetAngle) * rotationLineLength, 0.0f,
-                                                           sead::Mathf::sin(targetAngle) * rotationLineLength),
-                        sead::Color4f(1.0f, 0.0f, 0.0f, 0.75f));
+    if (info.renderSelf) {
+        auto primQueue = getPrimitiveQueue();
+        primQueue->pushPoint(parts->mTargetPos, 15.0f, sead::Color4f(0.0f, 1.0f, 0.0f, 0.5f));
+        primQueue->pushLine(
+            trans, trans + sead::Vector3f(sead::Mathf::cos(currAngle) * rotationLineLength, 0.0f, sead::Mathf::sin(currAngle) * rotationLineLength),
+            sead::Color4f(1.0f, 0.0f, 1.0f, 0.75f));
+        primQueue->pushLine(parts->mTargetPos,
+                            parts->mTargetPos + sead::Vector3f(sead::Mathf::cos(targetAngle) * rotationLineLength, 0.0f,
+                                                               sead::Mathf::sin(targetAngle) * rotationLineLength),
+                            sead::Color4f(1.0f, 0.0f, 0.0f, 0.75f));
+    }
 }
 
 void InfoProviderFukuwaraiNpc::displayImpl() {
     InfoProviderActor::displayImpl();
 
-    auto npc = reinterpret_cast<FukuwaraiNpc*>(mActor);
+    auto npc = getKey<FukuwaraiNpc>();
     ImGui::Text("Score: %d", npc->mScore);
     ImGui::Text("Success Score: %d", npc->mSuccessScore);
 
     if (ImGui::TreeNodeEx("Event Flow", cFramedNode)) {
-        InfoProviderEventFlow(npc->mEventFlow).display();
+        display<InfoProviderEventFlow>(npc->mEventFlow);
         ImGui::TreePop();
     }
 }
-void InfoProviderFukuwaraiNpc::renderImpl() {
-    InfoProviderActor::renderImpl();
+void InfoProviderFukuwaraiNpc::renderImpl(RenderInfo info) {
+    InfoProviderActor::renderImpl(info);
 
-    auto npc = reinterpret_cast<FukuwaraiNpc*>(mActor);
-    InfoProviderEventFlow(npc->mEventFlow).render();
+    auto npc = getKey<FukuwaraiNpc>();
+    render<InfoProviderEventFlow>(info, npc->mEventFlow);
 }
 
 void InfoProviderFukuwaraiWatcher::displayImpl() {
     InfoProviderActor::displayImpl();
 
-    auto watcher = reinterpret_cast<FukuwaraiWatcher*>(mActor);
+    auto watcher = getKey<FukuwaraiWatcher>();
     ImGui::Text("Total Score: %d", watcher->calcTotalScore());
 
     ImGui::SeparatorText("Placed Parts");

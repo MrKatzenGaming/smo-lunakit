@@ -21,22 +21,56 @@ void WindowActorBrowse2::updateWin() {
 
     al::Scene* scene = tryGetScene();
     if (!scene) {
-        mCatList->resetScene();
-        mCatInspectors->resetScene();
+        resetScene();
         return;
     }
 
     al::LiveActorKit* kit = scene->mLiveActorKit;
     if (!kit) {
-        mCatList->resetScene();
-        mCatInspectors->resetScene();
+        resetScene();
         return;
     }
 
     al::LiveActorGroup* group = kit->mLiveActorGroupAllActors;
     if (!group) {
-        mCatList->resetScene();
-        mCatInspectors->resetScene();
+        resetScene();
         return;
     }
+
+    mGeneration++;
+}
+
+void WindowActorBrowse2::resetScene() {
+    mCatList->resetScene();
+    mCatInspectors->resetScene();
+
+    mProviderStorage.forEach([](auto keyImpl, InfoProviderBase* provider) { delete provider; });
+    mProviderStorage.clear();
+
+    mGeneration = 0;
+}
+
+bool WindowActorBrowse2::addProvider(const void* key, InfoProviderBase* provider) {
+    if (mProviderStorage.mSize >= mProviderStorage.mCapacity) {
+        // Storage is full, perform garbage collection pass
+        mProviderStorage.MapImpl::forEach([this](auto* base_node) {
+            auto* node = static_cast<ProviderStorage::Node*>(base_node);
+            if (node->value()->getGeneration() < getGeneration())
+                node->erase_();
+        });
+
+        if (mProviderStorage.mSize >= mProviderStorage.mCapacity)
+            return false;  // Still no capacity
+    }
+
+    mProviderStorage.insert(key, provider);
+    return true;
+}
+
+InfoProviderBase* WindowActorBrowse2::getProvider(const void* key) const {
+    auto node = mProviderStorage.find(key);
+    if (node)
+        return node->value();
+    else
+        return nullptr;
 }

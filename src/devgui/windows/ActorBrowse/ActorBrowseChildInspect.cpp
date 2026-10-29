@@ -221,8 +221,8 @@ inline void WindowActorBrowse::drawActorInspectorTreeSubActor(al::SubActorKeeper
             bool isFalse = false;
 
             ImGui::Selectable(trimName.cstr(), &isFalse, 0, ImVec2(ImGui::GetWindowWidth(), mLineSize));
-            // if (ImGui::IsItemHovered())
-            //     showActorTooltip(subActor);
+            if (ImGui::IsItemHovered())
+                showActorTooltip(subActor);
 
             if (ImGui::IsItemClicked()) {
                 mSelectedActor = subActor;

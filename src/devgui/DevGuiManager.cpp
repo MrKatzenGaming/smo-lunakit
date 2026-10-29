@@ -67,7 +67,7 @@ void DevGuiManager::createElements() {
     createWindow<WindowEditor>(windowNameParamEditor, true);
     createWindow<WindowInfo>(windowNameInfo, true);
     createWindow<WindowActorBrowse>(windowNameactorBrowse, false);
-    createWindow<WindowActorBrowse2>(windowNameactorBrowse2, false);
+    createWindow<WindowActorBrowse2>(windowNameActorBrowse2, false);
     WindowGroup* tasGroup = createWindowGroup("TAS", 3);
     createWindow<WindowFPS>(windowNameFps, true);
     createWindow<WindowTAS>(windowNameTas, false, tasGroup);

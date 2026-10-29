@@ -1,11 +1,13 @@
 #pragma once
 
 #include "sead/container/seadPtrArray.h"
+#include "sead/container/seadTreeMap.h"
 
 #include "al/Library/LiveActor/LiveActorGroup.h"
 
 #include "devgui/categories/CategoryBase.h"
 #include "imgui.h"
+#include "info/InfoProviderBase.h"
 
 class CategoryActorList : public CategoryBase {
 public:
@@ -25,8 +27,9 @@ private:
 
     al::LiveActor* mSelectedActor = nullptr;
     sead::FixedPtrArray<al::LiveActor, 32> mPinnedActors;
+    sead::FixedTreeMap<const void*, InfoProviderBase*, 128> mActiveProviders;
 
-    const char* mSearchText;
+    const char* mSearchText = nullptr;
     ImGuiTextFilter mSearchFilter;
     al::LiveActorGroup* mFilterActorGroup;
 
@@ -35,10 +38,9 @@ private:
     s32 mPickHitNum = 0;
     s32 mPickHitIdx = 0;
 
-    bool mIsLayoutHorizontal;
+    bool mIsLayoutHorizontal = false;
     bool mIsPopupKeyboardOpen = false;
     bool mIsPickingActor = false;
-    // bool mShouldRenderAllSensors = true;
     bool mShouldScrollToSelectedActor = false;
     bool mDidChangePickIdx = false;
 };

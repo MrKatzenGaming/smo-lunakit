@@ -8,20 +8,17 @@ CategoryActorInspectors::CategoryActorInspectors(const char* catName, const char
 
 void CategoryActorInspectors::updateCat() {
     if (mPendingDelete) {
-        if (auto provider = getProvider(mPendingDelete)) {
-            delete provider;
-        }
-
         mProviders.erase(mPendingDelete);
         mPendingDelete = nullptr;
     }
 
-    mProviders.forEach([](auto keyImpl, InfoProviderBase* provider) { provider->render(); });
+    mProviders.forEach([](auto keyImpl, InfoProviderBase* provider) {
+        provider->render(InfoProviderBase::RenderInfo{.renderSelf = true, .forceRenderChildren = false});
+    });
 }
 void CategoryActorInspectors::updateCatDisplay() {
-    if (mProviders.mSize == 0) {
+    if (mProviders.mSize == 0)
         ImGui::TextDisabled("No Inspectors added yet!");
-    }
 
     mProviders.forEach([](auto keyImpl, InfoProviderBase* provider) {
         if (ImGui::TreeNodeEx(keyImpl.key, ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DrawLinesFull, "%s", provider->getName())) {
@@ -32,7 +29,6 @@ void CategoryActorInspectors::updateCatDisplay() {
 }
 
 void CategoryActorInspectors::resetScene() {
-    mProviders.forEach([](auto keyImpl, InfoProviderBase* provider) { delete provider; });
     mProviders.clear();
 }
 
@@ -42,10 +38,6 @@ void CategoryActorInspectors::addProvider(const void* key, InfoProviderBase* pro
 void CategoryActorInspectors::removeProvider(const void* key) {
     mPendingDelete = key;
 }
-InfoProviderBase* CategoryActorInspectors::getProvider(const void* key) const {
-    auto node = mProviders.find(key);
-    if (node)
-        return node->value();
-    else
-        return nullptr;
+bool CategoryActorInspectors::hasProvider(const void* key) const {
+    return mProviders.find(key) != nullptr;
 }

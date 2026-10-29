@@ -1,13 +1,13 @@
 #include "info/InfoProviderEventFlow.h"
 
-#include "Library/Event/BalloonOrderGroup.h"
-#include "Library/Math/MathUtil.h"
 #include "al/Library/Base/StringUtil.h"
+#include "al/Library/Event/BalloonOrderGroup.h"
 #include "al/Library/Event/EventFlowActorTerritory.h"
 #include "al/Library/Event/EventFlowDataHolder.h"
 #include "al/Library/Event/EventFlowNode.h"
 #include "al/Library/Event/EventFlowUtil.h"
 #include "al/Library/LiveActor/ActorPoseUtil.h"
+#include "al/Library/Math/MathUtil.h"
 #include "al/Library/Nature/NatureUtil.h"
 
 #include "game/Event/EventFlowNodeMessageBalloon.h"
@@ -20,16 +20,17 @@
 #include "info/InfoProviderNerve.h"
 
 void InfoProviderEventFlow::displayImpl() {
-    if (mEventFlow->mCurrentNode)
-        ImGui::Text("Node: %s", demangleTypeName(typeid(*mEventFlow->mCurrentNode).name()));
+    auto eventFlow = getKey<Key>();
+    if (eventFlow->mCurrentNode)
+        ImGui::Text("Node: %s", demangleTypeName(typeid(*eventFlow->mCurrentNode).name()));
     else
         ImGui::Text("Node: <null>");
 
-    auto balloonOrder = mEventFlow->getEventFlowDataHolder()->mBalloonOrderGroup;
+    auto balloonOrder = eventFlow->getEventFlowDataHolder()->mBalloonOrderGroup;
     if (balloonOrder && ImGui::TreeNodeEx("Balloon Order", cFramedNode)) {
         ImGui::Value("Active", balloonOrder->mIsActive);
         ImGui::Value("Current Requester", balloonOrder->mActiveRequesterIdx);
-        ImGui::Value("Balloon can appear", balloonOrder->isEnableAppearBalloon(mEventFlow->mActor));
+        ImGui::Value("Balloon can appear", balloonOrder->isEnableAppearBalloon(eventFlow->mActor));
 
         ImGui::SeparatorText("Requesters");
 
@@ -48,64 +49,68 @@ void InfoProviderEventFlow::displayImpl() {
 
         ImGui::TreePop();
     }
-    if (mEventFlow->mCurrentNode && ImGui::TreeNodeEx("Node", cFramedNode)) {
-        InfoProviderEventFlowNode::displayNode(mEventFlow->mCurrentNode);
+    if (eventFlow->mCurrentNode && ImGui::TreeNodeEx("Node", cFramedNode)) {
+        InfoProviderEventFlowNode::displayNode(eventFlow->mCurrentNode);
         ImGui::TreePop();
     }
 }
-void InfoProviderEventFlow::renderImpl() {
-    if (mEventFlow->mCurrentNode)
-        InfoProviderEventFlowNode::renderNode(mEventFlow->mCurrentNode);
+void InfoProviderEventFlow::renderImpl(RenderInfo info) {
+    auto eventFlow = getKey<Key>();
+    if (eventFlow->mCurrentNode)
+        InfoProviderEventFlowNode::renderNode(info, eventFlow->mCurrentNode);
 }
 void InfoProviderEventFlow::getNameImpl(sead::BufferedSafeString* buffer) const {
-    buffer->format("Event Flow ('%s' for '%s')", mEventFlow->mName, typeid(*mEventFlow->mActor).name());
+    auto eventFlow = getKey<Key>();
+    buffer->format("Event Flow ('%s' for '%s')", eventFlow->mName, typeid(*eventFlow->mActor).name());
 }
 
 void InfoProviderEventFlowNode::displayImpl() {
-    ImGui::Text("Name: %s", mNode->mName);
-    ImGui::Text("ID: %d", mNode->mId);
-    ImGui::Text("Next ID: %d", mNode->mNextId);
-    ImGui::Text("Started: %s", mNode->mIsStarted ? "true" : "false");
+    auto node = getKey<Key>();
+    ImGui::Text("Name: %s", node->mName);
+    ImGui::Text("ID: %d", node->mId);
+    ImGui::Text("Next ID: %d", node->mNextId);
+    ImGui::Text("Started: %s", node->mIsStarted ? "true" : "false");
 
-    if (mNode->mNerveKeeper && ImGui::TreeNodeEx("Nerves", cFramedNode)) {
-        InfoProviderNerveKeeper(mNode->mNerveKeeper).display();
+    if (node->mNerveKeeper && ImGui::TreeNodeEx("Nerves", cFramedNode)) {
+        display<InfoProviderNerveKeeper>(node->mNerveKeeper);
         ImGui::TreePop();
     }
 }
-void InfoProviderEventFlowNode::renderImpl() {
-    if (mNode->mNerveKeeper)
-        InfoProviderNerveKeeper(mNode->mNerveKeeper).render();
+void InfoProviderEventFlowNode::renderImpl(RenderInfo info) {
+    auto node = getKey<Key>();
+    if (node->mNerveKeeper)
+        render<InfoProviderNerveKeeper>(info, node->mNerveKeeper);
 }
 void InfoProviderEventFlowNode::getNameImpl(sead::BufferedSafeString* buffer) const {
-    buffer->format("Event Flow Node ('%s' for '%s')", mNode->mName, demangleTypeName(typeid(*mNode->mActor).name()));
+    auto node = getKey<Key>();
+    buffer->format("Event Flow Node ('%s' for '%s')", node->mName, demangleTypeName(typeid(*node->mActor).name()));
 }
 
 void InfoProviderEventFlowNode::displayNode(al::EventFlowNode* node) {
     const char* name = typeid(*node).name();
 
-    if (al::isEqualString(name, InfoProviderEventFlowNodeMessageBalloon::cClassName)) {
-        InfoProviderEventFlowNodeMessageBalloon(node).display();
-    } else {
-        InfoProviderEventFlowNode(node).display();
-    }
+    if (al::isEqualString(name, InfoProviderEventFlowNodeMessageBalloon::cClassName))
+        display<InfoProviderEventFlowNodeMessageBalloon>(node);
+    else
+        display<InfoProviderEventFlowNode>(node);
 }
-void InfoProviderEventFlowNode::renderNode(al::EventFlowNode* node) {
+void InfoProviderEventFlowNode::renderNode(RenderInfo info, al::EventFlowNode* node) {
     const char* name = typeid(*node).name();
 
-    if (al::isEqualString(name, InfoProviderEventFlowNodeMessageBalloon::cClassName)) {
-        InfoProviderEventFlowNodeMessageBalloon(node).render();
-    } else {
-        InfoProviderEventFlowNode(node).render();
-    }
+    if (al::isEqualString(name, InfoProviderEventFlowNodeMessageBalloon::cClassName))
+        render<InfoProviderEventFlowNodeMessageBalloon>(info, node);
+    else
+        render<InfoProviderEventFlowNode>(info, node);
 }
 
 void InfoProviderEventFlowNodeMessageBalloon::displayImpl() {
     InfoProviderEventFlowNode::displayImpl();
 
-    auto actor = mNode->getActor();
-    auto dataHolder = mNode->getEventFlowDataHolder();
+    auto node = getKey<Key>();
+    auto actor = node->getActor();
+    auto dataHolder = node->getEventFlowDataHolder();
     auto territory = dataHolder->mActorTerritory;
-    auto message = reinterpret_cast<EventFlowNodeMessageBalloon*>(mNode);
+    auto message = reinterpret_cast<EventFlowNodeMessageBalloon*>(node);
 
     ImGui::Text("Territory Radius: %.3f", territory->mRadius);
     ImGui::Text("Talkable Radius: %.3f", territory->mTalkableRadius);
@@ -160,41 +165,40 @@ void InfoProviderEventFlowNodeMessageBalloon::displayImpl() {
     } else if (rs::isPlayerBinding(actor)) {
         ImGui::Text("Can Talk: false (Player Binding)");
     } else if (!talkGround && !talkSwim) {
-        if (al::isInWater(actor)) {
-            if (!rs::isPlayerEnableTalkSwim(actor)) {
+        if (al::isInWater(actor))
+            if (!rs::isPlayerEnableTalkSwim(actor))
                 ImGui::Text("Can Talk: false (Player not enabled for swim talking)");
-            } else {
+            else
                 ImGui::Text("Can Talk: false (Talking in water is disabled)");
-            }
-        } else {
+        else
             ImGui::Text("Can Talk: false (Player not enabled for ground talking)");
-        }
     } else if (rs::isPlayerHack(actor) && !talkHack) {
-        if (!message->mIsEnableTalkHacking) {
+        if (!message->mIsEnableTalkHacking)
             ImGui::Text("Can Talk: false (Talking while captured is disabled)");
-        } else {
+        else
             ImGui::Text("Can Talk: false (Actor is scared)");
-        }
     } else if (distance >= territory->mTalkableRadius) {
         ImGui::Text("Can Talk: false (Outside of talkable radius; Difference: %.3f)", distance - territory->mTalkableRadius);
     } else {
         ImGui::Text("Can Talk: true");
     }
 }
-void InfoProviderEventFlowNodeMessageBalloon::renderImpl() {
-    InfoProviderEventFlowNode::renderImpl();
+void InfoProviderEventFlowNodeMessageBalloon::renderImpl(RenderInfo info) {
+    InfoProviderEventFlowNode::renderImpl(info);
 
-    auto actor = mNode->getActor();
-    auto dataHolder = mNode->getEventFlowDataHolder();
+    auto message = getKey<EventFlowNodeMessageBalloon>();
+    auto actor = message->getActor();
+    auto dataHolder = message->getEventFlowDataHolder();
     auto territory = dataHolder->mActorTerritory;
-    auto message = reinterpret_cast<EventFlowNodeMessageBalloon*>(mNode);
 
     sead::Vector3f talkPos;
     al::multVecPose(&talkPos, actor, territory->mTerritoryLocalOffset);
     sead::Vector3f playerPos = rs::getPlayerPos(actor);
 
-    auto primQueue = getPrimitiveQueue();
-    primQueue->pushPoint(talkPos, territory->mTalkableRadius, {1.0f, 0.0f, 0.0f, 0.5f});
-    primQueue->pushPoint(playerPos, 15.0f, {0.0f, 1.0f, 0.0f, 0.5f});
-    primQueue->pushLine(playerPos, talkPos, {0.0f, 0.0f, 1.0f, 0.5f});
+    if (info.renderSelf) {
+        auto primQueue = getPrimitiveQueue();
+        primQueue->pushPoint(talkPos, territory->mTalkableRadius, {1.0f, 0.0f, 0.0f, 0.5f});
+        primQueue->pushPoint(playerPos, 15.0f, {0.0f, 1.0f, 0.0f, 0.5f});
+        primQueue->pushLine(playerPos, talkPos, {0.0f, 0.0f, 1.0f, 0.5f});
+    }
 }

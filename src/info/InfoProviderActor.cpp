@@ -8,6 +8,7 @@
 #include "al/Library/HitSensor/HitSensorKeeper.h"
 #include "al/Library/LiveActor/ActorPoseKeeper.h"
 #include "al/Library/LiveActor/ActorSensorUtil.h"
+#include "al/Library/LiveActor/LiveActor.h"
 #include "al/Library/LiveActor/LiveActorFlag.h"
 #include "al/Library/Math/MathUtil.h"
 #include "al/Library/Model/ModelKeeper.h"
@@ -23,10 +24,12 @@
 #include "info/InfoProviderSensor.h"
 
 void InfoProviderActor::displayImpl() {
-    auto poseKeep = mActor->getPoseKeeper();
-    auto flags = mActor->getFlags();
-    auto nrvKeep = mActor->getNerveKeeper();
-    auto sensorKeep = mActor->getHitSensorKeeper();
+    auto actor = getKey<Key>();
+
+    auto poseKeep = actor->getPoseKeeper();
+    auto flags = actor->getFlags();
+    auto nrvKeep = actor->getNerveKeeper();
+    auto sensorKeep = actor->getHitSensorKeeper();
 
     if (ImGui::TreeNodeEx("Name", cFramedNode)) {
         displayName();
@@ -41,7 +44,7 @@ void InfoProviderActor::displayImpl() {
         ImGui::TreePop();
     }
     if (nrvKeep && ImGui::TreeNodeEx("Nerves", cFramedNode)) {
-        InfoProviderNerveKeeper(nrvKeep).display();
+        display<InfoProviderNerveKeeper>(nrvKeep);
         ImGui::TreePop();
     }
     if (sensorKeep && ImGui::TreeNodeEx("Sensors", cFramedNode)) {
@@ -49,53 +52,54 @@ void InfoProviderActor::displayImpl() {
         ImGui::TreePop();
     }
 }
-void InfoProviderActor::renderImpl() {
-    auto nrvKeep = mActor->getNerveKeeper();
+void InfoProviderActor::renderImpl(RenderInfo info) {
+    auto actor = getKey<Key>();
 
-    renderPose();
-    if (nrvKeep)
-        InfoProviderNerveKeeper(nrvKeep).render();
-    renderSensors();
+    if (info.renderSelf)
+        renderPose();
+
+    render<InfoProviderNerveKeeper>(info, actor->getNerveKeeper());
+    renderSensors(info);
 }
 
 void InfoProviderActor::getNameImpl(sead::BufferedSafeString* buffer) const {
-    buffer->format("Actor ('%s')", demangleTypeName(typeid(*mActor).name()));
+    auto actor = getKey<Key>();
+    buffer->format("Actor ('%s')", demangleTypeName(typeid(*actor).name()));
 }
 
 void InfoProviderActor::displayActor(al::LiveActor* actor) {
     const char* name = typeid(*actor).name();
 
-    if (al::isEqualString(name, InfoProviderGrowPlantSeed::cClassName)) {
-        InfoProviderGrowPlantSeed(actor).display();
-    } else if (al::isEqualString(name, InfoProviderFukuwaraiFaceParts::cClassName)) {
-        InfoProviderFukuwaraiFaceParts(actor).display();
-    } else if (al::isEqualString(name, InfoProviderFukuwaraiNpc::cClassName)) {
-        InfoProviderFukuwaraiNpc(actor).display();
-    } else if (al::isEqualString(name, InfoProviderFukuwaraiWatcher::cClassName)) {
-        InfoProviderFukuwaraiWatcher(actor).display();
-    } else {
-        InfoProviderActor(actor).display();
-    }
+    if (al::isEqualString(name, InfoProviderGrowPlantSeed::cClassName))
+        display<InfoProviderGrowPlantSeed>(actor);
+    else if (al::isEqualString(name, InfoProviderFukuwaraiFaceParts::cClassName))
+        display<InfoProviderFukuwaraiFaceParts>(actor);
+    else if (al::isEqualString(name, InfoProviderFukuwaraiNpc::cClassName))
+        display<InfoProviderFukuwaraiNpc>(actor);
+    else if (al::isEqualString(name, InfoProviderFukuwaraiWatcher::cClassName))
+        display<InfoProviderFukuwaraiWatcher>(actor);
+    else
+        display<InfoProviderActor>(actor);
 }
-void InfoProviderActor::renderActor(al::LiveActor* actor) {
+void InfoProviderActor::renderActor(RenderInfo info, al::LiveActor* actor) {
     const char* name = typeid(*actor).name();
 
-    if (al::isEqualString(name, InfoProviderGrowPlantSeed::cClassName)) {
-        InfoProviderGrowPlantSeed(actor).render();
-    } else if (al::isEqualString(name, InfoProviderFukuwaraiFaceParts::cClassName)) {
-        InfoProviderFukuwaraiFaceParts(actor).render();
-    } else if (al::isEqualString(name, InfoProviderFukuwaraiNpc::cClassName)) {
-        InfoProviderFukuwaraiNpc(actor).render();
-    } else {
-        InfoProviderActor(actor).render();
-    }
+    if (al::isEqualString(name, InfoProviderGrowPlantSeed::cClassName))
+        render<InfoProviderGrowPlantSeed>(info, actor);
+    else if (al::isEqualString(name, InfoProviderFukuwaraiFaceParts::cClassName))
+        render<InfoProviderFukuwaraiFaceParts>(info, actor);
+    else if (al::isEqualString(name, InfoProviderFukuwaraiNpc::cClassName))
+        render<InfoProviderFukuwaraiNpc>(info, actor);
+    else
+        render<InfoProviderActor>(info, actor);
 }
 
 void InfoProviderActor::displayName() {
-    auto model = mActor->getModelKeeper();
+    auto actor = getKey<Key>();
+    auto model = actor->getModelKeeper();
 
-    const char* className = demangleTypeName(typeid(*mActor).name());
-    const char* actorName = mActor->getName();
+    const char* className = demangleTypeName(typeid(*actor).name());
+    const char* actorName = actor->getName();
     const char* modelName = model ? model->getName() : nullptr;
 
     if (className)
@@ -107,7 +111,8 @@ void InfoProviderActor::displayName() {
 }
 
 void InfoProviderActor::displayPose() {
-    auto poseKeep = mActor->getPoseKeeper();
+    auto actor = getKey<Key>();
+    auto poseKeep = actor->getPoseKeeper();
 
     ImGuiHelper::Vector3Drag("Translation", "Pose Keeper Translation", poseKeep->getTransPtr(), 50.f, 0.f);
     ImGuiHelper::Vector3Drag("Scale", "Pose Keeper Scale", poseKeep->getScalePtr(), 0.05f, 0.f);
@@ -119,7 +124,8 @@ void InfoProviderActor::displayPose() {
     ImGuiHelper::QuatDrag("Quaternion", "Pose Keeper Quaternion", poseKeep->getQuatPtr());
 }
 void InfoProviderActor::renderPose() {
-    auto poseKeep = mActor->getPoseKeeper();
+    auto actor = getKey<Key>();
+    auto poseKeep = actor->getPoseKeeper();
     if (!poseKeep)
         return;
 
@@ -127,7 +133,8 @@ void InfoProviderActor::renderPose() {
 }
 
 void InfoProviderActor::displayFlags() {
-    auto flags = mActor->getFlags();
+    auto actor = getKey<Key>();
+    auto flags = actor->getFlags();
 
     if (!ImGui::BeginTable("##Table", 2))
         return;
@@ -213,23 +220,25 @@ static void displaySensorComparison(const char* label, al::HitSensor* sensorA, a
 }
 
 void InfoProviderActor::displaySensors() {
-    auto sensorKeep = mActor->getHitSensorKeeper();
+    auto actor = getKey<Key>();
+    auto sensorKeep = actor->getHitSensorKeeper();
 
     for (s32 idx = 0; idx < sensorKeep->getSensorNum(); idx++) {
         auto sensor = sensorKeep->getSensor(idx);
         if (ImGui::TreeNodeEx(sensor, cFramedNode, "%s", sensor->getName())) {
-            InfoProviderSensor(sensor).display();
+            display<InfoProviderSensor>(sensor);
             ImGui::TreePop();
         }
     }
 }
-void InfoProviderActor::renderSensors() {
-    auto sensorKeep = mActor->getHitSensorKeeper();
+void InfoProviderActor::renderSensors(RenderInfo info) {
+    auto actor = getKey<Key>();
+    auto sensorKeep = actor->getHitSensorKeeper();
     if (!sensorKeep)
         return;
 
     for (s32 idx = 0; idx < sensorKeep->getSensorNum(); idx++) {
         auto sensor = sensorKeep->getSensor(idx);
-        InfoProviderSensor(sensor).render();
+        render<InfoProviderSensor>(info, sensor);
     }
 }

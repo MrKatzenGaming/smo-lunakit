@@ -6,36 +6,30 @@ class InfoProviderFukuwaraiFaceParts : public InfoProviderActor {
 public:
     static constexpr const char* cClassName = "18FukuwaraiFaceParts";
 
-    InfoProviderFukuwaraiFaceParts(al::LiveActor* actor) : InfoProviderActor(actor) {}
+    InfoProviderFukuwaraiFaceParts(Key* actor) : InfoProviderActor(actor) {}
 
 protected:
     void displayImpl() override;
-    void renderImpl() override;
-
-    InfoProviderBase* clone(sead::Heap* heap) const override { return new (heap) InfoProviderFukuwaraiFaceParts(mActor); }
+    void renderImpl(RenderInfo info) override;
 };
 
 class InfoProviderFukuwaraiNpc : public InfoProviderActor {
 public:
     static constexpr const char* cClassName = "12FukuwaraiNpc";
 
-    InfoProviderFukuwaraiNpc(al::LiveActor* actor) : InfoProviderActor(actor) {}
+    InfoProviderFukuwaraiNpc(Key* actor) : InfoProviderActor(actor) {}
 
 protected:
     void displayImpl() override;
-    void renderImpl() override;
-
-    InfoProviderBase* clone(sead::Heap* heap) const override { return new (heap) InfoProviderFukuwaraiNpc(mActor); }
+    void renderImpl(RenderInfo info) override;
 };
 
 class InfoProviderFukuwaraiWatcher : public InfoProviderActor {
 public:
     static constexpr const char* cClassName = "16FukuwaraiWatcher";
 
-    InfoProviderFukuwaraiWatcher(al::LiveActor* actor) : InfoProviderActor(actor) {}
+    InfoProviderFukuwaraiWatcher(Key* actor) : InfoProviderActor(actor) {}
 
 protected:
     void displayImpl() override;
-
-    InfoProviderBase* clone(sead::Heap* heap) const override { return new (heap) InfoProviderFukuwaraiWatcher(mActor); }
 };

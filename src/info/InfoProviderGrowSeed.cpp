@@ -5,14 +5,13 @@
 #include "game/MapObj/GrowPlantSeed.h"
 #include "game/MapObj/GrowSeedStateWait.h"
 
-#include "MapObj/GrowPlantSeed.h"
 #include "helpers/NrvHelper.h"
 #include "info/InfoProviderActor.h"
 
 void InfoProviderGrowPlantSeed::displayImpl() {
     InfoProviderActor::displayImpl();
 
-    auto seed = reinterpret_cast<GrowPlantSeed*>(mActor);
+    auto seed = getKey<GrowPlantSeed>();
 
     // v1.2.0 has patched Nut Jumping by checking the currently activate nerve
     bool canTrample;
