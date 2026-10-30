@@ -15,6 +15,7 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 include_directories(lib/vendor)
 include_directories(lib/vendor/agl)
 include_directories(lib/vendor/al)
+include_directories(lib/vendor/game)
 include_directories(lib/vendor/sead)
 
 include_directories(lib/OdysseyHeaders)

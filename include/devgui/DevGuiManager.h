@@ -52,6 +52,10 @@ class DevGuiManager {
     ~DevGuiManager();
 
 public:
+    static constexpr f32 cWindowFontScale = 1.0f;
+    static constexpr f32 cMenuBarFontScale = 1.5f;
+    static constexpr f32 cKeyboardFontScale = 2.0f;
+
     // Create the DevGuiManager, only called once in the GameSystemInit
     void init(sead::Heap* heap);
     void createElements();

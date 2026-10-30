@@ -1,0 +1,19 @@
+@smo:100
+GrowPlantSeedNrvWait = 0x01d03260
+GrowPlantSeedNrvWaitWater = 0x01d03280
+
+@smo:101
+GrowPlantSeedNrvWait = 0x01d05290
+GrowPlantSeedNrvWaitWater = 0x01d052b0
+
+@smo:110
+GrowPlantSeedNrvWait = 0x01d06290
+GrowPlantSeedNrvWaitWater = 0x01d062b0
+
+@smo:120
+GrowPlantSeedNrvWait = 0x01da9cb0
+GrowPlantSeedNrvWaitWater = 0x01da9cd0
+
+@smo:130
+GrowPlantSeedNrvWait = 0x01245b58
+GrowPlantSeedNrvWaitWater = 0x01245b78

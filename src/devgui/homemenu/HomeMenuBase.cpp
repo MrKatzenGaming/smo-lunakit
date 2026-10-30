@@ -17,7 +17,7 @@ HomeMenuBase::HomeMenuBase(DevGuiManager* parent, const char* menuName, bool isD
 bool HomeMenuBase::addMenu(const char* name, bool enabled) {
     bool isOpen = ImGui::BeginMenu(name, enabled);
     if (isOpen)
-        ImGui::SetWindowFontScale(1.5f);
+        ImGui::SetWindowFontScale(DevGuiManager::cMenuBarFontScale);
 
     return isOpen;
 }

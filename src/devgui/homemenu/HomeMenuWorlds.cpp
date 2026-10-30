@@ -56,7 +56,7 @@ void HomeMenuWorlds::updateMenuDisplay() {
 inline void HomeMenuWorlds::drawKingdomPicker(const char* worldName, GameDataHolderAccessor holder) {
     ImGui::SetNextItemWidth(140.f);
     if (ImGui::BeginCombo("Kingdom", worldName, ImGuiComboFlags_HeightLargest)) {
-        ImGui::SetWindowFontScale(1.66f);
+        ImGui::SetWindowFontScale(DevGuiManager::cMenuBarFontScale);
 
         for (auto& entry : mainNames)
             if (ImGui::Selectable(entry.mShort, false))

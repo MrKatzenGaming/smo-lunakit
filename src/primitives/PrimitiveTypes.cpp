@@ -126,12 +126,80 @@ void PrimitiveTypeTriangle::render() {
 void PrimitiveTypeHitSensor::render() {
     sead::PrimitiveRenderer* renderer = sead::PrimitiveRenderer::instance();
 
-    al::HitSensorKeeper* sensorKeeper = mActor->mHitSensorKeeper;
-    if (!sensorKeeper)
+    if (!mSensor)
+        return;
+    if (!al::isSensorValid(mSensor))
         return;
 
-    for (int i = 0; i < sensorKeeper->mSensorCount; i++) {
-        al::HitSensor* curSensor = sensorKeeper->mSensors[i];
+    const sead::Vector3f& trans = al::getSensorPos(mSensor);
+    float radius = al::getSensorRadius(mSensor);
+
+    if (al::isEqualSubString(mSensor->getName(), "Attack")) {
+        // Cyan / Light BLue
+        renderer->drawSphere4x8(trans, radius, {0.f, 0.5f, 0.5f, mOpacity});
+        return;
+    }
+
+    if ((al::isSensorEye(mSensor) || al::isSensorPlayerEye(mSensor))) {
+        // Blue
+        renderer->drawCircle32(trans, radius, {0.f, 0.f, 1.f, mOpacity * 0.85f});
+        return;
+    }
+
+    if (al::isEqualSubString(mSensor->getName(), "Trample")) {
+        // Deep Purple
+        renderer->drawSphere4x8(trans, radius, {0.3f, 0.f, 0.75f, mOpacity * 0.5f});
+        return;
+    }
+
+    if (al::isSensorNpc(mSensor)) {
+        // Green
+        renderer->drawSphere4x8(trans, radius, {0.f, 1.f, 0.f, mOpacity * 0.75f});
+        return;
+    }
+
+    if (al::isSensorBindableAll(mSensor)) {
+        // Yellow
+        renderer->drawSphere4x8(trans, radius, {0.5f, 0.5f, 0.f, mOpacity});
+        return;
+    }
+
+    if (al::isSensorEnemyBody(mSensor)) {
+        // Orange
+        renderer->drawSphere4x8(trans, radius, {0.9761f, 0.3014f, 0.012f, mOpacity});
+        return;
+    }
+
+    if (al::isSensorMapObj(mSensor)) {
+        // Pink
+        renderer->drawSphere4x8(trans, radius, {0.8f, 0.05f, 0.5f, mOpacity});
+        return;
+    }
+
+    if (al::isSensorPlayerAll(mSensor)) {
+        // Red
+        renderer->drawSphere4x8(trans, radius, {1.f, 0.f, 0.f, mOpacity * 0.3f});
+        return;
+    }
+
+    if (al::isSensorHoldObj(mSensor)) {
+        // Minty green
+        renderer->drawSphere4x8(trans, radius, {0.05f, 0.75f, 0.5f, mOpacity});
+        return;
+    }
+
+    // White
+    renderer->drawSphere4x8(trans, radius, {0.85f, 0.85f, 0.85f, mOpacity});
+}
+
+void PrimitiveTypeHitSensorKeeper::render() {
+    sead::PrimitiveRenderer* renderer = sead::PrimitiveRenderer::instance();
+
+    if (!mSensorKeep)
+        return;
+
+    for (int i = 0; i < mSensorKeep->mSensorCount; i++) {
+        al::HitSensor* curSensor = mSensorKeep->mSensors[i];
         if (!curSensor)
             continue;
         if (!al::isSensorValid(curSensor))

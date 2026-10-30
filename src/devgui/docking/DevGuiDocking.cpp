@@ -49,7 +49,7 @@ void DevGuiDocking::update() {
     // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     ImGui::Begin("DockSpace", nullptr, window_flags);
-    ImGui::SetWindowFontScale(1.5f);
+    ImGui::SetWindowFontScale(DevGuiManager::cMenuBarFontScale);
     ImGui::PopStyleVar();
     ImGui::PopStyleVar(2);
 

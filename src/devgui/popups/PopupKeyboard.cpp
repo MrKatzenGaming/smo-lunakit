@@ -4,6 +4,7 @@
 
 #include <cctype>
 
+#include "devgui/DevGuiManager.h"
 #include "imgui.h"
 #include "logger/Logger.hpp"
 
@@ -28,7 +29,7 @@ void PopupKeyboard::update() {
         endKeyboard();
 
     if (isPopupOpen) {
-        ImGui::SetWindowFontScale(2.f);
+        ImGui::SetWindowFontScale(DevGuiManager::cKeyboardFontScale);
 
         if (mBuffer.isEmpty())
             ImGui::TextDisabled("Use keyboard\n");
@@ -192,8 +193,11 @@ void PopupKeyboard::checkInput(int maxChars, sead::FixedSafeString<0xFF>& mBuffe
     for (ImGuiKey key = start_key; key < ImGuiKey_NamedKey_END; key = (ImGuiKey)(key + 1)) {
         if (!ImGui::IsKeyPressed(key))
             continue;
-        if (key == ImGuiKey_Backspace && mBuffer.calcLength() <= maxChars)
+        if (key == ImGuiKey_Backspace && mBuffer.calcLength() <= maxChars) {
             mBuffer.chop(1);
+            if (mOutputDest)
+                *mOutputDest = mBuffer.cstr();
+        }
         if (mBuffer.calcLength() < maxChars) {
             if (key >= ImGuiKey_A && key <= ImGuiKey_Z && !numOnly) {
                 if (mIsCapsLock || mIsShift) {
@@ -203,13 +207,19 @@ void PopupKeyboard::checkInput(int maxChars, sead::FixedSafeString<0xFF>& mBuffe
                     mBuffer.append(tolower((int)*ImGui::GetKeyName(key)));
                     mIsShift = false;
                 }
+                if (mOutputDest)
+                    *mOutputDest = mBuffer.cstr();
             } else if (key >= ImGuiKey_0 && key <= ImGuiKey_9) {
                 mBuffer.append(ImGui::GetKeyName(key));
                 mIsShift = false;
+                if (mOutputDest)
+                    *mOutputDest = mBuffer.cstr();
             } else if (key == ImGuiKey_Space) {
                 mBuffer.append(" ");
-            } else if (key == ImGuiKey_Enter && !numOnly) {
-                mBuffer.append("\n");
+                if (mOutputDest)
+                    *mOutputDest = mBuffer.cstr();
+            } else if (key == ImGuiKey_Enter || key == ImGuiKey_KeypadEnter) {
+                endKeyboard();
             } else if (!numOnly && (key == ImGuiKey_LeftShift || key == ImGuiKey_RightShift)) {
                 mIsShift = true;
             } else if (key == ImGuiKey_CapsLock && !numOnly) {

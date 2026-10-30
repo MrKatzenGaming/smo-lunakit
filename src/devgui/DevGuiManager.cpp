@@ -27,6 +27,7 @@
 
 // All windows
 #include "devgui/windows/WindowActorBrowse.h"
+#include "devgui/windows/WindowActorBrowse2.h"
 #include "devgui/windows/WindowDupHotkeys.h"
 #include "devgui/windows/WindowEditor.h"
 #include "devgui/windows/WindowFPS.h"
@@ -66,6 +67,7 @@ void DevGuiManager::createElements() {
     createWindow<WindowEditor>(windowNameParamEditor, true);
     createWindow<WindowInfo>(windowNameInfo, true);
     createWindow<WindowActorBrowse>(windowNameactorBrowse, false);
+    createWindow<WindowActorBrowse2>(windowNameActorBrowse2, false);
     WindowGroup* tasGroup = createWindowGroup("TAS", 3);
     createWindow<WindowFPS>(windowNameFps, true);
     createWindow<WindowTAS>(windowNameTas, false, tasGroup);
@@ -192,7 +194,7 @@ void DevGuiManager::updateDisplay() {
 
     // Load and draw all home menu tabs
     if (ImGui::BeginMainMenuBar()) {
-        ImGui::SetWindowFontScale(1.5f);
+        ImGui::SetWindowFontScale(cMenuBarFontScale);
 
         for (int i = 0; i < mHomeMenuTabs.size(); i++) {
             auto* entry = mHomeMenuTabs.at(i);

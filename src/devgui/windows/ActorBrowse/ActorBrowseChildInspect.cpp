@@ -101,7 +101,7 @@ inline void WindowActorBrowse::drawActorInspectorTreePose(al::ActorPoseKeeperBas
         ImGuiHelper::Vector3Slide("Up", "Pose Keeper Up", pose->getUpPtr(), 1.f, true);
         ImGuiHelper::Vector3Slide("Gravity", "Pose Keeper Gravity", pose->getGravityPtr(), 1.f, true);
         ImGuiHelper::Vector3Drag("Euler", "Pose Keeper Rotation", pose->getRotatePtr(), 1.f, 360.f);
-        ImGuiHelper::Quat("Pose Keeper Quaternion", pose->getQuatPtr());
+        ImGuiHelper::QuatDrag("Quat", "Pose Keeper Quaternion", pose->getQuatPtr());
 
         ImGui::TreePop();
     }
@@ -199,7 +199,7 @@ inline void WindowActorBrowse::drawActorInspectorTreeSensor(al::HitSensorKeeper*
     if (!sensor || !isInStageScene())
         return;
 
-    mParent->getPrimitiveQueue()->pushHitSensor(mSelectedActor, mHitSensorTypes, 0.4f);
+    mParent->getPrimitiveQueue()->pushHitSensorKeeper(sensor, mHitSensorTypes, 0.4f);
 }
 
 inline void WindowActorBrowse::drawActorInspectorTreeSubActor(al::SubActorKeeper* subActorKeep) {

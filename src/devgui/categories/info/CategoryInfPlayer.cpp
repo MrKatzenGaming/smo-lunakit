@@ -214,7 +214,7 @@ void CategoryInfPlayer::updateCatDisplay() {
         playerRotDeg.y = DEG(playerRot.y);
         playerRotDeg.z = DEG(playerRot.z);
 
-        ImGuiHelper::Quat("Player Quaternion", pose->getQuatPtr());
+        ImGuiHelper::QuatDrag("Quat", "Player Quaternion", pose->getQuatPtr());
         ImGui::DragFloat3("Euler", mUseDeg ? &playerRotDeg.x : &playerRot.x, 1.f, -1.f, 1.f, format, ImGuiSliderFlags_NoRoundToFormat);
 
         ImGui::DragFloat3("Camera Pos", &cameraPos.x, 50.f, -0.f, 0.f, format, ImGuiSliderFlags_NoRoundToFormat);

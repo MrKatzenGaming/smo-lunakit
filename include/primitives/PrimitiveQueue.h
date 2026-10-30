@@ -22,6 +22,8 @@ public:
 
     void render();
 
+    bool isFull() const { return mRenderQueue.isFull(); }
+
     void pushPoint(sead::Vector3f trans, float size, sead::Color4f col) {
         auto* entry = new (mHeap) PrimitiveTypePoint(trans, size, col);
         if (!mRenderQueue.pushBack((PrimitiveTypeBase*)entry))
@@ -70,14 +72,20 @@ public:
             delete entry;
     }
 
-    void pushHitSensor(al::LiveActor* actor, HitSensorRenderTypes sensorTypes, float opacity) {
-        auto* entry = new (mHeap) PrimitiveTypeHitSensor(actor, sensorTypes, opacity, -1);
+    void pushHitSensor(al::HitSensor* sensor, float opacity) {
+        auto* entry = new (mHeap) PrimitiveTypeHitSensor(sensor, opacity);
         if (!mRenderQueue.pushBack((PrimitiveTypeBase*)entry))
             delete entry;
     }
 
-    void pushHitSensor(al::LiveActor* actor, HitSensorRenderTypes sensorTypes, float opacity, int sensorIdx) {
-        auto* entry = new (mHeap) PrimitiveTypeHitSensor(actor, sensorTypes, opacity, sensorIdx);
+    void pushHitSensorKeeper(al::HitSensorKeeper* sensorKeep, HitSensorRenderTypes sensorTypes, float opacity) {
+        auto* entry = new (mHeap) PrimitiveTypeHitSensorKeeper(sensorKeep, sensorTypes, opacity, -1);
+        if (!mRenderQueue.pushBack((PrimitiveTypeBase*)entry))
+            delete entry;
+    }
+
+    void pushHitSensorKeeper(al::HitSensorKeeper* sensorKeep, HitSensorRenderTypes sensorTypes, float opacity, int sensorIdx) {
+        auto* entry = new (mHeap) PrimitiveTypeHitSensorKeeper(sensorKeep, sensorTypes, opacity, sensorIdx);
         if (!mRenderQueue.pushBack((PrimitiveTypeBase*)entry))
             delete entry;
     }

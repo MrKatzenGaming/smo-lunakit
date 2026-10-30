@@ -5,11 +5,23 @@
 #include "sead/gfx/seadColor.h"
 
 #include "al/Library/Collision/CollisionPartsTriangle.h"
+#include "al/Library/HitSensor/HitSensorKeeper.h"
 #include "al/Library/LiveActor/LiveActor.h"
 #include "al/Library/Rail/Rail.h"
 #include "al/Project/Rail/BezierCurve.h"
 
-enum PrimitiveTypes { PRIM_NONE = -1, PRIM_POINT, PRIM_LINE, PRIM_AXIS, PRIM_AREA, PRIM_TRIANGLE, PRIM_HIT_SENSOR, PRIM_BEZIER_CURVE, PRIM_RAIL };
+enum PrimitiveTypes {
+    PRIM_NONE = -1,
+    PRIM_POINT,
+    PRIM_LINE,
+    PRIM_AXIS,
+    PRIM_AREA,
+    PRIM_TRIANGLE,
+    PRIM_HIT_SENSOR,
+    PRIM_HIT_SENSOR_KEEPER,
+    PRIM_BEZIER_CURVE,
+    PRIM_RAIL,
+};
 
 class PrimitiveTypeBase {
 public:
@@ -147,17 +159,32 @@ enum HitSensorRenderTypes {
 
 class PrimitiveTypeHitSensor : public PrimitiveTypeBase {
 public:
-    PrimitiveTypeHitSensor(al::LiveActor* actor, HitSensorRenderTypes sensorTypes, float opacity, int sensorIdx)
-        : PrimitiveTypeBase(PrimitiveTypes::PRIM_HIT_SENSOR) {
-        mActor = actor;
+    PrimitiveTypeHitSensor(al::HitSensor* sensor, float opacity) : PrimitiveTypeBase(PrimitiveTypes::PRIM_HIT_SENSOR) {
+        mSensor = sensor;
+        mOpacity = opacity;
+    }
+
+    ~PrimitiveTypeHitSensor() override {}
+
+    al::HitSensor* mSensor;
+    float mOpacity;
+
+    void render() override;
+};
+
+class PrimitiveTypeHitSensorKeeper : public PrimitiveTypeBase {
+public:
+    PrimitiveTypeHitSensorKeeper(al::HitSensorKeeper* sensorKeep, HitSensorRenderTypes sensorTypes, float opacity, int sensorIdx)
+        : PrimitiveTypeBase(PrimitiveTypes::PRIM_HIT_SENSOR_KEEPER) {
+        mSensorKeep = sensorKeep;
         mSensorTypes = sensorTypes;
         mOpacity = opacity;
         mSensorIdx = sensorIdx;
     }
 
-    ~PrimitiveTypeHitSensor() override {}
+    ~PrimitiveTypeHitSensorKeeper() override {}
 
-    al::LiveActor* mActor;
+    al::HitSensorKeeper* mSensorKeep;
     HitSensorRenderTypes mSensorTypes = HitSensorRenderTypes::HitSensorType_NONE;
     sead::Color4f mColor;
     float mOpacity;
